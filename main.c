@@ -1,22 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef __uint64_t Bitboard; // 64-bit integer for the board
-
-Bitboard white_pawns;
-Bitboard white_bishops;
-Bitboard white_knights;
-Bitboard white_rooks;
-Bitboard white_queens;
-Bitboard white_king;
-
-Bitboard black_pawns;
-Bitboard black_bishops;
-Bitboard black_knights;
-Bitboard black_rooks;
-Bitboard black_queens;
-Bitboard black_king;
+#include "typedefs.h"
 
 int pawn_value = 10;
 int knight_value = 30;
@@ -51,22 +36,21 @@ void printBitboard(Bitboard board) {
 }
 
 
-void assemble_bitboards()
-{
-    white_pawns = 0xFFUL << 48;
-    white_bishops = (1UL << 61) | (1UL << 58);
-    white_knights = (1UL << 62) | (1UL << 57);
-    white_rooks = (1UL << 63) | (1UL << 56);
-    white_queens = 1UL << 59;
-    white_king = 1UL << 60;
+void assemble_bitboards() {
+    board.pawn_W = 0xFFUL << 48;
+    bishop_W = (1UL << 61) | (1UL << 58);
+    knight_W = (1UL << 62) | (1UL << 57);
+    rook_W = (1UL << 63) | (1UL << 56);
+    queen_W = 1UL << 59;
+    king_W = 1UL << 60;
 
 
-    black_pawns = 0xFFUL << 8;
-    black_bishops = (1UL << 2) | (1UL << 5);
-    black_knights = (1UL << 1) | (1UL << 6);
-    black_rooks = (1UL << 0) | (1UL << 7);
-    black_queens = 1UL << 3;
-    black_king = 1UL << 4;
+    pawn_B = 0xFFUL << 8;
+    bishop_B = (1UL << 2) | (1UL << 5);
+    knight_B = (1UL << 1) | (1UL << 6);
+    rook_B = (1UL << 0) | (1UL << 7);
+    queen_B = 1UL << 3;
+    king_B = 1UL << 4;
 
     // Bitboard full_board = white_pawns | white_knights | white_queens | white_rooks | white_bishops | white_king | black_bishops | black_king | black_knights | black_pawns | black_queens | black_rooks; 
 
@@ -85,13 +69,14 @@ int piece_count(Bitboard board) {
     }
 
 
+// TODO: create adjustment multiplier boards to evaluate positions 
 /*
 void adjust_evaluations() {
     // board = h1 g1 f1 ... a1 h2 g2 ... c8 b8 a8
 
     
     int white_pawn_adj[] = {
-        100, 100, 100, 100, 100, 100, 100, 100,
+        10, 10, 10, 10, 10, 10, 10, 10,
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0,
@@ -140,18 +125,19 @@ void adjust_evaluations() {
 int evaluate_board() {
     int evaluation = 0;
 
+    Board board = {};
 
     // if board.white_mated() return 1000
     // if board.black_mated() return -1000
     // if board.is_draw() return 0
 
-    Bitboard white_pieces[] = {white_pawns, white_knights, white_bishops, white_rooks, white_queens};
-    Bitboard black_pieces[] = {black_pawns, black_knights, black_bishops, black_rooks, black_queens};
+    Bitboard white_pieces[] = {board.pawn_W, board.knight_W, board.bishop_W, rook_W, queen_W};
+    Bitboard black_pieces[] = {pawn_B, knight_B, bishop_B, rook_B, queen_B};
     Bitboard value_multipliers[] = {10, 30, 30, 50, 90};
 
     printBitboard(white_pieces[0]);
     printf("\n");
-    printBitboard(white_king);
+    printBitboard(king_W);
     printf("\n");
     for (int i=0; i<5; ++i) {
         evaluation += (piece_count(white_pieces[i]) * value_multipliers[i]);
