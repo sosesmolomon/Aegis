@@ -3,27 +3,54 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-typedef uint64_t Bitboard;
+typedef enum piece_type {
+    PAWN,
+    BISHOP,
+    KNIGHT,
+    ROOK,
+    KING,
+    QUEEN
+}piece_type;
 
-typedef struct
+#define NUM_PIECE_TYPES 6
+
+typedef enum color {
+    WHITE,
+    BLACK
+} color;
+
+typedef struct Board
 {
-    Bitboard pawn_W;
-    Bitboard bishop_W;
-    Bitboard knight_W;
-    Bitboard rook_W;
-    Bitboard queen_W;
-    Bitboard king_W;
+    uint64_t pawn_W;
+    uint64_t bishop_W;
+    uint64_t knight_W;
+    uint64_t rook_W;
+    uint64_t queen_W;
+    uint64_t king_W;
 
-    Bitboard pawn_B;
-    Bitboard bishop_B;
-    Bitboard knight_B;
-    Bitboard rook_B;
-    Bitboard queen_B;
-    Bitboard king_B;
+    uint64_t pawn_B;
+    uint64_t bishop_B;
+    uint64_t knight_B;
+    uint64_t rook_B;
+    uint64_t queen_B;
+    uint64_t king_B;
 
     int turn;
 
 } Board;
+
+int pawnScalars[64];
+int bishopScalars[64];
+int knightScalars[64];
+int rooktScalars[64];
+int kingScalars[64];
+int queenScalars[64];
+
+const char *square_names[64];
+
 
 #endif
