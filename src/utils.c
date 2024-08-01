@@ -30,6 +30,8 @@ int applyScalar(int **scalarArrays, uint64_t piece_bitboard, piece_type piece_ty
     case KING:
         scalar = scalarArrays[KING];
         break;
+    case NONE:
+        break;
     }
 
     for (int i = 0; i < 64; i++)
@@ -98,7 +100,9 @@ piece_type identifyPieceType(uint64_t square, Board *board, player_color *color)
 {
     if ((square & board->pawn_W) >= 1)
     {
-        printf("white pawn");
+        //printf("\npawn_W & square: \n");
+        //printBitString(board->pawn_W & square);
+        //printf("white pawn");
         *color = WHITE;
         return PAWN;
     }
@@ -158,7 +162,7 @@ piece_type identifyPieceType(uint64_t square, Board *board, player_color *color)
         return KING;
     }
     else
-        return PAWN;
+        return NONE;
 }
 
 uint64_t fullBitBoard(Board *board)

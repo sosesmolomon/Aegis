@@ -87,6 +87,9 @@ int **initScalarArrayPointers()
 
 Board *initBitBoards()
 {
+    white_pawn_home = 0xFFUL << 48;
+    black_pawn_home = 0xFFUL << 8;
+
     Board *board = (Board *)malloc(sizeof(Board));
     board->pawn_W = 0xFFUL << 48;
     board->bishop_W = (1ULL << 61) | (1ULL << 58);
@@ -123,6 +126,8 @@ Board *initTestBoards()
     Board *board = (Board *)malloc(sizeof(Board));
     board->pawn_W = 0xFFUL << 48;
     // board->pawn_B = 0xFFUL << 8;
+
+    board->rook_B = 1ULL << (55-16);
 
     // move white pawn and black pawn forward one for evaluation test
     uint64_t mask = 1ULL << 55; //a2

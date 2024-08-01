@@ -13,7 +13,8 @@ typedef enum piece_type {
     KNIGHT,
     ROOK,
     KING,
-    QUEEN
+    QUEEN,
+    NONE
 }piece_type;
 
 #define NUM_PIECE_TYPES 6
@@ -51,6 +52,10 @@ int kingScalars[64];
 int queenScalars[64];
 
 const char square_names[64][3];
+
+
+uint64_t white_pawn_home;
+uint64_t black_pawn_home; 
 
 
 #endif

@@ -96,25 +96,62 @@ init:
 
 int main()
 {
-    int** scalarArrays = initScalarArrayPointers();
+    int **scalarArrays = initScalarArrayPointers();
     Board *board = initBitBoards();
     Board *test_board = initTestBoards();
     player_color curr_player = WHITE;
 
     // uncomment for testing mode
     board = test_board;
-    
+
     piece_type curr_piece;
+    uint64_t curr_bitboard;
     uint64_t square = 1ULL;
-    for (int i = 0; i < 64; i++)
+
+    int* pawn_moves = (int *)malloc(sizeof(int) * 4);
+
+    for (int i = 0; i < 56; i++)
     {
         curr_piece = identifyPieceType(square, board, &curr_player);
+
+        switch (curr_piece)
+        {
+        case NONE:
+            break;
+        case PAWN:
+            pawn_moves = findPawnMoves(board, pawn_moves, square, &curr_player, i);
+            for (int i = 0; i < 4; i++)
+            {
+                printf("%d, ", pawn_moves[i]);
+            }
+
+            exit(1);
+            break;
+        case BISHOP:
+            findBishopMoves();
+            break;
+        case KNIGHT:
+            findKnightMoves();
+            break;
+        case ROOK:
+            findRookMoves();
+            break;
+        case QUEEN:
+            findQueenMoves();
+            break;
+        case KING:
+            findKingMoves();
+            break;
+        default:
+            break;
+        }
+
         square = square << 1;
     }
 
-    findPawnMoves(board->pawn_W, &curr_player);
+    // findPawnMoves(board->pawn_W, &curr_player);
 
-    evaluateBoard(board, scalarArrays);
+    // evaluateBoard(board, scalarArrays);
 
     // after everything is setup. the boards are initialized.
 

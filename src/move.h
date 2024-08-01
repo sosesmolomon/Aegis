@@ -5,7 +5,20 @@
 #include "util.h"
 #include "init.h"
 
-void findPawnMoves(uint64_t pawnBB, player_color* color);
+bool isEmptySquare(Board* board, int target);
 
+bool pawnOnHomeRow(uint64_t square, player_color *curr_player);
+
+int* findPawnMoves(Board* board, int* possible_moves, uint64_t pawnBB, player_color* curr_player, int position);
+
+void findBishopMoves();
+
+void findKnightMoves();
+
+void findRookMoves();
+
+void findQueenMoves();
+
+void findKingMoves();
 
 #endif
