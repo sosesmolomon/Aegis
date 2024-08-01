@@ -5,6 +5,7 @@
 #include "utils.h"
 #include "print.h"
 #include "init.h"
+#include "move.h"
 
 int pawn_value = 10;
 int knight_value = 30;
@@ -98,10 +99,20 @@ int main()
     int** scalarArrays = initScalarArrayPointers();
     Board *board = initBitBoards();
     Board *test_board = initTestBoards();
-    // color player = WHITE;
+    player_color curr_player = WHITE;
 
     // uncomment for testing mode
-    // board = test_board;
+    board = test_board;
+    
+    piece_type curr_piece;
+    uint64_t square = 1ULL;
+    for (int i = 0; i < 64; i++)
+    {
+        curr_piece = identifyPieceType(square, board, &curr_player);
+        square = square << 1;
+    }
+
+    findPawnMoves(board->pawn_W, &curr_player);
 
     evaluateBoard(board, scalarArrays);
 
@@ -118,12 +129,7 @@ int main()
     // 2. the evaluation
 
     free(board);
-    // free(scalarArrays[PAWN]);
-    // free(scalarArrays[BISHOP]);
-    // free(scalarArrays[KNIGHT]);
-    // free(scalarArrays[ROOK]);
-    // free(scalarArrays[KING]);
-    // free(scalarArrays[QUEEN]);
+
     free(scalarArrays);
 
     return 0;

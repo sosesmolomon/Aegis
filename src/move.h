@@ -5,9 +5,7 @@
 #include "util.h"
 #include "init.h"
 
-
-// functions for finding the moves for all of the pieces
-
+void findPawnMoves(uint64_t pawnBB, player_color* color);
 
 
 #endif

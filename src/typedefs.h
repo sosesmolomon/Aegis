@@ -18,10 +18,10 @@ typedef enum piece_type {
 
 #define NUM_PIECE_TYPES 6
 
-typedef enum color {
+typedef enum player_color {
     WHITE,
     BLACK
-} color;
+} player_color;
 
 typedef struct Board
 {

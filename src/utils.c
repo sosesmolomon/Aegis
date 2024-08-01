@@ -5,7 +5,7 @@ PRINTS
 
 h8
 */
-int applyScalar(int** scalarArrays, uint64_t piece_bitboard, piece_type piece_type, color color)
+int applyScalar(int **scalarArrays, uint64_t piece_bitboard, piece_type piece_type, player_color color)
 {
     int sum = 0;
     // int *scalar = (int*)malloc(64*sizeof(int));
@@ -46,7 +46,7 @@ int applyScalar(int** scalarArrays, uint64_t piece_bitboard, piece_type piece_ty
     return sum;
 }
 
-int evaluateBoard(Board *board, int** scalarArrays)
+int evaluateBoard(Board *board, int **scalarArrays)
 {
     int white_eval = 0, black_eval = 0, evaluation = 0;
 
@@ -54,7 +54,7 @@ int evaluateBoard(Board *board, int** scalarArrays)
     // if board.black_mated() return -1000
     // if board.is_draw() return 0
 
-    uint64_t white_pieces[] = {board->pawn_W, board->bishop_W, board->knight_W, board->rook_W, board->king_W, board->queen_W };
+    uint64_t white_pieces[] = {board->pawn_W, board->bishop_W, board->knight_W, board->rook_W, board->king_W, board->queen_W};
     uint64_t black_pieces[] = {board->pawn_B, board->bishop_B, board->knight_B, board->rook_B, board->king_B, board->queen_B};
     uint64_t value_multipliers[] = {1, 3, 3, 5, 1, 9}; // these might mean the engine only wants to move the queen first
     piece_type pieces[NUM_PIECE_TYPES] = {PAWN, BISHOP, KNIGHT, ROOK, KING, QUEEN};
@@ -63,7 +63,7 @@ int evaluateBoard(Board *board, int** scalarArrays)
     printf("\n");
     for (int i = 0; i < 6; ++i)
     {
-        // printf("num of pieces: %d", piece_count(white_pieces[i])); 
+        // printf("num of pieces: %d", piece_count(white_pieces[i]));
         black_eval -= (applyScalar(scalarArrays, black_pieces[i], pieces[i], BLACK) * value_multipliers[i]);
         white_eval += (applyScalar(scalarArrays, white_pieces[i], pieces[i], WHITE) * value_multipliers[i]);
 
@@ -94,39 +94,74 @@ int pieceCount(uint64_t board)
     return count;
 }
 // should have tests: making sure a Pawn square (first check) isn't also any other kind of piece
-void identifyPieceType(uint64_t square, Board *board)
+piece_type identifyPieceType(uint64_t square, Board *board, player_color *color)
 {
     if ((square & board->pawn_W) >= 1)
-        printf("\nwhite pawn");
+    {
+        printf("white pawn");
+        *color = WHITE;
+        return PAWN;
+    }
     else if ((square & board->bishop_W) >= 1)
-        printf("\nwhite bishop");
+    {
+        *color = WHITE;
+        return BISHOP;
+    }
     else if ((square & board->knight_W) >= 1)
-        printf("\nwhite knight");
+    {
+        *color = WHITE;
+        return KNIGHT;
+    }
     else if ((square & board->rook_W) >= 1)
-        printf("\nwhite rook");
+    {
+        *color = WHITE;
+        return ROOK;
+    }
     else if ((square & board->queen_W) >= 1)
-        printf("\nwhite queen");
+    {
+        *color = WHITE;
+        return QUEEN;
+    }
     else if ((square & board->king_W) >= 1)
-        printf("\nwhite king");
+    {
+        *color = WHITE;
+        return KING;
+    }
     else if ((square & board->pawn_B) >= 1)
-        printf("\nblack pawn");
+    {
+        *color = BLACK;
+        return PAWN;
+    }
     else if ((square & board->bishop_B) >= 1)
-        printf("\nblack bishop");
+    {
+        *color = BLACK;
+        return BISHOP;
+    }
     else if ((square & board->knight_B) >= 1)
-        printf("\nblack knight");
+    {
+        *color = BLACK;
+        return KNIGHT;
+    }
     else if ((square & board->rook_B) >= 1)
-        printf("\nblack rook");
+    {
+        *color = BLACK;
+        return ROOK;
+    }
     else if ((square & board->queen_B) >= 1)
-        printf("\nblack queen");
+    {
+        *color = BLACK;
+        return QUEEN;
+    }
     else if ((square & board->king_B) >= 1)
-        printf("\nblack king");
+    {
+        *color = BLACK;
+        return KING;
+    }
     else
-        printf("x");
+        return PAWN;
 }
 
 uint64_t fullBitBoard(Board *board)
 {
     return board->pawn_W | board->bishop_W | board->knight_W | board->rook_W | board->queen_W | board->king_W | board->pawn_B | board->bishop_B | board->knight_B | board->rook_B | board->queen_B | board->king_B;
 }
-
-
