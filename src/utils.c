@@ -100,9 +100,9 @@ piece_type identifyPieceType(uint64_t square, Board *board, player_color *color)
 {
     if ((square & board->pawn_W) >= 1)
     {
-        //printf("\npawn_W & square: \n");
-        //printBitString(board->pawn_W & square);
-        //printf("white pawn");
+        // printf("\npawn_W & square: \n");
+        // printBitString(board->pawn_W & square);
+        // printf("white pawn");
         *color = WHITE;
         return PAWN;
     }
@@ -168,4 +168,13 @@ piece_type identifyPieceType(uint64_t square, Board *board, player_color *color)
 uint64_t fullBitBoard(Board *board)
 {
     return board->pawn_W | board->bishop_W | board->knight_W | board->rook_W | board->queen_W | board->king_W | board->pawn_B | board->bishop_B | board->knight_B | board->rook_B | board->queen_B | board->king_B;
+}
+
+uint64_t whitePieces(Board *board)
+{
+    return board->pawn_W | board->bishop_W | board->knight_W | board->rook_W | board->queen_W | board->king_W;
+}
+uint64_t blackPieces(Board *board)
+{
+    return board->pawn_B | board->bishop_B | board->knight_B | board->rook_B | board->queen_B | board->king_B;
 }

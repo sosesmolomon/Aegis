@@ -17,8 +17,7 @@ int queen_value = 90;
 //   (1 << 63)                                                                           (1 << 0)
 //    a1    a8                                                                g8 h1     h8
 
-int horseMoves[] = {-17, -15, -10, -6, 6, 10, 15, 17};
-
+int bishopMoves[] = {9, 18, 27, 36, };
 /*
 
 printed from printBitString LEFT SHIFTING
@@ -108,9 +107,11 @@ int main()
     uint64_t curr_bitboard;
     uint64_t square = 1ULL;
 
-    int* pawn_moves = (int *)malloc(sizeof(int) * 4);
+    int *pawn_moves = (int *)malloc(sizeof(int) * 4);
+    int *bishop_moves = (int *)malloc(sizeof(int) * 32);
+    int *knight_moves = (int *)malloc(sizeof(int) * 8);
 
-    for (int i = 0; i < 56; i++)
+    for (int i = 0; i < 64; i++)
     {
         curr_piece = identifyPieceType(square, board, &curr_player);
 
@@ -120,18 +121,37 @@ int main()
             break;
         case PAWN:
             pawn_moves = findPawnMoves(board, pawn_moves, square, &curr_player, i);
-            for (int i = 0; i < 4; i++)
+            printf("\n");
+            printf("Possible moves for Pawn at position %d: ", i);
+            for (int j = 0; j < 4; j++)
             {
-                printf("%d, ", pawn_moves[i]);
+                printf("%d, ", pawn_moves[j]);
             }
-
-            exit(1);
+            printf("\n");
+            // printf("position = %d ", i);
+            // printPossibleMoves(square, pawn_moves, i);
             break;
         case BISHOP:
-            findBishopMoves();
+            findBishopMoves(board, bishop_moves, square, &curr_player, i);
             break;
         case KNIGHT:
-            findKnightMoves();
+            printf("knight");
+            knight_moves = findKnightMoves(board, knight_moves, square, &curr_player, i);
+            printf("\n");
+            printf("Possible moves for Knight at position %d: ", i);
+            for (int j = 0; j < 8; j++)
+            {
+                printf("%d, ", knight_moves[j]);
+            }
+            printf("\n");
+            uint64_t show = 1ULL << i;
+            // printBitString(show);
+            for (int j = 0; j < 8; j++)
+            {
+                show = show | (1ULL << (i + (knight_moves[j])));
+            }
+            printBitString(show);
+
             break;
         case ROOK:
             findRookMoves();

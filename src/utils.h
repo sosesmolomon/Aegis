@@ -15,4 +15,8 @@ int pieceCount(uint64_t board);
 
 uint64_t fullBitBoard(Board* board);
 
+uint64_t whitePieces(Board *board);
+
+uint64_t blackPieces(Board *board);
+
 #endif

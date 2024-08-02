@@ -124,16 +124,16 @@ Board *initBitBoards()
 Board *initTestBoards()
 {
     Board *board = (Board *)malloc(sizeof(Board));
-    board->pawn_W = 0xFFUL << 48;
+    // board->pawn_W = 0xFFUL << 48;
     // board->pawn_B = 0xFFUL << 8;
 
-    board->rook_B = 1ULL << (55-16);
-
     // move white pawn and black pawn forward one for evaluation test
-    uint64_t mask = 1ULL << 55; //a2
-    board->pawn_W = mask ^ board->pawn_W;
-    mask = 1ULL << (55 - 8);
-    board->pawn_W = board->pawn_W | mask;
+    // uint64_t mask = 1ULL << 55; //a2
+    // board->pawn_W = mask ^ board->pawn_W;
+    // mask = 1ULL << (55 - 8);
+    // board->pawn_W = board->pawn_W | mask;
+
+    board->knight_W = 1ULL << 56;
 
     // mask = 1ULL << 8; // h7
     // board->pawn_B = mask ^ board->pawn_B;

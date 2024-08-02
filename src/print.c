@@ -45,6 +45,25 @@ void printBitString(uint64_t bitboard)
     return;
 }
 
+void printPossibleMoves(uint64_t square, int *possible_moves, int position)
+{
+    // possible moves = [-16, -10, 10, 12]
+    // position = 48
+
+    int shift;
+    int target;
+    for (int i = 0; i < 4; i++)
+    {
+        if (possible_moves[i] == 0)
+            continue;
+        shift = possible_moves[i];
+        target = position + shift;
+        square = square | (1ULL << target);
+    }
+
+    printBitString(square);
+}
+
 // Function to print a scalar array
 void printScalarArray(const char *name, int *scalarArray)
 {
