@@ -13,6 +13,6 @@ void printBitString(uint64_t piece_type);
 // Function to print a scalar array
 void printScalarArray(const char* name, int* scalarArray);
 
-void printPossibleMoves(uint64_t square, int* possible_moves, int position);
+void printPossibleMoves(int* possible_moves, int position);
 
 #endif

@@ -105,15 +105,6 @@ Board *initBitBoards()
     board->queen_B = 1ULL << 4;
     board->king_B = 1ULL << 3;
 
-    // a1 --> a8 --> h1 --> h8
-    // white king: a5, white queen: a4
-    //a1 == 1ULL << 63, a5 == 1ULL
-
-    uint64_t mask = 1ULL << 48;
-    board->pawn_W = mask ^ board->pawn_W;
-    mask = 1ULL << (48 - 8);
-    board->pawn_W = board->pawn_W | mask;
-
     // printBitString(board->pawn_B);
 
     // uint64_t full_board = fullBitBoard(board);
@@ -124,7 +115,7 @@ Board *initBitBoards()
 Board *initTestBoards()
 {
     Board *board = (Board *)malloc(sizeof(Board));
-    // board->pawn_W = 0xFFUL << 48;
+    board->pawn_W = 0xFFUL << 48;
     // board->pawn_B = 0xFFUL << 8;
 
     // move white pawn and black pawn forward one for evaluation test
@@ -133,8 +124,8 @@ Board *initTestBoards()
     // mask = 1ULL << (55 - 8);
     // board->pawn_W = board->pawn_W | mask;
 
-    board->knight_W = 1ULL << 56;
-
+    // board->knight_W = 1ULL << 56;
+    // board->queen_W = 1ULL << 0;
     // mask = 1ULL << 8; // h7
     // board->pawn_B = mask ^ board->pawn_B;
     // mask = 1ULL << (8+8);

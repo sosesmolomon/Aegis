@@ -44,6 +44,14 @@ typedef struct Board
 
 } Board;
 
+int *pawn_moves;
+int *bishop_moves;
+int *knight_moves;
+int *rook_moves;
+int *queen_moves; 
+int *king_moves;
+
+
 int pawnScalars[64];
 int bishopScalars[64];
 int knightScalars[64];

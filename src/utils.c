@@ -95,6 +95,97 @@ int pieceCount(uint64_t board)
     }
     return count;
 }
+
+void findMoves(Board *board, piece_type curr_piece, player_color *curr_player, int position, bool doPrint)
+{
+    pawn_moves = (int *)malloc(sizeof(int) * 4);
+    bishop_moves = (int *)malloc(sizeof(int) * 28);
+    knight_moves = (int *)malloc(sizeof(int) * 8);
+    rook_moves = (int *)malloc(sizeof(int) * 28);
+    queen_moves = (int *)malloc(sizeof(int) * 56);
+    king_moves = (int *)malloc(sizeof(int) * 8);
+    switch (curr_piece)
+    {
+    case NONE:
+        break;
+    case PAWN:
+        pawn_moves = findPawnMoves(board, pawn_moves, curr_player, position);
+        if (!doPrint)
+            break;
+        printf("\n");
+        printf("Possible moves for Pawn at position %d: ", position);
+        for (int j = 0; j < 4; j++)
+            printf("%d, ", pawn_moves[j]);
+        printf("\n");
+        printPossibleMoves(pawn_moves, position);
+        break;
+    case BISHOP:
+        bishop_moves = findBishopMoves(board, bishop_moves, curr_player, position);
+        if (!doPrint)
+            break;
+        printf("\n");
+        printf("Possible moves for Bishop at position %d: ", position);
+        for (int j = 0; j < 28; j++)
+            printf("%d, ", bishop_moves[j]);
+        printf("\n");
+
+        printPossibleMoves(bishop_moves, position);
+        break;
+    case KNIGHT:
+        knight_moves = findKnightMoves(board, knight_moves, curr_player, position);
+        if (!doPrint)
+            break;
+        printf("\n");
+        printf("Possible moves for Knight at position %d: ", position);
+        for (int j = 0; j < 8; j++)
+        {
+            printf("%d, ", knight_moves[j]);
+        }
+        printf("\n");
+        printPossibleMoves(knight_moves, position);
+        break;
+    case ROOK:
+        rook_moves = findRookMoves(board, rook_moves, curr_player, position);
+        if (!doPrint)
+            break;
+        printf("\n");
+        printf("Possible moves for Rook at position %d: ", position);
+        for (int j = 0; j < 28; j++)
+        {
+            printf("%d, ", rook_moves[j]);
+        }
+        printf("\n");
+        printPossibleMoves(rook_moves, position);
+        break;
+    case QUEEN:
+        queen_moves = findQueenMoves(board, queen_moves, curr_player, position);
+        if (!doPrint)
+            break;
+        printf("\n");
+        printf("Possible moves for Queen at position %d: ", position);
+        for (int j = 0; j < 56; j++)
+            printf("%d, ", queen_moves[j]);
+        printf("\n");
+        printPossibleMoves(queen_moves, position);
+        break;
+    case KING:
+        king_moves = findKingMoves(board, king_moves, curr_player, position);
+        if (!doPrint)
+            break;
+        printf("\n");
+        printf("Possible moves for King at position %d: ", position);
+        for (int j = 0; j < 8; j++)
+        {
+            printf("%d, ", king_moves[j]);
+        }
+        printf("\n");
+        printPossibleMoves(king_moves, position);
+        break;
+    default:
+        break;
+    }
+}
+
 // should have tests: making sure a Pawn square (first check) isn't also any other kind of piece
 piece_type identifyPieceType(uint64_t square, Board *board, player_color *color)
 {

@@ -8,24 +8,27 @@
 
 bool isEmptySquare(Board* board, int target);
 
-bool pawnOnHomeRow(uint64_t square, player_color *curr_player);
+bool pawnOnHomeRow(player_color *curr_player, int position);
 
-int* findPawnMoves(Board* board, int* possible_moves, uint64_t pawnBB, player_color* curr_player, int position);
+int* findPawnMoves(Board* board, int* possible_moves, player_color* curr_player, int position);
 
-int* findBishopMoves(Board *board, int *possible_moves, uint64_t bishopBB, player_color *curr_player, int position);
+int* findBishopMoves(Board *board, int *possible_moves, player_color *curr_player, int position);
 
-int* findKnightMoves(Board *board, int *possible_moves, uint64_t knightBB, player_color *curr_player, int position);
+int* findKnightMoves(Board *board, int *possible_moves, player_color *curr_player, int position);
 
-void findRookMoves();
+int* findRookMoves(Board *board, int *possible_moves, player_color *curr_player, int position);
 
-void findQueenMoves();
+int* findQueenMoves(Board* board, int *possible_moves, player_color *curr_player, int position);
 
-void findKingMoves();
+int* findKingMoves(Board* board, int *possible_moves, player_color *curr_player, int position);
+
+bool isLegalBishopMove(int start, int end);
 
 bool isLegalKnightMove(int start, int end);
 
+bool isLegalRookMove(int start, int end);
+
 bool isLegalMove(Board *board, int target, player_color* curr_player);
 
-bool canCapture(Board *board, int target);
 
 #endif

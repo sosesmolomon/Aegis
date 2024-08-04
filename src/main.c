@@ -17,7 +17,6 @@ int queen_value = 90;
 //   (1 << 63)                                                                           (1 << 0)
 //    a1    a8                                                                g8 h1     h8
 
-int bishopMoves[] = {9, 18, 27, 36, };
 /*
 
 printed from printBitString LEFT SHIFTING
@@ -107,67 +106,69 @@ int main()
     uint64_t curr_bitboard;
     uint64_t square = 1ULL;
 
-    int *pawn_moves = (int *)malloc(sizeof(int) * 4);
-    int *bishop_moves = (int *)malloc(sizeof(int) * 32);
-    int *knight_moves = (int *)malloc(sizeof(int) * 8);
+    // lets say there's 256 possible moves on a single player's turn
+    int index = 0;
 
+    // pawnOnHomeRow(&curr_player, 63);
+    // findMoves(board, PAWN, &curr_player, 63, true);
+    // printPossibleMoves(pawn_moves, 63);
+    // return 0;
+
+    int *all_curr_player_moves = (int*)malloc(sizeof(int) * 256);
+    
     for (int i = 0; i < 64; i++)
     {
         curr_piece = identifyPieceType(square, board, &curr_player);
+        findMoves(board, curr_piece, &curr_player, i, false);
+        printPossibleMoves(pawn_moves, i);
+        square = square << 1;
 
-        switch (curr_piece)
+
+        for (int i = 0; i < 56 && (pawn_moves[i] != 0); i++)
         {
-        case NONE:
-            break;
-        case PAWN:
-            pawn_moves = findPawnMoves(board, pawn_moves, square, &curr_player, i);
-            printf("\n");
-            printf("Possible moves for Pawn at position %d: ", i);
-            for (int j = 0; j < 4; j++)
-            {
-                printf("%d, ", pawn_moves[j]);
-            }
-            printf("\n");
-            // printf("position = %d ", i);
-            // printPossibleMoves(square, pawn_moves, i);
-            break;
-        case BISHOP:
-            findBishopMoves(board, bishop_moves, square, &curr_player, i);
-            break;
-        case KNIGHT:
-            printf("knight");
-            knight_moves = findKnightMoves(board, knight_moves, square, &curr_player, i);
-            printf("\n");
-            printf("Possible moves for Knight at position %d: ", i);
-            for (int j = 0; j < 8; j++)
-            {
-                printf("%d, ", knight_moves[j]);
-            }
-            printf("\n");
-            uint64_t show = 1ULL << i;
-            // printBitString(show);
-            for (int j = 0; j < 8; j++)
-            {
-                show = show | (1ULL << (i + (knight_moves[j])));
-            }
-            printBitString(show);
+            all_curr_player_moves[index] = pawn_moves[i];
+            index++;
+        }
+        for (int i = 0; i < 56 && (bishop_moves[i] != 0); i++)
+        {
+            all_curr_player_moves[index] = bishop_moves[i];
+            index++;
+        }
+        for (int i = 0; i < 56 && (knight_moves[i] != 0); i++)
+        {
+            all_curr_player_moves[index] = knight_moves[i];
+            index++;
+        }
+        for (int i = 0; i < 56 && (rook_moves[i] != 0); i++)
+        {
+            all_curr_player_moves[index] = rook_moves[i];
+            index++;
+        }
+        for (int i = 0; i < 56 && (queen_moves[i] != 0); i++)
+        {
+            all_curr_player_moves[index] = queen_moves[i];
+            index++;
+        }
+        for (int i = 0; i < 56 && (king_moves[i] != 0); i++)
+        {
+            all_curr_player_moves[index] = king_moves[i];
+            index++;
+        }        
 
-            break;
-        case ROOK:
-            findRookMoves();
-            break;
-        case QUEEN:
-            findQueenMoves();
-            break;
-        case KING:
-            findKingMoves();
-            break;
-        default:
-            break;
+
+        free(pawn_moves);
+        free(bishop_moves);
+        free(knight_moves);
+        free(rook_moves);
+        free(queen_moves);
+        free(king_moves);
+    }
+
+      for (int i = 0; i < 256 && (all_curr_player_moves[i] != 0); i++)
+        {
+            printf("%d, ", all_curr_player_moves[i]);
         }
 
-        square = square << 1;
-    }
 
     // findPawnMoves(board->pawn_W, &curr_player);
 
