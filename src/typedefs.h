@@ -7,19 +7,23 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef enum piece_type {
+typedef enum piece_type
+{
+    NONE,
     PAWN,
     BISHOP,
     KNIGHT,
     ROOK,
     KING,
     QUEEN,
-    NONE
-}piece_type;
+} piece_type;
+
+
 
 #define NUM_PIECE_TYPES 6
 
-typedef enum player_color {
+typedef enum player_color
+{
     WHITE,
     BLACK
 } player_color;
@@ -48,9 +52,8 @@ int *pawn_moves;
 int *bishop_moves;
 int *knight_moves;
 int *rook_moves;
-int *queen_moves; 
+int *queen_moves;
 int *king_moves;
-
 
 int pawnScalars[64];
 int bishopScalars[64];
@@ -61,9 +64,7 @@ int queenScalars[64];
 
 const char square_names[64][3];
 
-
 uint64_t white_pawn_home;
-uint64_t black_pawn_home; 
-
+uint64_t black_pawn_home;
 
 #endif

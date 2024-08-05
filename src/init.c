@@ -124,8 +124,8 @@ Board *initTestBoards()
     // mask = 1ULL << (55 - 8);
     // board->pawn_W = board->pawn_W | mask;
 
-    // board->knight_W = 1ULL << 56;
-    // board->queen_W = 1ULL << 0;
+    board->knight_W = 1ULL << 56;
+    board->queen_W = 1ULL << 0;
     // mask = 1ULL << 8; // h7
     // board->pawn_B = mask ^ board->pawn_B;
     // mask = 1ULL << (8+8);

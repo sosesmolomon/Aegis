@@ -7,6 +7,16 @@
 #include "init.h"
 #include "move.h"
 
+const char *const piece_str[] =
+    {
+        [NONE] = "NONE",
+        [PAWN] = "PAWN",
+        [BISHOP] = "BISHOP",
+        [KNIGHT] = "KNIGHT",
+        [ROOK] = "ROOK",
+        [QUEEN] = "QUEEN",
+        [KING] = "KING"};
+
 int pawn_value = 10;
 int knight_value = 30;
 int bishop_value = 30;
@@ -86,11 +96,23 @@ void adjust_evaluations() {
 }
 */
 
-/*
-init:
+typedef struct possible_move
+{
+    int start;
+    int shift;
+    piece_type piece;
+    float eval_after_move;
+} possible_move;
 
-
-*/
+void makeMove(uint64_t *bitboard, int start, int shift, piece_type piece, player_color *curr)
+{
+    printf("making move");
+    uint64_t mask = 1ULL << (start + shift);
+    mask = mask | 1ULL << start;
+    printf("\n");
+    printBitString(mask);
+    *bitboard = *bitboard ^ mask;
+}
 
 int main()
 {
@@ -103,7 +125,6 @@ int main()
     board = test_board;
 
     piece_type curr_piece;
-    uint64_t curr_bitboard;
     uint64_t square = 1ULL;
 
     // lets say there's 256 possible moves on a single player's turn
@@ -114,61 +135,159 @@ int main()
     // printPossibleMoves(pawn_moves, 63);
     // return 0;
 
-    int *all_curr_player_moves = (int*)malloc(sizeof(int) * 256);
-    
-    for (int i = 0; i < 64; i++)
+    possible_move *all_curr_player_moves = (possible_move *)malloc(sizeof(possible_move) * 256);
+    int move_index = 0;
+    // TODO:
+    //  check for Checks -- canCapture?
+    //  check for castling
+    //
+
+    // makeMove(*board->pieceBB, start, end)
+    // evaluatePositionAfterMove()
+    // undoMove()
+    // makeNextMove()
+
+    // printf("\n");
+    // makeMove(&board->pawn_W, 55, -16, PAWN, &curr_player);
+    // printf("\n");
+    // printBitString(fullBitBoard(board));
+
+    for (int i = 0; i < 56; i++)
     {
         curr_piece = identifyPieceType(square, board, &curr_player);
+
+        // finds all of the moves for this piece
+
         findMoves(board, curr_piece, &curr_player, i, false);
-        printPossibleMoves(pawn_moves, i);
+        // printPossibleMoves(pawn_moves, i);
         square = square << 1;
 
+        if (curr_piece != NONE)
+        {
+            int *moves;
+            int moves_count;
+            switch (curr_piece)
+            {
+            case PAWN:
+                moves = pawn_moves;
+                moves_count = 4;
+                break;
+            case BISHOP:
+                moves = bishop_moves;
+                moves_count = 28;
 
-        for (int i = 0; i < 56 && (pawn_moves[i] != 0); i++)
-        {
-            all_curr_player_moves[index] = pawn_moves[i];
-            index++;
-        }
-        for (int i = 0; i < 56 && (bishop_moves[i] != 0); i++)
-        {
-            all_curr_player_moves[index] = bishop_moves[i];
-            index++;
-        }
-        for (int i = 0; i < 56 && (knight_moves[i] != 0); i++)
-        {
-            all_curr_player_moves[index] = knight_moves[i];
-            index++;
-        }
-        for (int i = 0; i < 56 && (rook_moves[i] != 0); i++)
-        {
-            all_curr_player_moves[index] = rook_moves[i];
-            index++;
-        }
-        for (int i = 0; i < 56 && (queen_moves[i] != 0); i++)
-        {
-            all_curr_player_moves[index] = queen_moves[i];
-            index++;
-        }
-        for (int i = 0; i < 56 && (king_moves[i] != 0); i++)
-        {
-            all_curr_player_moves[index] = king_moves[i];
-            index++;
-        }        
+                break;
+            case KNIGHT:
+                moves = knight_moves;
+                moves_count = 8;
 
+                break;
+            case ROOK:
+                moves = rook_moves;
+                moves_count = 28;
 
-        free(pawn_moves);
-        free(bishop_moves);
-        free(knight_moves);
-        free(rook_moves);
-        free(queen_moves);
-        free(king_moves);
+                break;
+            case QUEEN:
+                moves = queen_moves;
+                moves_count = 56;
+                printf("THIS IS A QUEEN");
+
+                break;
+            case KING:
+                moves = king_moves;
+                moves_count = 8;
+
+                break;
+            case NONE:
+                break;
+            }
+
+            int index = 0;
+
+            while (moves[index] != 0 && index < moves_count)
+            {
+                all_curr_player_moves[move_index].start = i;
+
+                all_curr_player_moves[move_index].shift = moves[index];
+
+                all_curr_player_moves[move_index].piece = curr_piece;
+
+                // makeMove()
+                all_curr_player_moves[move_index].eval_after_move = evaluateBoard(board, scalarArrays);
+
+                move_index++;
+                index++;
+            }
+
+            free(moves);
+        }
+
+        // switch (curr_piece)
+        // {
+        // case PAWN:
+        //     free(pawn_moves);
+        //     break;
+        // case BISHOP:
+        //     free(bishop_moves);
+        //     break;
+        // case KNIGHT:
+        //     free(knight_moves);
+        //     break;
+        // case ROOK:
+        //     free(rook_moves);
+        //     break;
+        // case QUEEN:
+        //     free(queen_moves);
+        //     break;
+        // case KING:
+        //     free(king_moves);
+        //     break;
+        // case NONE:
+        //     break;
+        // }
+
+        // we now have all of the possible moves:
+
+        // i could save each possible move as [ start_position, piece_type, shift, TBD_eval(),  ]
+
+        // for (int i = 0; i < 56 && (pawn_moves[i] != 0); i++)
+        // {
+        //     all_curr_player_moves[index] = pawn_moves[i];
+        //     index++;
+        // }
+        // for (int i = 0; i < 56 && (bishop_moves[i] != 0); i++)
+        // {
+        //     all_curr_player_moves[index] = bishop_moves[i];
+        //     index++;
+        // }
+        // for (int i = 0; i < 56 && (knight_moves[i] != 0); i++)
+        // {
+        //     all_curr_player_moves[index] = knight_moves[i];
+        //     index++;
+        // }
+        // for (int i = 0; i < 56 && (rook_moves[i] != 0); i++)
+        // {
+        //     all_curr_player_moves[index] = rook_moves[i];
+        //     index++;
+        // }
+        // for (int i = 0; i < 56 && (queen_moves[i] != 0); i++)
+        // {
+        //     all_curr_player_moves[index] = queen_moves[i];
+        //     index++;
+        // }
+        // for (int i = 0; i < 56 && (king_moves[i] != 0); i++)
+        // {
+        //     all_curr_player_moves[index] = king_moves[i];
+        //     index++;
+        // }
     }
+    move_index = 0;
 
-      for (int i = 0; i < 256 && (all_curr_player_moves[i] != 0); i++)
-        {
-            printf("%d, ", all_curr_player_moves[i]);
-        }
-
+    while (all_curr_player_moves[move_index].piece != NONE)
+    {
+        printf("\n{ \n start = %d \n shift = %d\n type= %s \n eval= %f\n}", all_curr_player_moves[move_index].start, all_curr_player_moves[move_index].shift, piece_str[all_curr_player_moves[move_index].piece], all_curr_player_moves[move_index].eval_after_move);
+        move_index++;
+    };
 
     // findPawnMoves(board->pawn_W, &curr_player);
 

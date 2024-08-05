@@ -98,12 +98,14 @@ int pieceCount(uint64_t board)
 
 void findMoves(Board *board, piece_type curr_piece, player_color *curr_player, int position, bool doPrint)
 {
+
     pawn_moves = (int *)malloc(sizeof(int) * 4);
     bishop_moves = (int *)malloc(sizeof(int) * 28);
     knight_moves = (int *)malloc(sizeof(int) * 8);
     rook_moves = (int *)malloc(sizeof(int) * 28);
     queen_moves = (int *)malloc(sizeof(int) * 56);
     king_moves = (int *)malloc(sizeof(int) * 8);
+
     switch (curr_piece)
     {
     case NONE:
@@ -193,7 +195,7 @@ piece_type identifyPieceType(uint64_t square, Board *board, player_color *color)
     {
         // printf("\npawn_W & square: \n");
         // printBitString(board->pawn_W & square);
-        // printf("white pawn");
+        // printf("white pawn\n");
         *color = WHITE;
         return PAWN;
     }
@@ -253,7 +255,10 @@ piece_type identifyPieceType(uint64_t square, Board *board, player_color *color)
         return KING;
     }
     else
+    {
+        // printf("NONE\n");
         return NONE;
+    }
 }
 
 uint64_t fullBitBoard(Board *board)
