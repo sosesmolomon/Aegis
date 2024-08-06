@@ -48,6 +48,33 @@ int applyScalar(int **scalarArrays, uint64_t piece_bitboard, piece_type piece_ty
     return sum;
 }
 
+bool isInCheck(Board *board, player_color curr_player, possible_move *opponent_moves)
+{
+    int shift;
+    int index = 0;
+
+    // identify the king's square
+    uint64_t king = (curr_player == WHITE) ? board->king_W : board->king_B;
+
+    // build the opponent move squares
+    uint64_t opp_moves = 0;
+
+    while (opponent_moves[index].piece != NONE)
+    {
+        if (opponent_moves[index].color != curr_player)
+        {
+           shift = opponent_moves[index].start + opponent_moves[index].shift;
+            uint64_t move = 1ULL << shift;
+            opp_moves = opp_moves | move;
+        }
+        index++;
+    }
+    printf("opp_moves: \n");
+
+    printBitString(opp_moves);
+    return ((king & opp_moves) >= 1) ? true : false;
+}
+
 int evaluateBoard(Board *board, int **scalarArrays)
 {
     int white_eval = 0, black_eval = 0, evaluation = 0;
@@ -62,25 +89,24 @@ int evaluateBoard(Board *board, int **scalarArrays)
     piece_type pieces[NUM_PIECE_TYPES] = {PAWN, BISHOP, KNIGHT, ROOK, KING, QUEEN};
     char piece_name[8][6] = {"PAWN", "BISHOP", "KNIGHT", "ROOK", "KING", "QUEEN"};
 
-    printf("\n");
     for (int i = 0; i < 6; ++i)
     {
         // printf("num of pieces: %d", piece_count(white_pieces[i]));
-        black_eval -= (applyScalar(scalarArrays, black_pieces[i], pieces[i], BLACK) * value_multipliers[i]);
-        white_eval += (applyScalar(scalarArrays, white_pieces[i], pieces[i], WHITE) * value_multipliers[i]);
+        black_eval -= (/*applyScalar(scalarArrays, black_pieces[i], pieces[i], BLACK)*/ pieceCount(black_pieces[i]) * value_multipliers[i]);
+        white_eval += (/*applyScalar(scalarArrays, white_pieces[i], pieces[i], WHITE)*/ pieceCount(white_pieces[i]) * value_multipliers[i]);
 
-        printf("Whites %.*s bitboard: \n", (int)(sizeof(piece_name[i])), piece_name[i]);
-        printBitString(white_pieces[i]);
-        printf("\n");
-        printf("Blacks%.*s bitboard:\n", (int)(sizeof(piece_name[i])), piece_name[i]);
-        printBitString(black_pieces[i]);
+        // printf("Whites %.*s bitboard: \n", (int)(sizeof(piece_name[i])), piece_name[i]);
+        // printBitString(white_pieces[i]);
+        // printf("\n");
+        // printf("Blacks%.*s bitboard:\n", (int)(sizeof(piece_name[i])), piece_name[i]);
+        // printBitString(black_pieces[i]);
 
-        printf("\nWhites %.*s evaluation is: %d\nBlacks %.*s evaluation is: %d\n", (int)(sizeof(piece_name[i])), piece_name[i], white_eval, (int)(sizeof(piece_name[i])), piece_name[i], black_eval);
+        // printf("\nWhites %.*s evaluation is: %d\nBlacks %.*s evaluation is: %d\n", (int)(sizeof(piece_name[i])), piece_name[i], white_eval, (int)(sizeof(piece_name[i])), piece_name[i], black_eval);
     }
 
     evaluation = white_eval + black_eval;
-    printf("\nWhites evaluation is: %d\nBlacks evaluation is: %d", white_eval, black_eval);
-    printf("\nTotal evaluation: %d", evaluation);
+    // printf("\nWhites evaluation is: %d\nBlacks evaluation is: %d", white_eval, black_eval);
+    // printf("\nTotal evaluation: %d", evaluation);
     return evaluation;
 }
 
@@ -96,7 +122,7 @@ int pieceCount(uint64_t board)
     return count;
 }
 
-void findMoves(Board *board, piece_type curr_piece, player_color *curr_player, int position, bool doPrint)
+void findMoves(Board *board, piece_type curr_piece, player_color curr_player, int position, bool doPrint)
 {
 
     pawn_moves = (int *)malloc(sizeof(int) * 4);

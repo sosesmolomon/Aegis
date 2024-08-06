@@ -42,6 +42,7 @@ void printBitString(uint64_t bitboard)
         }
         printf("\n");
     }
+    printf("\n");
     return;
 }
 

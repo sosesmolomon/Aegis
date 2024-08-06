@@ -96,23 +96,9 @@ void adjust_evaluations() {
 }
 */
 
-typedef struct possible_move
-{
-    int start;
-    int shift;
-    piece_type piece;
-    float eval_after_move;
-} possible_move;
-
-void makeMove(uint64_t *bitboard, int start, int shift, piece_type piece, player_color *curr)
-{
-    printf("making move");
-    uint64_t mask = 1ULL << (start + shift);
-    mask = mask | 1ULL << start;
-    printf("\n");
-    printBitString(mask);
-    *bitboard = *bitboard ^ mask;
-}
+// void capture
+// make move simply moves a piece on it's own bitboard
+// capture needs to turn off the piece that has been captured on that bitboard
 
 int main()
 {
@@ -124,19 +110,20 @@ int main()
     // uncomment for testing mode
     board = test_board;
 
-    piece_type curr_piece;
-    uint64_t square = 1ULL;
+    // Board fake_board = *board;
+    // makeMove(&fake_board, 59, 1, KING, WHITE);
+    // printBitString(fullBitBoard(&fake_board));
+    // printBitString(fullBitBoard(board));
 
-    // lets say there's 256 possible moves on a single player's turn
     int index = 0;
+
+    // isInCheck(board, curr_player);
 
     // pawnOnHomeRow(&curr_player, 63);
     // findMoves(board, PAWN, &curr_player, 63, true);
     // printPossibleMoves(pawn_moves, 63);
     // return 0;
 
-    possible_move *all_curr_player_moves = (possible_move *)malloc(sizeof(possible_move) * 256);
-    int move_index = 0;
     // TODO:
     //  check for Checks -- canCapture?
     //  check for castling
@@ -152,158 +139,104 @@ int main()
     // printf("\n");
     // printBitString(fullBitBoard(board));
 
-    for (int i = 0; i < 56; i++)
+    // printBitString(fullBitBoard(board));
+    // printf("num of pawns = %d", pieceCount(board->pawn_W));
+    // makeMove(board, 3, 48, ROOK, BLACK);
+    // printf("num of pawns = %d", pieceCount(board->pawn_W));
+    // return 0;
+
+    possible_move *all_moves;
+    // valid options =  where color == current player
+
+    curr_player = BLACK;
+
+    all_moves = getAllMovesFromCurrentBoard(board, curr_player, scalarArrays);
+
+    bool print = isInCheck(board, curr_player, all_moves);
+    if (print)
+        printf("IN CHECK");
+    else
+        printf("NOT IN CHECK");
+
+    int move_index = 0;
+
+    int white_best_eval = -1000;
+    int black_best_eval = 1000;
+    int best_index = 0;
+
+    while (all_moves[move_index].piece != NONE && move_index < 256)
     {
-        curr_piece = identifyPieceType(square, board, &curr_player);
+        // printf("start = %d, index = %d\n", all_moves[move_index].start, move_index);
+        printf("\n{ \n start = %s \n end = %s\n type = %s \n color = %s \n eval_change = %f\n} index = %d \n", square_names[all_moves[move_index].start], square_names[all_moves[move_index].start + all_moves[move_index].shift], piece_str[all_moves[move_index].piece], (all_moves[move_index].color == WHITE) ? "WHITE" : "BLACK", all_moves[move_index].eval_after_move, move_index);
 
-        // finds all of the moves for this piece
-
-        findMoves(board, curr_piece, &curr_player, i, false);
-        // printPossibleMoves(pawn_moves, i);
-        square = square << 1;
-
-        if (curr_piece != NONE)
+        // get and make best move for curr_player
+        if (all_moves[move_index].color == curr_player)
         {
-            int *moves;
-            int moves_count;
-            switch (curr_piece)
+
+            // eval change really.
+            if (all_moves[move_index].eval_after_move < black_best_eval)
             {
-            case PAWN:
-                moves = pawn_moves;
-                moves_count = 4;
-                break;
-            case BISHOP:
-                moves = bishop_moves;
-                moves_count = 28;
-
-                break;
-            case KNIGHT:
-                moves = knight_moves;
-                moves_count = 8;
-
-                break;
-            case ROOK:
-                moves = rook_moves;
-                moves_count = 28;
-
-                break;
-            case QUEEN:
-                moves = queen_moves;
-                moves_count = 56;
-                printf("THIS IS A QUEEN");
-
-                break;
-            case KING:
-                moves = king_moves;
-                moves_count = 8;
-
-                break;
-            case NONE:
-                break;
+                best_index = move_index;
             }
-
-            int index = 0;
-
-            while (moves[index] != 0 && index < moves_count)
-            {
-                all_curr_player_moves[move_index].start = i;
-
-                all_curr_player_moves[move_index].shift = moves[index];
-
-                all_curr_player_moves[move_index].piece = curr_piece;
-
-                // makeMove()
-                all_curr_player_moves[move_index].eval_after_move = evaluateBoard(board, scalarArrays);
-
-                move_index++;
-                index++;
-            }
-
-            free(moves);
         }
-
-        // switch (curr_piece)
-        // {
-        // case PAWN:
-        //     free(pawn_moves);
-        //     break;
-        // case BISHOP:
-        //     free(bishop_moves);
-        //     break;
-        // case KNIGHT:
-        //     free(knight_moves);
-        //     break;
-        // case ROOK:
-        //     free(rook_moves);
-        //     break;
-        // case QUEEN:
-        //     free(queen_moves);
-        //     break;
-        // case KING:
-        //     free(king_moves);
-        //     break;
-        // case NONE:
-        //     break;
-        // }
-
-        // we now have all of the possible moves:
-
-        // i could save each possible move as [ start_position, piece_type, shift, TBD_eval(),  ]
-
-        // for (int i = 0; i < 56 && (pawn_moves[i] != 0); i++)
-        // {
-        //     all_curr_player_moves[index] = pawn_moves[i];
-        //     index++;
-        // }
-        // for (int i = 0; i < 56 && (bishop_moves[i] != 0); i++)
-        // {
-        //     all_curr_player_moves[index] = bishop_moves[i];
-        //     index++;
-        // }
-        // for (int i = 0; i < 56 && (knight_moves[i] != 0); i++)
-        // {
-        //     all_curr_player_moves[index] = knight_moves[i];
-        //     index++;
-        // }
-        // for (int i = 0; i < 56 && (rook_moves[i] != 0); i++)
-        // {
-        //     all_curr_player_moves[index] = rook_moves[i];
-        //     index++;
-        // }
-        // for (int i = 0; i < 56 && (queen_moves[i] != 0); i++)
-        // {
-        //     all_curr_player_moves[index] = queen_moves[i];
-        //     index++;
-        // }
-        // for (int i = 0; i < 56 && (king_moves[i] != 0); i++)
-        // {
-        //     all_curr_player_moves[index] = king_moves[i];
-        //     index++;
-        // }
-    }
-    move_index = 0;
-
-    while (all_curr_player_moves[move_index].piece != NONE)
-    {
-        printf("\n{ \n start = %d \n shift = %d\n type= %s \n eval= %f\n}", all_curr_player_moves[move_index].start, all_curr_player_moves[move_index].shift, piece_str[all_curr_player_moves[move_index].piece], all_curr_player_moves[move_index].eval_after_move);
         move_index++;
     };
 
-    // findPawnMoves(board->pawn_W, &curr_player);
+    int best_start = all_moves[best_index].start;
+    int best_shift = all_moves[best_index].shift;
+    piece_type piece = all_moves[best_index].piece;
+    player_color color = all_moves[best_index].color;
+    printf("old board eval: %d \n", evaluateBoard(board, scalarArrays));
+    makeMove(board, best_start, best_shift, piece, color);
+    printf("new board eval: %d \n", evaluateBoard(board, scalarArrays));
+    printBitString(fullBitBoard(board));
 
-    // evaluateBoard(board, scalarArrays);
+    printf("----------------------------------------\n");
 
-    // after everything is setup. the boards are initialized.
+    curr_player = WHITE;
+    all_moves = getAllMovesFromCurrentBoard(board, curr_player, scalarArrays);
 
-    // WHITES TURN
+    move_index = 0;
+    while (all_moves[move_index].piece != NONE && move_index < 256)
+    {
+        printf("\n{ \n start = %s \n end = %s\n type = %s \n color = %s \n eval_change = %f\n} index = %d \n", square_names[all_moves[move_index].start], square_names[all_moves[move_index].start + all_moves[move_index].shift], piece_str[all_moves[move_index].piece], (all_moves[move_index].color == WHITE) ? "WHITE" : "BLACK", all_moves[move_index].eval_after_move, move_index);
+        if (all_moves[move_index].color == curr_player)
+        {
+            // printf("start = %d, index = %d\n", all_moves[move_index].start, move_index);
 
-    // board evaluation:
-    // Rook has a base value of 5
-    // a rook on the 7th rank is huge, say
+            // eval change really.
+            if (all_moves[move_index].eval_after_move > white_best_eval)
+            {
+                best_index = move_index;
+            }
+        }
 
-    // choosing a next move, what I need to know:
-    // 1. all possible and legal moves [] -- not where a same color piece resides, or off the board
-    // 2. the evaluation
+        move_index++;
+    }
+
+    print = isInCheck(board, curr_player, all_moves);
+    if (print)
+        printf("IN CHECK");
+    else
+        printf("NOT IN CHECK");
+
+    best_start = all_moves[best_index].start;
+    best_shift = all_moves[best_index].shift;
+    piece = all_moves[best_index].piece;
+    color = all_moves[best_index].color;
+
+    printf("old board eval: %d \n", evaluateBoard(board, scalarArrays));
+    makeMove(board, best_start, best_shift, piece, color);
+    printf("new board eval: %d \n", evaluateBoard(board, scalarArrays));
+    printBitString(fullBitBoard(board));
+
+    print = isInCheck(board, curr_player, all_moves);
+    if (print)
+        printf("IN CHECK");
+    else
+        printf("NOT IN CHECK");
+
+    free(all_moves);
 
     free(board);
 

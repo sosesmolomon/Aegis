@@ -48,6 +48,15 @@ typedef struct Board
 
 } Board;
 
+typedef struct possible_move
+{
+    player_color color;
+    int start;
+    int shift;
+    piece_type piece;
+    float eval_after_move;
+} possible_move;
+
 int *pawn_moves;
 int *bishop_moves;
 int *knight_moves;
