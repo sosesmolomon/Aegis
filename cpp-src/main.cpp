@@ -20,4 +20,5 @@ int main()
         printBitString(board->rookMagicBBs[i]);
     }
     return 0;
+
 }
