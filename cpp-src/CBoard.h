@@ -95,8 +95,8 @@ public:
     u64 emptyBB;
     u64 occupiedBB;
 
-    u64 *bishopMagicBBs;
-    u64 *rookMagicBBs;
+    u64 *bishopPosAttacks;
+    u64 *rookPosAttacks;
 
 
 
@@ -106,6 +106,10 @@ public:
         nBlack,
         nWhitePawn
     };
+
+    u64 fullBoard();
+    u64 whitePieces();
+    u64 blackPieces();
 };
 
 #endif

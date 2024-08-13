@@ -1,13 +1,16 @@
 #include "init.h"
+#include "print.h"
 #include <stdlib.h>
 #include <math.h>
 
 CBoard *initCBoard()
 {
-    CBoard *board = (CBoard *)malloc(sizeof(CBoard));
-    board->bishopMagicBBs = (u64 *)malloc(sizeof(u64) * 64);
-    board->rookMagicBBs = (u64 *)malloc(sizeof(u64) * 64);
- 
+
+    CBoard *board = new CBoard();
+    board->bishopPosAttacks = new u64[64];
+    board->rookPosAttacks = new u64[64];
+
+    generateMagicBBs(board);
 
     // for (int i = 0; i < 64; i++)
     // {
@@ -62,7 +65,7 @@ void generateBishopMagicBBs(CBoard *board)
                     break;
             }
         }
-        board->bishopMagicBBs[index] = magicBB;
+        board->bishopPosAttacks[index] = magicBB;
         index++;
     }
 }
@@ -115,13 +118,30 @@ void generateRookMagicBBs(CBoard *board)
                     break;
             }
         }
-        board->rookMagicBBs[index] = magicBB;
+        board->rookPosAttacks[index] = magicBB;
         index++;
     }
 }
+
+u64 emptyEdges = 0b1111111110000001100000011000000110000001100000011000000111111111;
+
+void removeAttackEdges(CBoard *board)
+{
+    for (int i = 0; i < 64; i++)
+    {
+        board->rookPosAttacks[i] ^= emptyEdges & board->rookPosAttacks[i];
+    }
+    for (int i = 0; i < 64; i++)
+    {
+        board->bishopPosAttacks[i] ^= emptyEdges & board->bishopPosAttacks[i];
+    }
+
+}
+
 
 void generateMagicBBs(CBoard *board)
 {
     generateBishopMagicBBs(board);
     generateRookMagicBBs(board);
+    removeAttackEdges(board);
 }
