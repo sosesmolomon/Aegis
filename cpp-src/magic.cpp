@@ -158,6 +158,7 @@ sMagic mBishopTab[64];
 sMagic mRookTab[64];    
 
 
+// m can be Bishop or Rook, and it will work the same
 u64 getAttacks(CBoard *board, enumSquare sq, sMagic *m) {
     u64 *attacks = m[sq].attacks;
     
@@ -167,6 +168,7 @@ u64 getAttacks(CBoard *board, enumSquare sq, sMagic *m) {
     occ >>= m[sq].shift;
     return attacks[occ];
 }
+
 
 void initMagic(CBoard *board)
 {
@@ -181,6 +183,17 @@ void initMagic(CBoard *board)
         mRookTab[sq].magic = RMagic[sq];
         mRookTab[sq].mask = board->rookPosAttacks[sq];
     }
+
+    for (int sq = a1; sq <= h8; sq++) {
+        printf("{\n  square = %d\n", sq);
+        printf("  mask = \n");
+        printBitString(mRookTab[sq].mask);
+        printf("  magic = \n");
+        printBitString(mRookTab[sq].magic);
+        printf("}\n");
+    }
+
+    
 
 }
 

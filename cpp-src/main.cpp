@@ -30,8 +30,7 @@ int main()
 
 
     printBitString(board->bishopPosAttacks[h2]);
-
-    getAttacks(board->)
+    
 
 
     // for (int i = 0; i < 64; i++)
