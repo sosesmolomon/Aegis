@@ -8,6 +8,6 @@ typedef struct sMagic
     int shift;
 }sMagic;
 
-u64 getAttacks(CBoard *board, enumSquare sq);
+u64 getAttacks(CBoard *board, enumSquare sq, sMagic *m);
 
 void initMagic(CBoard *board);

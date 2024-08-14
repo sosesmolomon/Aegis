@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+u64 emptyEdges = 0b1111111110000001100000011000000110000001100000011000000111111111;
+
 CBoard *initCBoard()
 {
 
@@ -42,6 +44,7 @@ void generateBishopMagicBBs(CBoard *board)
 {
     int shift;
     int target;
+    u64 move;
     int index = 0;
     u64 magicBB;
 
@@ -59,7 +62,9 @@ void generateBishopMagicBBs(CBoard *board)
                 // printf("\ntarget = %d", target);
                 if (isLegalBishopMove(pos, target) && ((target >= 0) && (target <= 63)))
                 {
-                    magicBB |= (1ULL << target);
+                    move = (1ULL << target);
+
+                    magicBB |= move;
                 }
                 else
                     break;
@@ -94,8 +99,10 @@ void generateRookMagicBBs(CBoard *board)
 {
     int shift;
     int target;
+    int next_target;
     int index = 0;
     u64 magicBB;
+    u64 move;
 
     for (int position = 0; position < 64; position++)
     {
@@ -105,43 +112,50 @@ void generateRookMagicBBs(CBoard *board)
         {
             for (int j = 0; j < 7; j++)
             {
-                shift = rookMoves[i][j];
-                target = position + shift;
+                shift = rookMoves[i][j];  
+                target = position + shift; 
+
+                int pos_dir = (shift > 0) ? 1 : -1;                           
+                bool is_row = (abs(shift) < 8) ? true : false;                      
+                int new_shift = shift + ((is_row) ? (pos_dir) : (pos_dir * 8)); 
+                next_target = position + new_shift;                             
 
                 // printf("\ntarget = %d", target);
                 if (isLegalRookMove(position, target) && ((target >= 0) && (target <= 63)))
                 {
-                    magicBB |= (1ULL << target);
+                    move = (1ULL << target);
+           
+
+                    if (isLegalRookMove(target, next_target) && ((next_target >= 0) && (next_target <= 63)))
+                    {
+                        magicBB |= move;
+                    }
                 }
                 // end this route
                 else
                     break;
             }
         }
+
         board->rookPosAttacks[index] = magicBB;
         index++;
     }
 }
 
-u64 emptyEdges = 0b1111111110000001100000011000000110000001100000011000000111111111;
-
+// this doesn't work.
 void removeAttackEdges(CBoard *board)
 {
     for (int i = 0; i < 64; i++)
     {
-        board->rookPosAttacks[i] ^= emptyEdges & board->rookPosAttacks[i];
-    }
-    for (int i = 0; i < 64; i++)
-    {
         board->bishopPosAttacks[i] ^= emptyEdges & board->bishopPosAttacks[i];
     }
-
 }
-
 
 void generateMagicBBs(CBoard *board)
 {
     generateBishopMagicBBs(board);
     generateRookMagicBBs(board);
+
+    // removes ends for bishops
     removeAttackEdges(board);
 }

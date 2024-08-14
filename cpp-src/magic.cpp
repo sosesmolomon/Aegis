@@ -185,15 +185,15 @@ void initMagic(CBoard *board)
     }
 
     for (int sq = a1; sq <= h8; sq++) {
-        printf("{\n  square = %d\n", sq);
-        printf("  mask = \n");
-        printBitString(mRookTab[sq].mask);
-        printf("  magic = \n");
-        printBitString(mRookTab[sq].magic);
-        printf("}\n");
-    }
 
-    
+        printf("{\n  square = %d\n", sq);
+        printBitString(board->rookPosAttacks[sq]);
+        // printf("  mask = \n");
+        // printBitString(mRookTab[sq].mask);
+        // printf("  magic = \n");
+        // printBitString(mRookTab[sq].magic);
+        // printf("}\n");
+    }    
 
 }
 
