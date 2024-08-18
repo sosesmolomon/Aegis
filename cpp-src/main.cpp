@@ -4,11 +4,15 @@
 #include "CBoard.h"
 #include "init.h"
 #include "magic.h"
+#include "move.h"
 // a1 - a8, b1, h1 - h8
 //  0 - 7,  8,  56 - 63
 
-void makeQuietMove()
+
+
+void makeQuietMove(enumSquare from, enumSquare to)
 {
+
     /*
     U64 fromBB = C64(1) << move->from;
     U64 toBB = C64(1) << move->to;
@@ -22,6 +26,8 @@ void makeQuietMove()
 
 }
 
+
+
 int main()
 {
 
@@ -30,7 +36,7 @@ int main()
 
 
     printBitString(board->bishopPosAttacks[h2]);
-    
+
 
 
     // for (int i = 0; i < 64; i++)

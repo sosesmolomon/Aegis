@@ -1,3 +1,6 @@
+#ifndef INIT_H
+#define INIT_H
+
 #include "CBoard.h"
 
 
@@ -8,3 +11,5 @@ bool isLegalRookMove(int start, int end);
 void generateRookMagicBBs(CBoard *board);
 
 void generateMagicBBs(CBoard *board);
+
+#endif

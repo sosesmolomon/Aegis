@@ -4,6 +4,8 @@
 #include <stdint.h>
 typedef uint64_t u64;
 
+// a1 = 0
+// h8 = 63
 enum enumSquare
 {
     a1,
@@ -83,22 +85,19 @@ public:
     u64 whiteRooks;
     u64 whiteQueens;
     u64 whiteKing;
-
     u64 blackPawns;
     u64 blackBishops;
     u64 blackKnights;
     u64 blackRooks;
     u64 blackQueens;
     u64 blackKing;
-
+    
     u64 pieceBB[14]; // pointer
     u64 emptyBB;
     u64 occupiedBB;
 
     u64 *bishopPosAttacks;
     u64 *rookPosAttacks;
-
-
 
     enum enumPiece
     {

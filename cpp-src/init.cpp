@@ -1,13 +1,15 @@
-#include "init.h"
-#include "print.h"
 #include <stdlib.h>
 #include <math.h>
+
+#include "init.h"
+#include "print.h"
+#include "CBoard.h"
+
 
 u64 emptyEdges = 0b1111111110000001100000011000000110000001100000011000000111111111;
 
 CBoard *initCBoard()
 {
-
     CBoard *board = new CBoard();
     board->bishopPosAttacks = new u64[64];
     board->rookPosAttacks = new u64[64];
