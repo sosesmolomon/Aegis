@@ -152,7 +152,13 @@ const u64 BMagic[64] = {
 };
 
 
-
+// typedef struct sMagic
+// {
+//     u64 *attacks;
+//     u64 mask; // attacks based on emptyboard
+//     u64 magic;
+//     int shift;
+// }sMagic;
 
 sMagic mBishopTab[64];
 sMagic mRookTab[64];    

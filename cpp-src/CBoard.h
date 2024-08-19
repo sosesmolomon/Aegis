@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 typedef uint64_t u64;
+typedef int color;
+
+const int nPieceT = 6;
+const int nPieceC = 12;  
+
+
 
 // a1 = 0
 // h8 = 63
@@ -78,21 +84,23 @@ enum enumSquare
 
 class CBoard
 {
-public:
-    u64 whitePawns;
-    u64 whiteBishops;
-    u64 whiteKnights;
-    u64 whiteRooks;
-    u64 whiteQueens;
-    u64 whiteKing;
+public: // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
+    // u64 *pieceBB;
+    u64 pieceBB[nPieceT];
+    u64 coloredBB[2];
     u64 blackPawns;
     u64 blackBishops;
     u64 blackKnights;
     u64 blackRooks;
     u64 blackQueens;
     u64 blackKing;
-    
-    u64 pieceBB[14]; // pointer
+    u64 whitePawns;
+    u64 whiteBishops;
+    u64 whiteKnights;
+    u64 whiteRooks;
+    u64 whiteQueens;
+    u64 whiteKing;
+
     u64 emptyBB;
     u64 occupiedBB;
 
@@ -110,5 +118,23 @@ public:
     u64 whitePieces();
     u64 blackPieces();
 };
+
+enum pieceT {
+    PAWN, // 0
+    BISHOP, // 1
+    KNIGHT, // 2
+    ROOK,
+    QUEEN,
+    KING, // 5
+    empty
+};
+
+// black = 0
+// white = 1
+enum pieceC {
+    BLACK,
+    WHITE
+};
+
 
 #endif

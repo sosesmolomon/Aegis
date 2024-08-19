@@ -31,13 +31,26 @@ void makeQuietMove(enumSquare from, enumSquare to)
 int main()
 {
 
-    CBoard *board = initCBoard();
-    initMagic(board);
+    CBoard *b = initCBoard();
+
+    // I don't understand how these magic bitboards work... ignore them for now. 
+    initMagic(b);
 
 
-    printBitString(board->bishopPosAttacks[h2]);
+    printBitString(b->bishopPosAttacks[h2]);
 
 
+    printf("PAWN = %d, BISHOP = %d, KING = %d\n", PAWN, BISHOP, KING);
+    printf("WHITE = %d, BLACK = %d\n", WHITE, BLACK);
+    printf("pieceBB[WHITE_KNIGHT] == pieceBB[%d]\n", (WHITE + KNIGHT));
+
+    printBitString(b->whitePawns);
+
+    printBitString(b->pieceBB[PAWN]);
+
+    printBitString(b->coloredBB[WHITE]);
+    printBitString(b->coloredBB[BLACK] & b->pieceBB[KNIGHT]); // specific piece bitboard
+    printBitString(b->coloredBB[BLACK]);
 
     // for (int i = 0; i < 64; i++)
     // {
