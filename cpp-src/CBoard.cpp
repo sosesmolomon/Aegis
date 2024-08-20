@@ -1,4 +1,5 @@
 #include "CBoard.h"
+#include <stdio.h>
 
 u64 CBoard::fullBoard() {
     return this->coloredBB[BLACK] | this->coloredBB[WHITE];

@@ -90,14 +90,9 @@ public: // problem with this is I need to call each of these individually. It wo
     u64 coloredBB[2];
 
     u64 bishopPosAttacks[64];
+    u64 knightPosAttacks[64];
     u64 rookPosAttacks[64];
 
-    enum enumPiece
-    {
-        nWhite,
-        nBlack,
-        nWhitePawn
-    };
 
     u64 fullBoard();
 
