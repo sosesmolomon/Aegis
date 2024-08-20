@@ -44,13 +44,17 @@ int main()
     printf("WHITE = %d, BLACK = %d\n", WHITE, BLACK);
     printf("pieceBB[WHITE_KNIGHT] == pieceBB[%d]\n", (WHITE + KNIGHT));
 
-    printBitString(b->whitePawns);
+    // printBitString(b->whitePawns);
+
 
     printBitString(b->pieceBB[PAWN]);
 
     printBitString(b->coloredBB[WHITE]);
-    printBitString(b->coloredBB[BLACK] & b->pieceBB[KNIGHT]); // specific piece bitboard
+    printBitString(b->coloredBB[BLACK] & b->pieceBB[KNIGHT]); // specific piece_type bitboard
     printBitString(b->coloredBB[BLACK]);
+
+
+    printBitString(b->wB());
 
     // for (int i = 0; i < 64; i++)
     // {

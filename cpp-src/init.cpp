@@ -12,8 +12,8 @@ CBoard *initCBoard()
 {
     CBoard *board = new CBoard();
 
-    board->bishopPosAttacks = new u64[64];
-    board->rookPosAttacks = new u64[64];
+    // board->bishopPosAttacks = new u64[64];
+    // board->rookPosAttacks = new u64[64];
 
     generatePiecePossibleMoves(board);
 

@@ -85,27 +85,12 @@ enum enumSquare
 class CBoard
 {
 public: // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
-    // u64 *pieceBB;
+
     u64 pieceBB[nPieceT];
     u64 coloredBB[2];
-    u64 blackPawns;
-    u64 blackBishops;
-    u64 blackKnights;
-    u64 blackRooks;
-    u64 blackQueens;
-    u64 blackKing;
-    u64 whitePawns;
-    u64 whiteBishops;
-    u64 whiteKnights;
-    u64 whiteRooks;
-    u64 whiteQueens;
-    u64 whiteKing;
 
-    u64 emptyBB;
-    u64 occupiedBB;
-
-    u64 *bishopPosAttacks;
-    u64 *rookPosAttacks;
+    u64 bishopPosAttacks[64];
+    u64 rookPosAttacks[64];
 
     enum enumPiece
     {
@@ -115,8 +100,20 @@ public: // problem with this is I need to call each of these individually. It wo
     };
 
     u64 fullBoard();
-    u64 whitePieces();
-    u64 blackPieces();
+
+    u64 wP();
+    u64 wB();
+    u64 wKn();
+    u64 wR();
+    u64 wQ();
+    u64 wK();
+
+    u64 bP();
+    u64 bB();
+    u64 bKn();
+    u64 bR();
+    u64 bQ();
+    u64 bK();
 };
 
 enum pieceT {
