@@ -9,6 +9,7 @@ bool printIndividualBit(uint64_t num, int position);
 void printSquare();
 
 void printBitString(uint64_t piece_type);
+void printBitString(uint64_t piece_type, int square);
 
 // Function to print a scalar array
 void printScalarArray(const char* name, int* scalarArray);

@@ -42,6 +42,31 @@ void printBitString(uint64_t bitboard)
     return;
 }
 
+void printBitString(uint64_t bitboard, int square)
+{
+    int start;
+    for (int i = 8; i > 0; i--)
+    {
+
+        start = (i * 8) - 8; // 56
+
+        for (int pos = start; pos < start + 8; pos++)
+        {
+            if (pos == square)
+            {
+                printf("x ");
+            }
+            else
+            {
+                printf("%d ", printIndividualBit(bitboard, pos));
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+    return;
+}
+
 void printPossibleMoves(int *possible_moves, int position)
 {
     // possible moves = [-16, -10, 10, 12]
