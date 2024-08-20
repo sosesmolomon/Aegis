@@ -6,9 +6,6 @@
 
 CBoard *initCBoard();
 
-bool isEmptySquare();
-bool isInBounds();
-
 bool canCapture();
 bool pawnOnHomeRow();
 

@@ -178,7 +178,7 @@ u64 getAttacks(CBoard *board, enumSquare sq, sMagic *m) {
 
 void initMagic(CBoard *board)
 {
-    printf("Starting init() for magic.cpp\n");
+    // printf("Starting init() for magic.cpp\n");
     for (int sq = a1; sq <= h8; sq++) {
         mBishopTab[sq].shift = (64 - BBits[sq]);
         mBishopTab[sq].magic = BMagic[sq];
@@ -190,16 +190,16 @@ void initMagic(CBoard *board)
         mRookTab[sq].mask = board->rookPosAttacks[sq];
     }
 
-    for (int sq = a1; sq <= h8; sq++) {
+    // for (int sq = a1; sq <= h8; sq++) {
 
-        printf("{\n  square = %d\n", sq);
-        printBitString(board->rookPosAttacks[sq]);
-        // printf("  mask = \n");
-        // printBitString(mRookTab[sq].mask);
-        // printf("  magic = \n");
-        // printBitString(mRookTab[sq].magic);
-        // printf("}\n");
-    }    
+    //     printf("{\n  square = %d\n", sq);
+    //     printBitString(board->rookPosAttacks[sq]);
+    //     // printf("  mask = \n");
+    //     // printBitString(mRookTab[sq].mask);
+    //     // printf("  magic = \n");
+    //     // printBitString(mRookTab[sq].magic);
+    //     // printf("}\n");
+    // }    
 
 }
 
