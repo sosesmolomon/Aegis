@@ -1,23 +1,33 @@
 #include "bitboard.h"
 #include "print.h"
 
-int count(u64 b) {
+Bitboard::operator u64() const {
+    return b;
+}
+
+int Bitboard::count() {
     int count = 0;
-    while (b)
+    while (this->b)
     {
         count++;
-        b &= b - 1; // reset LS1B
+        this->b &= this->b - 1; // reset LS1B
     }
     return count;
 }
 
-
-void clearSq(u64 *b, int pos) {
-    *b ^= (1ULL << pos);
+void Bitboard::clearSq(int pos) {
+    this->b ^= (1ULL << pos);
 }
 
-void setSq(u64 *b, int pos) {
-    *b |= (1ULL << pos);
+void Bitboard::setSq(int pos) {
+    this->b |= (1ULL << pos);
 }
 
-bool test(u64 b, int pos) {}
+bool Bitboard::test(int pos) {
+    printBitString(this->b);
+    return true;
+}
+
+u64 &Bitboard::getBB() {
+    return this->b;
+}

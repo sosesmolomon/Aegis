@@ -31,15 +31,18 @@ int main()
 
     CBoard *b = initCBoard();
 
+    printBitString(b->fullBoard());
+    
+    makeMove(b, a2, a5, PAWN, WHITE);
+    printBitString(b->fullBoard());
+    return 0;
+
     ml.add(moveStruct(a1, a8, ROOK, WHITE));
     ml.add(moveStruct(h1, c4, QUEEN, WHITE));
     ml.add(moveStruct(a2, a2, ROOK, BLACK));
     ml.print(); 
     ml.remove(2);
     ml.print();
-
-
-
 
 
     // I don't understand how these magic bitboards work... ignore them for now.

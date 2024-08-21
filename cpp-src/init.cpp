@@ -15,22 +15,22 @@ CBoard *initCBoard()
     // board->bishopPosAttacks = new u64[64];
     // board->rookPosAttacks = new u64[64];
 
-    generatePiecePossibleMoves(board);
+    // generatePiecePossibleMoves(board);
 
     // for (int i = 0; i < 64; i++)
     // {
     //     lookup_u64[i] = (1ULL << i);
     // }
 
-    board->pieceBB[PAWN] = 0xFFUL << a2 | 0xFFUL << a7;
-    board->pieceBB[BISHOP] = (1ULL << c1) | (1ULL << f1) | (1ULL << c8) | (1ULL << g8);
-    board->pieceBB[KNIGHT] = (1ULL << b1) | (1ULL << g1) | (1ULL << b8) | (1ULL << g8);
-    board->pieceBB[ROOK] = (1ULL << a1) | (1ULL << h1) | (1ULL << a8) | (1ULL << h8);
-    board->pieceBB[QUEEN] = (1ULL << d1) | (1ULL << d8);
-    board->pieceBB[KING] = (1ULL << e1) | (1ULL << e8);
+    board->pieceBB[PAWN].getBB() = 0xFFUL << a2 | 0xFFUL << a7;
+    board->pieceBB[BISHOP].getBB() = (1ULL << c1) | (1ULL << f1) | (1ULL << c8) | (1ULL << g8);
+    board->pieceBB[KNIGHT].getBB() = (1ULL << b1) | (1ULL << g1) | (1ULL << b8) | (1ULL << g8);
+    board->pieceBB[ROOK].getBB() = (1ULL << a1) | (1ULL << h1) | (1ULL << a8) | (1ULL << h8);
+    board->pieceBB[QUEEN].getBB() = (1ULL << d1) | (1ULL << d8);
+    board->pieceBB[KING].getBB() = (1ULL << e1) | (1ULL << e8);
 
-    board->coloredBB[WHITE] = 0xFFFFUL;
-    board->coloredBB[BLACK] = 0xFFFFUL << a7;
+    board->coloredBB[WHITE].getBB() = 0xFFFFUL;
+    board->coloredBB[BLACK].getBB() = 0xFFFFUL << a7;
 
     // board->bishop_W = (1ULL << 61) | (1ULL << 58);
     // board->knight_W = (1ULL << 62) | (1ULL << 57);
@@ -102,12 +102,12 @@ void generateBishopPossibleMoves(CBoard *board)
                     break;
             }
         }
-        board->bishopPosAttacks[pos] = magicBB;
+        board->bishopPosAttacks[pos].getBB() = magicBB;
     }
     // remove edges
     for (int i = 0; i < 64; i++)
     {
-        board->bishopPosAttacks[i] ^= emptyEdges & board->bishopPosAttacks[i];
+        board->bishopPosAttacks[i].getBB() ^= emptyEdges & board->bishopPosAttacks[i];
     }
 }
 
@@ -159,7 +159,7 @@ void generateKnightPossibleMoves(CBoard *board)
                 index++;
             }
         }
-        board->knightPosAttacks[pos] = magicBB;
+        board->knightPosAttacks[pos].getBB() = magicBB;
     }
 }
 
@@ -224,7 +224,7 @@ void generateKnightPossibleMoves(CBoard *board)
                         break;
                 }
             }
-            board->rookPosAttacks[position] = magicBB;
+            board->rookPosAttacks[position].getBB() = magicBB;
         }
     }
 

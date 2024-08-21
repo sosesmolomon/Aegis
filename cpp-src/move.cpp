@@ -13,13 +13,17 @@
 // based on a move_list of legal moves
 void makeMove(CBoard *b, int from, int to, int pieceType, int color)
 {
-    assert((b->pieceBB[pieceType] & (1ULL << from)) == 1 && "Piece mismatch");
-    assert((b->coloredBB[color] & (1ULL << from)) == 1 && "Color mismatch");
+    printBitString(b->pieceBB[PAWN] & b->coloredBB[WHITE], a2);
+    assert((b->pieceBB[pieceType] & (1ULL << from)) >= 1 && "Piece mismatch");
+    assert((b->coloredBB[color] & (1ULL << from)) >= 1 && "Color mismatch");
     assert((b->coloredBB[color] & 1ULL << to) == 0 && "Capture same color");
 
     // turn off old square
-    clearSq(&b->pieceBB[pieceType], from);
-    clearSq(&b->coloredBB[color], from);
+    b->pieceBB[pieceType].clearSq(from);
+    b->coloredBB[color].clearSq(from);
+
+    // clearSq(&b->pieceBB[pieceType], from);
+    // clearSq(&b->coloredBB[color], from);
 
     // is capture?
     if (!isEmptySquare(b, to))
@@ -31,6 +35,9 @@ void makeMove(CBoard *b, int from, int to, int pieceType, int color)
     }
 
     // turn on new square
-    setSq(&b->pieceBB[pieceType], to);
-    setSq(&b->coloredBB[color], to);
+    b->pieceBB[pieceType].setSq(to);
+    b->coloredBB[pieceType].setSq(to);
+
+    // setSq(&b->pieceBB[pieceType], to);
+    // setSq(&b->coloredBB[color], to);
 }

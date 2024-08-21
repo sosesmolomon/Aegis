@@ -1,12 +1,13 @@
 #ifndef CBOARD_H
 #define CBOARD_H
 
+
 #include <stdint.h>
+#include "bitboard.h"
 typedef uint64_t u64;
 
 const int nPieceT = 6;
 const int nPieceC = 12;  
-
 
 
 // a1 = 0
@@ -85,12 +86,15 @@ class CBoard
 {
 public: // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
 
-    u64 pieceBB[nPieceT];
-    u64 coloredBB[2];
+    Bitboard pieceBB[nPieceT];
+    Bitboard coloredBB[2];
 
-    u64 bishopPosAttacks[64];
-    u64 knightPosAttacks[64];
-    u64 rookPosAttacks[64];
+
+    // maybe these are only needed as u64?
+
+    Bitboard bishopPosAttacks[64];
+    Bitboard knightPosAttacks[64];
+    Bitboard rookPosAttacks[64];
 
 
     u64 fullBoard();
