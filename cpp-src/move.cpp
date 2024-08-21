@@ -8,7 +8,7 @@
 
 
 
-// void genAllLegalMoves(CBoard *b, moveStruct *ml) {}
+void genAllLegalMoves(CBoard *b, MoveList *ml) {}
 
 // based on a move_list of legal moves
 void makeMove(CBoard *b, int from, int to, int pieceType, int color)

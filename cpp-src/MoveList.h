@@ -1,7 +1,6 @@
 #ifndef MOVE_LIST_H
 #define MOVE_LIST_H
 
-#include "move.h"
 #include <vector>
 
 typedef struct moveStruct
@@ -10,7 +9,6 @@ typedef struct moveStruct
     int to;
     int pT;
     int pC;
-
     
     // Constructors
     moveStruct();

@@ -15,12 +15,10 @@ CBoard *initCBoard()
     // board->bishopPosAttacks = new u64[64];
     // board->rookPosAttacks = new u64[64];
 
-    // generatePiecePossibleMoves(board);
+    generatePiecePossibleMoves(board);
 
-    // for (int i = 0; i < 64; i++)
-    // {
-    //     lookup_u64[i] = (1ULL << i);
-    // }
+    board->white_pawn_home = 0xFFUL << 48;
+    board->black_pawn_home = 0xFFUL << 8;
 
     board->pieceBB[PAWN].getBB() = 0xFFUL << a2 | 0xFFUL << a7;
     board->pieceBB[BISHOP].getBB() = (1ULL << c1) | (1ULL << f1) | (1ULL << c8) | (1ULL << g8);
@@ -49,6 +47,10 @@ CBoard *initCBoard()
 }
 
 ////////////////////////////////// PAWN MOVES /////////////////////////////////////////////////////
+
+//should I just find pawn moves each turn? 
+//pawns moves are dependent to their current square
+
 
 ////////////////////////////////// BISHOP MOVES /////////////////////////////////////////////////////
 
@@ -102,12 +104,12 @@ void generateBishopPossibleMoves(CBoard *board)
                     break;
             }
         }
-        board->bishopPosAttacks[pos].getBB() = magicBB;
+        board->bishopPosAttacks[pos] = magicBB;
     }
     // remove edges
     for (int i = 0; i < 64; i++)
     {
-        board->bishopPosAttacks[i].getBB() ^= emptyEdges & board->bishopPosAttacks[i];
+        board->bishopPosAttacks[i] ^= emptyEdges & board->bishopPosAttacks[i];
     }
 }
 
@@ -159,78 +161,144 @@ void generateKnightPossibleMoves(CBoard *board)
                 index++;
             }
         }
-        board->knightPosAttacks[pos].getBB() = magicBB;
+        board->knightPosAttacks[pos] = magicBB;
     }
 }
 
-    ////////////////////////////////// ROOK MOVES /////////////////////////////////////////////////////
+////////////////////////////////// ROOK MOVES /////////////////////////////////////////////////////
 
-    int rookMoves[4][7] = {{1, 2, 3, 4, 5, 6, 7}, {-1, -2, -3, -4, -5, -6, -7}, {8, 16, 24, 32, 40, 48, 56}, {-8, -16, -24, -32, -40, -48, -56}};
+int rookMoves[4][7] = {{1, 2, 3, 4, 5, 6, 7}, {-1, -2, -3, -4, -5, -6, -7}, {8, 16, 24, 32, 40, 48, 56}, {-8, -16, -24, -32, -40, -48, -56}};
 
-    bool isLegalRookMove(int start, int end)
+bool isLegalRookMove(int start, int end)
+{
+    int start_row, start_col, end_row, end_col, dX, dY;
+    start_row = floor(start / 8);
+    start_col = start % 8;
+
+    end_row = floor(end / 8);
+    end_col = end % 8;
+
+    dX = abs(start_col - end_col);
+    dY = abs(start_row - end_row);
+
+    if ((dX >= 1 && dY == 0) || (dX == 0 && dY >= 1) || ((dX % 8 == 0) && dY == 0) || (dX == 0 && (dY % 8 == 0)))
+        return true;
+    else
+        return false;
+}
+
+void generateRookPossibleMoves(CBoard *board)
+{
+    int shift;
+    int target;
+    int next_target;
+    int index = 0;
+    u64 magicBB;
+    u64 move;
+
+    for (int position = 0; position < 64; position++)
     {
-        int start_row, start_col, end_row, end_col, dX, dY;
-        start_row = floor(start / 8);
-        start_col = start % 8;
+        magicBB = 0;
 
-        end_row = floor(end / 8);
-        end_col = end % 8;
-
-        dX = abs(start_col - end_col);
-        dY = abs(start_row - end_row);
-
-        if ((dX >= 1 && dY == 0) || (dX == 0 && dY >= 1) || ((dX % 8 == 0) && dY == 0) || (dX == 0 && (dY % 8 == 0)))
-            return true;
-        else
-            return false;
-    }
-
-    void generateRookPossibleMoves(CBoard * board)
-    {
-        int shift;
-        int target;
-        int next_target;
-        int index = 0;
-        u64 magicBB;
-        u64 move;
-
-        for (int position = 0; position < 64; position++)
+        for (int i = 0; i < 4; i++)
         {
-            magicBB = 0;
-
-            for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 7; j++)
             {
-                for (int j = 0; j < 7; j++)
+                shift = rookMoves[i][j];
+                target = position + shift;
+
+                int pos_dir = (shift > 0) ? 1 : -1;
+                bool is_row = (abs(shift) < 8) ? true : false;
+                int new_shift = shift + ((is_row) ? (pos_dir) : (pos_dir * 8));
+                next_target = position + new_shift;
+
+                if (isLegalRookMove(position, target) && isInBounds(target))
                 {
-                    shift = rookMoves[i][j];
-                    target = position + shift;
-
-                    int pos_dir = (shift > 0) ? 1 : -1;
-                    bool is_row = (abs(shift) < 8) ? true : false;
-                    int new_shift = shift + ((is_row) ? (pos_dir) : (pos_dir * 8));
-                    next_target = position + new_shift;
-
-
-                    if (isLegalRookMove(position, target) && isInBounds(target))
+                    move = (1ULL << target);
+                    if (isLegalRookMove(target, next_target) && isInBounds(next_target))
                     {
-                        move = (1ULL << target);
-                        if (isLegalRookMove(target, next_target) && isInBounds(next_target))
-                        {
-                            magicBB |= move;
-                        }
+                        magicBB |= move;
                     }
-                    // end this route
-                    else
-                        break;
                 }
+                // end this route
+                else
+                    break;
             }
-            board->rookPosAttacks[position].getBB() = magicBB;
         }
+        board->rookPosAttacks[position] = magicBB;
+    }
+}
+
+////////////////////////////////// QUEEN MOVES /////////////////////////////////////////////////////
+void generateQueenPossibleMoves(CBoard *b)
+{
+    for (int i = 0; i < 64; i++)
+    {
+        b->queenPosAttacks[i] = b->bishopPosAttacks[i] | b->rookPosAttacks[i];
+    }
+}
+
+////////////////////////////////// KING MOVES /////////////////////////////////////////////////////
+
+bool isLegalKingMove(int start, int end)
+{
+    int start_row, start_col, end_row, end_col, dX, dY;
+    start_row = floor(start / 8);
+    start_col = start % 8;
+
+    end_row = floor(end / 8);
+    end_col = end % 8;
+
+    dX = abs(start_col - end_col);
+    dY = abs(start_row - end_row);
+    if (dX <= 1 && dX >= -1 && dY <= 1 && dY >= -1)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 
-    void generatePiecePossibleMoves(CBoard * board)
+    // if ((dX >= 1 && dY == 0) || (dX == 0 && dY >= 1) || ((dX % 8 == 0) && dY == 0) || (dX == 0 && (dY % 8 == 0)))
+    //     return true;
+    // else
+    //     return false;
+}
+
+int kingMoves[] = {1, -1, 8, -8, 9, -9, 7, -7};
+void generateKingPossibleMoves(CBoard *b)
+{
+    // todo: look for castle opportunity
+
+    int shift, target;
+    u64 magicBB, move;
+    int index = 0;
+    for (int position = 0; position < 64; position++)
     {
-        generateBishopPossibleMoves(board);
-        generateKnightPossibleMoves(board);
-        generateRookPossibleMoves(board);
+        magicBB = 0;
+
+        for (int i = 0; i < 8; i++)
+        {
+            shift = kingMoves[i];
+            target = position + shift;
+            move = (1ULL << target);
+
+            if (isLegalKingMove(position, target) && isEmptySquare(b, position) && isInBounds(target))
+            {
+                magicBB |= move;
+            }
+        }
+        b->kingPosAttacks[position] = magicBB;
     }
+}
+
+void generatePiecePossibleMoves(CBoard *board)
+{
+    //generatePawnPossibleMoves(board); -- pawns work differently...
+    generateBishopPossibleMoves(board);
+    generateKnightPossibleMoves(board);
+    generateRookPossibleMoves(board);
+    generateQueenPossibleMoves(board);
+    generateKingPossibleMoves(board);
+}

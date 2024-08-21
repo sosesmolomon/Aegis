@@ -24,23 +24,23 @@ void makeQuietMove(enumSquare from, enumSquare to)
     */
 }
 
-MoveList ml = MoveList();
 
 int main()
 {
-
     CBoard *b = initCBoard();
+    MoveList ml = MoveList();
 
-    printBitString(b->fullBoard());
-    
-    makeMove(b, a2, a5, PAWN, WHITE);
-    printBitString(b->fullBoard());
-    return 0;
+
+    printBitString(b->knightPosAttacks[a4], a4);
+    genAllLegalMoves(b, &ml);
+
+    ml.print();
 
     ml.add(moveStruct(a1, a8, ROOK, WHITE));
     ml.add(moveStruct(h1, c4, QUEEN, WHITE));
-    ml.add(moveStruct(a2, a2, ROOK, BLACK));
+    ml.add(moveStruct(a8, a2, ROOK, BLACK));
     ml.print(); 
+    return 0;
     ml.remove(2);
     ml.print();
 
