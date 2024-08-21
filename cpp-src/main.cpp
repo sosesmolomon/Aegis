@@ -6,6 +6,7 @@
 #include "magic.h"
 #include "move.h"
 #include "bitboard.h"
+#include "MoveList.h"
 // a1 - a8, b1, h1 - h8
 //  0 - 7,  8,  56 - 63
 
@@ -23,25 +24,29 @@ void makeQuietMove(enumSquare from, enumSquare to)
     */
 }
 
+MoveList ml = MoveList();
+
 int main()
 {
 
     CBoard *b = initCBoard();
 
+    ml.add(moveStruct(a1, a8, ROOK, WHITE));
+    ml.add(moveStruct(h1, c4, QUEEN, WHITE));
+    ml.add(moveStruct(a2, a2, ROOK, BLACK));
+    ml.print(); 
+    ml.remove(2);
+    ml.print();
+
+
+
+
+
     // I don't understand how these magic bitboards work... ignore them for now.
     initMagic(b);
 
-    // printf("knights count = %d\n", count(b->pieceBB[PAWN]&b->coloredBB[WHITE]));
 
 
-
-    printBitString(b->wR());
-
-    makeMove(b, a1, a8, ROOK, WHITE);
-
-    printBitString(b->wR());
-
-    printBitString(b->fullBoard());
 
 
     return 0;

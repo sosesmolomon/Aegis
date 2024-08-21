@@ -7,5 +7,11 @@
 bool isEmptySquare(CBoard* b, int square);
 bool isInBounds(int square);
 
+// isAttacked(square)?
+// identifyPiece(square)
+
+
+
+
 
 #endif

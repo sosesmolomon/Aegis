@@ -3,10 +3,15 @@
 #include "bitboard.h"
 #include "print.h"
 #include "utils.h"
+#include "MoveList.h"
 #include <cassert>
 
+
+
+// void genAllLegalMoves(CBoard *b, moveStruct *ml) {}
+
 // based on a move_list of legal moves
-void makeMove(CBoard *b, int from, int to, int pieceType, color color)
+void makeMove(CBoard *b, int from, int to, int pieceType, int color)
 {
     assert((b->pieceBB[pieceType] & (1ULL << from)) == 1 && "Piece mismatch");
     assert((b->coloredBB[color] & (1ULL << from)) == 1 && "Color mismatch");

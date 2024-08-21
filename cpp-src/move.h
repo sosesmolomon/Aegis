@@ -2,13 +2,17 @@
 #define MOVE_H
 
 #include "CBoard.h"
+#include "MoveList.h"
 
-class Move
-{
-};
+
+
+
+// void genAllLegalMoves(CBoard *b, moveStruct *ml);
+
+
 
 // should from and to be u64 or ints? what is actually changing?
-void makeMove(CBoard *b, int from, int to, int pieceType, color color);
+void makeMove(CBoard *b, int from, int to, int pieceType, int color);
 
 
 

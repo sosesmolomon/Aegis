@@ -4,6 +4,12 @@
 #include <stdint.h>
 #include <stdio.h>
 
+extern char const *sqToStr[64];
+
+extern char const *pieceToStr[6];
+
+extern char const *colorToStr[2];
+
 bool printIndividualBit(uint64_t num, int position);
 
 void printSquare();

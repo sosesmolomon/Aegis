@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 typedef uint64_t u64;
-typedef int color;
 
 const int nPieceT = 6;
 const int nPieceC = 12;  
