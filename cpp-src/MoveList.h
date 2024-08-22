@@ -21,6 +21,7 @@ class MoveList
     std::vector<moveStruct> moves;
 
 public:
+    moveStruct at(int index);
     void init();
     void clear();
     void sort();

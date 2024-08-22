@@ -8,6 +8,10 @@ moveStruct::moveStruct() : from(0), to(0), pT(0), pC(0) {}
 moveStruct::moveStruct(int a, int b, int c, int d) : from(a), to(b), pT(c), pC(d) {}
 
 
+moveStruct MoveList::at(int index) {
+    return moves.at(index);
+}
+
 void MoveList::add(const moveStruct &move)
 {
     moves.push_back(move);
