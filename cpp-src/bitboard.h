@@ -12,9 +12,9 @@ public:
 
     int count();
 
-    void clearSq(int pos);
+    void clr(int pos);
 
-    void setSq(int pos);
+    void set(int pos);
 
     bool test(int pos);
 
