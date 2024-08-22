@@ -11,8 +11,8 @@ char const *sqToStr[64] = {
     "g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8",
     "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8"};
 
-char const *pieceToStr[6] = {
-    "PAWN", "BISHOP", "KNIGHT", "ROOK", "QUEEN", "KING"};
+char const *pieceToStr[7] = {
+    "PAWN", "BISHOP", "KNIGHT", "ROOK", "QUEEN", "KING", "empty"};
 
 char const *colorToStr[2] = {
     "BLACK", "WHITE"};

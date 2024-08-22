@@ -6,7 +6,7 @@
 
 extern char const *sqToStr[64];
 
-extern char const *pieceToStr[6];
+extern char const *pieceToStr[7];
 
 extern char const *colorToStr[2];
 
