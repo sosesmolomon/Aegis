@@ -7,7 +7,10 @@
 void genAllLegalMoves(CBoard *b, MoveList *ml);
 
 // should from and to be u64 or ints? what is actually changing?
-void makeMove(CBoard *b, int from, int to, int pieceType, int color);
+void makeMove(CBoard *b, moveStruct m);
+
+void undoMove(CBoard *b, moveStruct m);
+
 
 
 

@@ -86,7 +86,7 @@ class CBoard
 {
 public: // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
 
-    Bitboard pieceBB[nPieceT];
+    Bitboard pieceBB[nPieceT+1]; //empty board
     Bitboard coloredBB[2];
 
     u64 white_pawn_home;
@@ -118,6 +118,8 @@ public: // problem with this is I need to call each of these individually. It wo
     u64 bR();
     u64 bQ();
     u64 bK();
+
+    void setSq(int pT, int pC, int sq);
 };
 
 enum pieceT {

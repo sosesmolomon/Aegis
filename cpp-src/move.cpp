@@ -11,22 +11,16 @@
 void genAllLegalMoves(CBoard *b, MoveList *ml) {}
 
 // based on a move_list of legal moves
-void makeMove(CBoard *b, int from, int to, int pieceType, int color)
+void makeMove(CBoard *b, moveStruct m)
 {
-    printBitString(b->pieceBB[PAWN] & b->coloredBB[WHITE], a2);
-    assert((b->pieceBB[pieceType] & (1ULL << from)) >= 1 && "Piece mismatch");
-    assert((b->coloredBB[color] & (1ULL << from)) >= 1 && "Color mismatch");
-    assert((b->coloredBB[color] & 1ULL << to) == 0 && "Capture same color");
+    // printBitString(b->pieceBB[PAWN] & b->coloredBB[WHITE], a2);
+    assert((b->pieceBB[m.pT] & (1ULL << m.from)) >= 1 && "Piece mismatch");
+    assert((b->coloredBB[m.pC] & (1ULL << m.from)) >= 1 && "Color mismatch");
+    assert((b->coloredBB[m.pC] & 1ULL << m.to) == 0 && "Capture same color");
 
-    // turn off old square
-    b->pieceBB[pieceType].clearSq(from);
-    b->coloredBB[color].clearSq(from);
-
-    // clearSq(&b->pieceBB[pieceType], from);
-    // clearSq(&b->coloredBB[color], from);
 
     // is capture?
-    if (!isEmptySquare(b, to))
+    if (!isEmptySquare(b, m.to))
     {
         printf("something is here to capture\n");
 
@@ -34,9 +28,18 @@ void makeMove(CBoard *b, int from, int to, int pieceType, int color)
         // doCapture() -- turn off old piece, reduce opp count
     }
 
+
+    // turn off old square
+    b->setSq(empty, m.pC, m.from);
+
+    //is capture?
+
+
     // turn on new square
-    b->pieceBB[pieceType].setSq(to);
-    b->coloredBB[pieceType].setSq(to);
+    b->setSq(m.pT, m.pC, m.to);
+
+    // b->pieceBB[pieceType].setSq(m.to);
+    // b->coloredBB[pieceType].setSq(m.to);
 
     // setSq(&b->pieceBB[pieceType], to);
     // setSq(&b->coloredBB[color], to);
