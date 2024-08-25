@@ -19,3 +19,13 @@ bool isInBounds(int square)
         return false;
     return true;
 };
+
+int countBits(u64 b) {
+    int r = 0;
+
+    while (b) {
+        b &= b-1;
+        r++;
+    }
+    return r;
+}
