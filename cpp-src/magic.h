@@ -3,6 +3,7 @@
 
 #include "CBoard.h"
 
+
 typedef struct sMagic
 {
     u64 *attacks;
@@ -11,9 +12,15 @@ typedef struct sMagic
     int shift;
 }sMagic;
 
+sMagic mBishopTab[64];
+sMagic mRookTab[64];    
 
-u64 getAttacks(CBoard *board, enumSquare sq, sMagic *m);
+
+u64 getBishopAttacks(int sq, u64 occ);
+
+u64 getRookAttacks(int sq, u64 occ);
 
 void initMagic(CBoard *board);
 
+void init_sliders_attacks(CBoard *b, int bishop);
 #endif
