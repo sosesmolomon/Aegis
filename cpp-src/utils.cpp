@@ -1,8 +1,22 @@
 #include "utils.h"
+#include "print.h"
 
 #include "CBoard.h"
 
-bool singleBit(u64 b, int sq) {
+bool pawnOnHome(CBoard *b, int sq, int color)
+{
+    u64 square = (1ULL << sq);
+    // printf("color = %s\n", colorToStr[color]);
+
+    // printf("check = %d", int(square & b->white_pawn_home));
+    if (color)
+        return ((square & b->white_pawn_home) >= 1);
+    else
+        return ((square & b->black_pawn_home) >= 1);
+}
+
+bool singleBit(u64 b, int sq)
+{
     b &= (1ULL << sq);
     return b >= 1;
 }
@@ -20,11 +34,13 @@ bool isInBounds(int square)
     return true;
 };
 
-int countBits(u64 b) {
+int countBits(u64 b)
+{
     int r = 0;
 
-    while (b) {
-        b &= b-1;
+    while (b)
+    {
+        b &= b - 1;
         r++;
     }
     return r;
