@@ -15,10 +15,8 @@ CBoard *initCBoard()
     // board->bishopPosAttacks = new u64[64];
     // board->rookPosAttacks = new u64[64];
 
-    generatePiecePossibleMoves(board);
-
-    board->white_pawn_home = 0xFFUL << 48;
-    board->black_pawn_home = 0xFFUL << 8;
+    board->white_pawn_home = 0xFFUL << 8;
+    board->black_pawn_home = 0xFFUL << 48;
 
     board->pieceBB[PAWN].getBB() = 0xFFUL << a2 | 0xFFUL << a7;
     board->pieceBB[BISHOP].getBB() = (1ULL << c1) | (1ULL << f1) | (1ULL << c8) | (1ULL << g8);
@@ -29,6 +27,10 @@ CBoard *initCBoard()
 
     board->coloredBB[WHITE].getBB() = 0xFFFFUL;
     board->coloredBB[BLACK].getBB() = 0xFFFFUL << a7;
+
+    board->pieceBB[empty].getBB() = UINT64_MAX ^ board->fullBoard();
+
+    generatePiecePossibleMoves(board);
 
     // board->bishop_W = (1ULL << 61) | (1ULL << 58);
     // board->knight_W = (1ULL << 62) | (1ULL << 57);
@@ -47,10 +49,67 @@ CBoard *initCBoard()
 }
 
 ////////////////////////////////// PAWN MOVES /////////////////////////////////////////////////////
+int pawnMovesW[] = {7, 8, 9, 16};
+int pawnMovesB[] = {-7, -8, -9, -16};
 
-//should I just find pawn moves each turn? 
-//pawns moves are dependent to their current square
+void generatePawnPossibleMoves(CBoard *b)
+{
 
+    u64 mask = 0ULL;
+    u64 move;
+
+    int shift, target;
+
+    for (int color = BLACK; color <= WHITE; color++)
+    {
+
+
+        for (int sq = a1; sq <= h8; sq++)
+        {
+            printf("square = %s, color = %s\n", sqToStr[sq], colorToStr[color]);
+            mask = 0ULL;
+
+            for (int i = 0; i < 4; i++)
+            {
+                shift = (color == WHITE) ? pawnMovesW[i] : pawnMovesB[i];
+                target = shift + sq;
+                move = (1ULL << target);
+
+                // handle diagonal case
+                if (shift == 7 || shift == -7 || shift == 9 || shift == -9)
+                {
+                    if (isLegalBishopMove(sq, target) && isInBounds(target))
+                    {
+                        mask |= move;
+                    }
+                }
+                else if (shift == 8 || shift == -8)
+                {
+                    if (isLegalRookMove(sq, target) && isInBounds(target))
+                    {
+                        mask |= move;
+                    }
+                }
+                else
+                {
+                    // shift == 16 or -16
+                    if (!pawnOnHome(b, sq, color)) {
+                        break;
+                    }
+                    if (isLegalRookMove(sq, target) && isInBounds(target)) {
+                        mask |= move;
+                    }
+                }
+            }
+            printf("mask: \n");
+            printBitString(mask, sq);
+            b->pawnPosAttacks[color][sq] = mask;
+        }
+    }
+}
+
+// should I just find pawn moves each turn?
+// pawns moves are dependent to their current square
 
 ////////////////////////////////// BISHOP MOVES /////////////////////////////////////////////////////
 
@@ -295,7 +354,7 @@ void generateKingPossibleMoves(CBoard *b)
 
 void generatePiecePossibleMoves(CBoard *board)
 {
-    //generatePawnPossibleMoves(board); -- pawns work differently...
+    generatePawnPossibleMoves(board);
     generateBishopPossibleMoves(board);
     generateKnightPossibleMoves(board);
     generateRookPossibleMoves(board);
