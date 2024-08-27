@@ -1,14 +1,14 @@
 #ifndef CBOARD_H
 #define CBOARD_H
 
-
 #include <stdint.h>
 #include "bitboard.h"
+#include "MoveList.h"
+
 typedef uint64_t u64;
 
 const int nPieceT = 6;
-const int nPieceC = 12;  
-
+const int nPieceC = 12;
 
 // a1 = 0
 // h8 = 63
@@ -84,24 +84,22 @@ enum enumSquare
 
 class CBoard
 {
-public: // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
-
-    Bitboard pieceBB[nPieceT+1]; //empty board
+public:                            // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
+    Bitboard pieceBB[nPieceT + 1]; // empty board
     Bitboard coloredBB[2];
 
     u64 white_pawn_home;
     u64 black_pawn_home;
 
+    // these are all generating correctly!
 
-    // maybe these are only needed as u64?
-
+    u64 posAttackBBs[nPieceT][64];
     u64 pawnPosAttacks[2][64];
     u64 bishopPosAttacks[64];
     u64 knightPosAttacks[64];
     u64 rookPosAttacks[64];
     u64 queenPosAttacks[64];
     u64 kingPosAttacks[64];
-
 
     u64 fullBoard();
 
@@ -119,11 +117,43 @@ public: // problem with this is I need to call each of these individually. It wo
     u64 bQ();
     u64 bK();
 
+    void initCBoard();
+
+    void generatePawnPossibleMoves();
+
+    bool isLegalBishopMove(int start, int end);
+    void generateBishopPossibleMoves();
+
+    bool isLegalKnightMove(int start, int end);
+    void generateKnightPossibleMoves();
+
+    bool isLegalRookMove(int start, int end);
+    void generateRookPossibleMoves();
+
+    // bool isLegalQueenMove(int start, int end);
+    void generateQueenPossibleMoves();
+
+    bool isLegalKingMove(int start, int end);
+    void generateKingPossibleMoves();
+
+    void generatePiecePossibleMoves();
+    // void removeAttackEdges();
+
+    void genAllLegalMoves(MoveList *ml, int color);
+
+    void genLegalPawnMoves(MoveList *ml);
+    void genLegalBishopMoves(MoveList *ml, int opp_color);
+    void genLegalKnightMoves(MoveList *ml, int opp_color);
+    void genLegalRookMoves(MoveList *ml, int opp_color);
+    void genLegalQueenMoves(MoveList *ml, int opp_color);
+    void genLegalKingMoves(MoveList *ml, int opp_color);
+
     void setSq(int pT, int pC, int sq);
 };
 
-enum pieceT {
-    PAWN, // 0
+enum pieceT
+{
+    PAWN,   // 0
     BISHOP, // 1
     KNIGHT, // 2
     ROOK,
@@ -134,10 +164,10 @@ enum pieceT {
 
 // black = 0
 // white = 1
-enum pieceC {
+enum pieceC
+{
     BLACK,
     WHITE
 };
-
 
 #endif
