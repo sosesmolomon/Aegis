@@ -14,6 +14,7 @@ int countBits(u64 b);
 int oppColor(int color);
 // isAttacked(square)
 // identifyPiece(square)
-
+int firstOne(u64 b);
+int lastOne(u64 b);
 
 #endif

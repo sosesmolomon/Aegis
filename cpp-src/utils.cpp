@@ -3,7 +3,8 @@
 
 #include "CBoard.h"
 
-bool squareIsAttacked(CBoard *b, int sq, int color) {
+bool squareIsAttacked(CBoard *b, int sq, int color)
+{
     int opp_color = oppColor(color);
     // need more here.
     // this is for checks.
@@ -53,6 +54,42 @@ int countBits(u64 b)
     return r;
 }
 
-int oppColor(int color) {
+int oppColor(int color)
+{
     return color ^= WHITE;
+}
+
+int firstOne(u64 b)
+{
+    printBitString(b);
+    // shift n times until there is a 1
+    int n = 0;
+
+    if (b)
+    {
+        while ((b & 1) == 0)
+        {
+            n++;
+            b >>= 1;
+        }
+    }
+
+    // clears the bottom bits somehow?
+    // b = (b >> u64(n+1)) << u64(n+1);
+
+    return n;
+}
+
+int lastOne(u64 b) {
+    int n = 63;
+    u64 max = (1ULL<<h8);
+
+    if (b) {
+        while ((b & max) == 0) {
+            n--;
+            b<<=1;
+        }
+    }
+
+    return n;
 }
