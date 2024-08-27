@@ -1,10 +1,14 @@
+#include "magic.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "print.h"
-#include "init.h"
-#include "magic.h"
+// #include "print.h"
+// #include "init.h"
 #include "utils.h"
+
+struct sMagic mBishopTab[64];
+struct sMagic mRookTab[64];    
+
 
 int RBits[64] = {
     12, 11, 11, 11, 11, 11, 11, 12, 11, 10, 10, 10, 10, 10, 10, 11,
@@ -190,14 +194,12 @@ void initMagic(CBoard *board)
     // printf("Starting init() for magic.cpp\n");
     for (int sq = a1; sq <= h8; sq++)
     {
-        mBishopTab[sq].attacks = bishop_attacks[sq];
         mBishopTab[sq].shift = (64 - BBits[sq]);
         mBishopTab[sq].magic = BMagic[sq];
         mBishopTab[sq].mask = board->bishopPosAttacks[sq];
     }
     for (int sq = a1; sq <= h8; sq++)
     {
-        mRookTab[sq].attacks = rook_attacks[sq];
         mRookTab[sq].shift = (64 - RBits[sq]);
         mRookTab[sq].magic = RMagic[sq];
         mRookTab[sq].mask = board->rookPosAttacks[sq];
