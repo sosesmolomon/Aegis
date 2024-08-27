@@ -3,6 +3,13 @@
 
 #include "CBoard.h"
 
+bool squareIsAttacked(CBoard *b, int sq, int color) {
+    int opp_color = oppColor(color);
+    // need more here.
+    // this is for checks.
+    return true;
+}
+
 bool pawnOnHome(CBoard *b, int sq, int color)
 {
     u64 square = (1ULL << sq);
@@ -44,4 +51,8 @@ int countBits(u64 b)
         r++;
     }
     return r;
+}
+
+int oppColor(int color) {
+    return color ^= WHITE;
 }
