@@ -585,6 +585,47 @@ void CBoard::genLegalRookMoves(MoveList *ml, int opp_color)
     }
 }
 
-void CBoard::genLegalQueenMoves(MoveList *ml, int opp_color) {}
+void CBoard::genLegalQueenMoves(MoveList *ml, int opp_color) {
+    int player_color = oppColor(opp_color);
+    u64 queens = (this->pieceBB[QUEEN] & this->coloredBB[player_color]);
+    int sq, target;
+    int i, j;
+    int count = countBits(queens);
+    int count_attacks;
+
+    for (i = 0; i < count; i++)
+    {
+        if (!queens)
+        {
+            printf("breaking... no queens?\n");
+            break;
+        }
+
+        sq = firstOne(queens);
+        u64 attacks = getBishopAttacks(sq, this->fullBoard()) | getRookAttacks(sq, this->fullBoard());
+        printBitString(attacks, sq);
+
+        count_attacks = countBits(attacks);
+
+        for (j = 0; j < count_attacks; j++)
+        {
+            if (!attacks)
+            {
+                printf("breaking... no queen attacks?\n");
+                break;
+            }
+            target = firstOne(attacks);
+            // printf("%s on %s to %s is%slegal\n", pieceToStr[QUEEN], sqToStr[sq], sqToStr[target], (canCapture(this, sq, target, QUEEN, BLACK)) ? " " : " NOT ");
+            if (canCapture(this, sq, target, QUEEN, opp_color))
+            {
+                ml->add(moveStruct(sq, target, QUEEN, player_color));
+            }
+            attacks ^= (1ULL << target);
+        }
+        // turn off the square
+        queens ^= (1ULL << sq);
+    }
+
+}
 
 void CBoard::genLegalKingMoves(MoveList *ml, int opp_color) {}
