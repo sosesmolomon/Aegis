@@ -61,7 +61,6 @@ int oppColor(int color)
 
 int firstOne(u64 b)
 {
-    printBitString(b);
     // shift n times until there is a 1
     int n = 0;
 
@@ -92,4 +91,18 @@ int lastOne(u64 b) {
     }
 
     return n;
+}
+
+bool canCapture(CBoard *b, int start, int target, int pT, int opp_color) {
+    //  make sure:
+    // not moving to same color square
+    if ((b->coloredBB[oppColor(opp_color)] & (1ULL << target)) >= 1)
+    {
+        return false;
+    }
+
+
+    // not entering check
+    // anything else? 
+    return true;
 }

@@ -16,5 +16,6 @@ int oppColor(int color);
 // identifyPiece(square)
 int firstOne(u64 b);
 int lastOne(u64 b);
+bool canCapture(CBoard *b, int start, int target, int pT, int opp_color);
 
 #endif
