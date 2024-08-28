@@ -33,6 +33,7 @@ int main()
     // b->setSq(ROOK, WHITE, c6);
     // b->setSq(BISHOP, WHITE, c3);
     // b->setSq(PAWN, WHITE, g7);
+    
     b->genAllLegalMoves(&possible_moves, WHITE);
     possible_moves.print();
     printf("count = %d\n", possible_moves.size());
