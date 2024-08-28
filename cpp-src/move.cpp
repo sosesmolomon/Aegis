@@ -8,8 +8,6 @@
 
 
 
-void genAllLegalMoves(CBoard *b, MoveList *ml) {}
-
 // based on a move_list of legal moves
 void makeMove(CBoard *b, moveStruct m)
 {
@@ -18,29 +16,24 @@ void makeMove(CBoard *b, moveStruct m)
     assert((b->coloredBB[m.pC] & (1ULL << m.from)) >= 1 && "Color mismatch");
     assert((b->coloredBB[m.pC] & 1ULL << m.to) == 0 && "Capture same color");
 
-
     // is capture?
-    if (!isEmptySquare(b, m.to))
+    if (m.isCapture)
     {
-        printf("something is here to capture\n");
+        // assert opposite color & move >= 1
+        // assert same color & move == 0
 
+        
         // identify piece type, color (obvious), location
         // doCapture() -- turn off old piece, reduce opp count
     }
 
-
-    // turn off old square
     b->setSq(empty, m.pC, m.from);
-
-    //is capture?
-
-
-    // turn on new square
     b->setSq(m.pT, m.pC, m.to);
+}
 
-    // b->pieceBB[pieceType].setSq(m.to);
-    // b->coloredBB[pieceType].setSq(m.to);
-
-    // setSq(&b->pieceBB[pieceType], to);
-    // setSq(&b->coloredBB[color], to);
+// quiet move, no capture...
+void undoMove(CBoard *b, moveStruct m)
+{
+    b->setSq(m.pT, m.pC, m.from);
+    b->setSq(empty, m.pC, m.to);
 }

@@ -4,7 +4,6 @@
 #include "MoveList.h"
 #include "CBoard.h"
 
-void genAllLegalMoves(CBoard *b, MoveList *ml);
 
 // should from and to be u64 or ints? what is actually changing?
 void makeMove(CBoard *b, moveStruct m);
