@@ -1,4 +1,5 @@
 #include "CBoard.h"
+#include "MoveList.h"
 #include "print.h"
 #include "bitboard.h"
 #include "utils.h"
@@ -144,7 +145,6 @@ void CBoard::generatePawnPossibleMoves()
     for (int color = BLACK; color <= WHITE; color++)
     {
 
-
         for (int sq = a1; sq <= h8; sq++)
         {
             mask = 0ULL;
@@ -173,10 +173,12 @@ void CBoard::generatePawnPossibleMoves()
                 else
                 {
                     // shift == 16 or -16
-                    if (!pawnOnHome(this, sq, color)) {
+                    if (!pawnOnHome(this, sq, color))
+                    {
                         break;
                     }
-                    if (isLegalRookMove(sq, target) && isInBounds(target)) {
+                    if (isLegalRookMove(sq, target) && isInBounds(target))
+                    {
                         mask |= move;
                     }
                 }
@@ -376,7 +378,7 @@ void CBoard::generateQueenPossibleMoves()
 {
     for (int i = 0; i < 64; i++)
     {
-        this->posAttackBBs[QUEEN][i] = this->posAttackBBs[BISHOP][i] | this->posAttackBBs[ROOK][i]; 
+        this->posAttackBBs[QUEEN][i] = this->posAttackBBs[BISHOP][i] | this->posAttackBBs[ROOK][i];
         this->queenPosAttacks[i] = this->bishopPosAttacks[i] | this->rookPosAttacks[i];
     }
 }
@@ -462,18 +464,126 @@ void CBoard::genLegalPawnMoves(MoveList *ml) {}
 
 void CBoard::genLegalBishopMoves(MoveList *ml, int opp_color)
 {
+    int player_color = oppColor(opp_color);
+    u64 bishops = (this->pieceBB[BISHOP] & this->coloredBB[player_color]);
+    int sq, target;
+    int i, j;
+    int count = countBits(bishops);
+    int count_attacks;
 
-    for (int sq = a1; sq <= h8; sq++)
+    for (i = 0; i < count; i++)
     {
+        if (!bishops)
+        {
+            printf("breaking... no bishops?\n");
+            break;
+        }
 
-        printBitString(getBishopAttacks(sq, this->coloredBB[opp_color]), sq);
+        sq = firstOne(bishops);
+        u64 attacks = getBishopAttacks(sq, this->fullBoard());
+        count_attacks = countBits(attacks);
 
+        for (j = 0; j < count_attacks; j++)
+        {
+            if (!attacks)
+            {
+                printf("breaking... no bishop attacks?\n");
+                break;
+            }
+            target = firstOne(attacks);
+            // printf("%s on %s to %s is%slegal\n", pieceToStr[BISHOP], sqToStr[sq], sqToStr[target], (canCapture(this, sq, target, BISHOP, BLACK)) ? " " : " NOT ");
+            if (canCapture(this, sq, target, BISHOP, opp_color))
+            {
+                ml->add(moveStruct(sq, target, BISHOP, player_color));
+            }
+            attacks ^= (1ULL << target);
+        }
+        // turn off the square
+        bishops ^= (1ULL << sq);
     }
 }
 
-void CBoard::genLegalKnightMoves(MoveList *ml, int opp_color) {}
+void CBoard::genLegalKnightMoves(MoveList *ml, int opp_color)
+{
+    int player_color = oppColor(opp_color);
+    u64 knights = (this->pieceBB[KNIGHT] & this->coloredBB[player_color]);
+    int sq, target;
+    int i, j;
+    int count = countBits(knights);
+    int count_attacks;
 
-void CBoard::genLegalRookMoves(MoveList *ml, int opp_color) {}
+    for (i = 0; i < count; i++)
+    {
+        if (!knights)
+        {
+            printf("breaking... no knights?\n");
+            break;
+        }
+
+        sq = firstOne(knights);
+        u64 attacks = this->knightPosAttacks[sq]; 
+        count_attacks = countBits(attacks);
+
+        for (j = 0; j < count_attacks; j++)
+        {
+            if (!attacks)
+            {
+                printf("breaking... no knight attacks?\n");
+                break;
+            }
+            target = firstOne(attacks);
+            // printf("%s on %s to %s is%slegal\n", pieceToStr[KNIGHT], sqToStr[sq], sqToStr[target], (canCapture(this, sq, target, KNIGHT, BLACK)) ? " " : " NOT ");
+            if (canCapture(this, sq, target, KNIGHT, opp_color))
+            {
+                ml->add(moveStruct(sq, target, KNIGHT, player_color));
+            }
+            attacks ^= (1ULL << target);
+        }
+        // turn off the square
+        knights ^= (1ULL << sq);
+    }
+}
+
+void CBoard::genLegalRookMoves(MoveList *ml, int opp_color)
+{
+    int player_color = oppColor(opp_color);
+    u64 rooks = (this->pieceBB[ROOK] & this->coloredBB[player_color]);
+    int sq, target;
+    int i, j;
+    int count = countBits(rooks);
+    int count_attacks;
+
+    for (i = 0; i < count; i++)
+    {
+        if (!rooks)
+        {
+            printf("breaking... no rooks?\n");
+            break;
+        }
+
+        sq = firstOne(rooks);
+        u64 attacks = getBishopAttacks(sq, this->fullBoard());
+        count_attacks = countBits(attacks);
+
+        for (j = 0; j < count_attacks; j++)
+        {
+            if (!attacks)
+            {
+                printf("breaking... no rook attacks?\n");
+                break;
+            }
+            target = firstOne(attacks);
+            // printf("%s on %s to %s is%slegal\n", pieceToStr[ROOK], sqToStr[sq], sqToStr[target], (canCapture(this, sq, target, ROOK, BLACK)) ? " " : " NOT ");
+            if (canCapture(this, sq, target, ROOK, opp_color))
+            {
+                ml->add(moveStruct(sq, target, ROOK, player_color));
+            }
+            attacks ^= (1ULL << target);
+        }
+        // turn off the square
+        rooks ^= (1ULL << sq);
+    }
+}
 
 void CBoard::genLegalQueenMoves(MoveList *ml, int opp_color) {}
 
