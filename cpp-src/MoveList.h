@@ -9,10 +9,19 @@ typedef struct moveStruct
     int to;
     int pT;
     int pC;
+    bool isCapture;
+    bool isEnPassant;
+    bool isCastling;
+
+    // isCapture?
+
+    // maybe store some special identifier for en passant...
+    // if MoveList.at(index-1).isEnPassant == 1
+        // then pawn captures diagonally is legal.
     
     // Constructors
     moveStruct();
-    moveStruct(int a, int b, int c, int d);
+    moveStruct(int from, int to, int pT, int pC, int isCapture=0, int isEnPassant=0, int isCastling=0);
 
 } moveStruct;
 
@@ -21,6 +30,7 @@ class MoveList
     std::vector<moveStruct> moves;
 
 public:
+    int curr_idx;
     moveStruct at(int index);
     void init();
     void clear();
@@ -28,6 +38,7 @@ public:
     void remove(size_t index);
     void add(const moveStruct &move);
     void print();
+    size_t size();
 };
 
 #endif

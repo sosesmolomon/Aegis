@@ -5,10 +5,10 @@
 moveStruct::moveStruct() : from(0), to(0), pT(0), pC(0) {}
 
 // Parameterized constructor for moveStruct
-moveStruct::moveStruct(int a, int b, int c, int d) : from(a), to(b), pT(c), pC(d) {}
+moveStruct::moveStruct(int from, int to, int pT, int pC, int isCapture, int isEnPassant, int isCastling ) : from(from), to(to), pT(pT), pC(pC), isCapture(isCapture), isEnPassant(isEnPassant), isCastling(isCastling)  {}
 
-
-moveStruct MoveList::at(int index) {
+moveStruct MoveList::at(int index)
+{
     return moves.at(index);
 }
 
@@ -29,7 +29,7 @@ void MoveList::sort()
 
 void MoveList::init()
 {
-    printf("init the move list!");
+    this->curr_idx = 0;
 }
 
 // Remove a moveStruct at a specific index
@@ -52,6 +52,13 @@ void MoveList::print()
         printf("  to =   %s\n", sqToStr[curr.to]);
         printf("  pT =   %s\n", pieceToStr[curr.pT]);
         printf("  pC =   %s\n", colorToStr[curr.pC]);
+        printf("  isCapture = %d", curr.isCapture);
+        printf("  isEnPassant = %d", curr.isEnPassant);
+        printf("  isCastling = %d", curr.isCastling);
         printf("}\n");
     }
+}
+
+size_t MoveList::size() {
+    return this->moves.size();
 }
