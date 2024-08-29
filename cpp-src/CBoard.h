@@ -90,6 +90,9 @@ public:                            // problem with this is I need to call each o
 
     u64 white_pawn_home;
     u64 black_pawn_home;
+    u64 pieceHomes;
+
+    Bitboard legalAttackedSquares[2];
 
     // these are all generating correctly!
 
@@ -118,6 +121,7 @@ public:                            // problem with this is I need to call each o
     u64 bK();
 
     void initCBoard();
+    void initTestBoard();
 
     void generatePawnPossibleMoves();
 
@@ -139,14 +143,17 @@ public:                            // problem with this is I need to call each o
     void generatePiecePossibleMoves();
     // void removeAttackEdges();
 
-    void genAllLegalMoves(MoveList *ml, int color);
+    void genAllLegalMoves(MoveList *ml, MoveList *game_ml, int color);
 
-    void genLegalPawnMoves(MoveList *ml);
-    void genLegalBishopMoves(MoveList *ml, int opp_color);
-    void genLegalKnightMoves(MoveList *ml, int opp_color);
-    void genLegalRookMoves(MoveList *ml, int opp_color);
-    void genLegalQueenMoves(MoveList *ml, int opp_color);
-    void genLegalKingMoves(MoveList *ml, int opp_color);
+    void genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color);
+    void genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color);
+    void genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color);
+    void genLegalRookMoves(MoveList *ml, MoveList *game_ml, int opp_color);
+    void genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color);
+    void genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color);
+
+    bool canCastleShort(int sq, int color);
+    bool canCastleLong(int sq, int color);
 
     void setSq(int pT, int pC, int sq);
 };
