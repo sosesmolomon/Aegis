@@ -1,14 +1,27 @@
 #include "utils.h"
 #include "print.h"
+#include <math.h>
 
 #include "CBoard.h"
+
+int getRow(int sq)
+{
+    // printf("file = %d\n", (sq / 8) + 1);
+    return (int(floor(sq / 8) + 1));
+}
+
+int getFile(int sq)
+{
+    // printf("file = %d\n", (sq % 8) + 1);
+    return (sq % 8) + 1;
+}
 
 bool squareIsAttacked(CBoard *b, int sq, int color)
 {
     int opp_color = oppColor(color);
     // need more here.
     // this is for checks.
-    return true;
+    return  ( (1ULL << sq) & b->legalAttackedSquares[opp_color]) >= 1;
 }
 
 bool pawnOnHome(CBoard *b, int sq, int color)
@@ -79,30 +92,62 @@ int firstOne(u64 b)
     return n;
 }
 
-int lastOne(u64 b) {
+int lastOne(u64 b)
+{
     int n = 63;
-    u64 max = (1ULL<<h8);
+    u64 max = (1ULL << h8);
 
-    if (b) {
-        while ((b & max) == 0) {
+    if (b)
+    {
+        while ((b & max) == 0)
+        {
             n--;
-            b<<=1;
+            b <<= 1;
         }
     }
 
     return n;
 }
 
-bool canCapture(CBoard *b, int start, int target, int pT, int opp_color) {
-    //  make sure:
-    // not moving to same color square
-    if ((b->coloredBB[oppColor(opp_color)] & (1ULL << target)) >= 1)
+bool isOpposingPiece(CBoard *b, int start, int target, int opp_color)
+{
+    if ((b->coloredBB[opp_color] & (1ULL << target)) >= 1)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool noFriendlyFire(CBoard *b, int start, int target, int player_color)
+{
+    if ((b->coloredBB[player_color] & (1ULL << target)) >= 1)
     {
         return false;
     }
-
-
-    // not entering check
-    // anything else? 
     return true;
+}
+
+// check that the last move in the game was:
+// played by the opponent
+// was a PAWN double move
+// file is adjacent to current file
+bool canEnPassant(MoveList *game, int sq, int target, int player_color)
+{
+    // sq = the capturing pawns current square
+    if (game->size() < 1)
+        return false;
+
+    int index = game->size() - 1;
+    moveStruct move = game->at(index);
+
+    // must be a double move
+    if (abs(move.to - move.from) == 16 && move.pT == PAWN && move.pC == (player_color ^ WHITE) )
+    {
+        // opp pawn double moves and sits next to player pawn.     ensure looking at correct side of pawn
+        if ((abs(getRow(move.to) - getRow(sq)) == 0) && ((getFile(move.to) - getFile(target)) == 0))
+        {
+            return true;
+        }
+    }
+     return false;
 }
