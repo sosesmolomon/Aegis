@@ -11,7 +11,8 @@ typedef struct moveStruct
     int pC;
     bool isCapture;
     bool isEnPassant;
-    bool isCastling;
+    bool isCastlingShort;
+    bool isCastlingLong;
 
     // isCapture?
 
@@ -21,7 +22,7 @@ typedef struct moveStruct
     
     // Constructors
     moveStruct();
-    moveStruct(int from, int to, int pT, int pC, int isCapture=0, int isEnPassant=0, int isCastling=0);
+    moveStruct(int from, int to, int pT, int pC, int isCapture=0, int isEnPassant=0, int isCastlingShort=0, int isCastlingLong=0);
 
 } moveStruct;
 

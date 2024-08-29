@@ -5,7 +5,7 @@
 moveStruct::moveStruct() : from(0), to(0), pT(0), pC(0) {}
 
 // Parameterized constructor for moveStruct
-moveStruct::moveStruct(int from, int to, int pT, int pC, int isCapture, int isEnPassant, int isCastling ) : from(from), to(to), pT(pT), pC(pC), isCapture(isCapture), isEnPassant(isEnPassant), isCastling(isCastling)  {}
+moveStruct::moveStruct(int from, int to, int pT, int pC, int isCapture, int isEnPassant, int isCastlingShort, int isCastlingLong ) : from(from), to(to), pT(pT), pC(pC), isCapture(isCapture), isEnPassant(isEnPassant), isCastlingShort(isCastlingShort), isCastlingLong(isCastlingLong)  {}
 
 moveStruct MoveList::at(int index)
 {
@@ -54,7 +54,8 @@ void MoveList::print()
         printf("  pC =   %s\n", colorToStr[curr.pC]);
         printf("  isCapture = %d", curr.isCapture);
         printf("  isEnPassant = %d", curr.isEnPassant);
-        printf("  isCastling = %d", curr.isCastling);
+        printf("  isCastlingShort = %d", curr.isCastlingShort);
+        printf("  isCastlingLong= %d", curr.isCastlingLong);
         printf("}\n");
     }
 }
