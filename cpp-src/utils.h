@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include "CBoard.h"
 
+
+int identifyPieceType(CBoard *b, int sq);
+int identifyPieceColor(CBoard *b, int sq);
 int getFile(int sq);
 int getRow(int sq);
 bool squareIsAttacked(CBoard *b, int sq, int color);

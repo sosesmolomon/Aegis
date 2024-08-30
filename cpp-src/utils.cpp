@@ -4,6 +4,32 @@
 
 #include "CBoard.h"
 
+int identifyPieceType(CBoard *b, int sq)
+{
+    u64 mask;
+    for (int i = 0; i < nPieceT + 1; i++)
+    {
+        mask = b->pieceBB[i];
+        if ((mask & (1ULL << sq)) >= 1)
+        {
+            return i;
+        }
+    }
+    // printf("no piece type in square %d", sq);
+    return empty;
+}
+int identifyPieceColor(CBoard *b, int sq)
+{
+    u64 mask;
+    for (int i = 0; i < 3; i++)
+    {
+        mask = b->coloredBB[i];
+        if ((mask & (1ULL << sq)) >= 1)
+            return i;
+    }
+    return -1;
+}
+
 int getRow(int sq)
 {
     // printf("file = %d\n", (sq / 8) + 1);
@@ -21,7 +47,7 @@ bool squareIsAttacked(CBoard *b, int sq, int color)
     int opp_color = oppColor(color);
     // need more here.
     // this is for checks.
-    return  ( (1ULL << sq) & b->legalAttackedSquares[opp_color]) >= 1;
+    return ((1ULL << sq) & b->legalAttackedSquares[opp_color]) >= 1;
 }
 
 bool pawnOnHome(CBoard *b, int sq, int color)
@@ -141,7 +167,7 @@ bool canEnPassant(MoveList *game, int sq, int target, int player_color)
     moveStruct move = game->at(index);
 
     // must be a double move
-    if (abs(move.to - move.from) == 16 && move.pT == PAWN && move.pC == (player_color ^ WHITE) )
+    if (abs(move.to - move.from) == 16 && move.pT == PAWN && move.pC == (player_color ^ WHITE))
     {
         // opp pawn double moves and sits next to player pawn.     ensure looking at correct side of pawn
         if ((abs(getRow(move.to) - getRow(sq)) == 0) && ((getFile(move.to) - getFile(target)) == 0))
@@ -149,5 +175,5 @@ bool canEnPassant(MoveList *game, int sq, int target, int player_color)
             return true;
         }
     }
-     return false;
+    return false;
 }
