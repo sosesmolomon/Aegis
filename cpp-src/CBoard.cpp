@@ -14,7 +14,7 @@ u64 CBoard::fullBoard()
 
 void CBoard::setSq(int pT, int pC, int sq)
 {
-    printf("pT = %s, pC = %s\n", pieceToStr[pT], colorToStr[pC]);
+    // printf("pT = %s, pC = %s\n", pieceToStr[pT], colorToStr[pC]);
 
     if (pT == empty)
     {
@@ -104,7 +104,7 @@ void CBoard::initCBoard()
     this->black_pawn_home = 0xFFUL << 48;
 
     this->pieceBB[PAWN].getBB() = 0xFFUL << a2 | 0xFFUL << a7;
-    this->pieceBB[BISHOP].getBB() = (1ULL << c1) | (1ULL << f1) | (1ULL << c8) | (1ULL << g8);
+    this->pieceBB[BISHOP].getBB() = (1ULL << c1) | (1ULL << f1) | (1ULL << c8) | (1ULL << f8);
     this->pieceBB[KNIGHT].getBB() = (1ULL << b1) | (1ULL << g1) | (1ULL << b8) | (1ULL << g8);
     this->pieceBB[ROOK].getBB() = (1ULL << a1) | (1ULL << h1) | (1ULL << a8) | (1ULL << h8);
     this->pieceBB[QUEEN].getBB() = (1ULL << d1) | (1ULL << d8);
@@ -155,9 +155,9 @@ void CBoard::initTestBoard()
     this->pieceBB[empty].getBB() = UINT64_MAX ^ this->fullBoard();
     this->pieceHomes = this->fullBoard();
 
-    printBitString(this->fullBoard());
-    printBitString(this->coloredBB[BLACK]);
-    printBitString(this->pieceBB[KING]);
+    // printBitString(this->fullBoard());
+    // printBitString(this->coloredBB[BLACK]);
+    // printBitString(this->pieceBB[KING]);
 
     this->generatePiecePossibleMoves();
 }
@@ -529,7 +529,7 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             if (isLegalBishopMove(sq, target))
             {
                 this->legalAttackedSquares[player_color].getBB() |= (1ULL << target); // still want to track potentially attacking diagonally
-                printf("checking captures at %s\n", sqToStr[target]);
+                // printf("checking captures at %s\n", sqToStr[target]);
                 if (isEmptySquare(this, target) && canEnPassant(game_ml, sq, target, player_color))
                 {
                     ml->add(moveStruct(sq, target, PAWN, player_color, true, true));
@@ -544,7 +544,7 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             // pawn pushes can't be captures
             else if (isLegalRookMove(sq, target) && isEmptySquare(this, target))
             {
-                printf("checking push at %s\n", sqToStr[target]);
+                // printf("checking push at %s\n", sqToStr[target]);
                 // this->legalAttackedSquares[player_color].getBB() |= (1ULL << target); pushes are never attack
                 ml->add(moveStruct(sq, target, PAWN, player_color));
             }
@@ -772,8 +772,8 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color)
     int count = countBits(king); // should be 1
     if (count != 1)
     {
-        printBitString(this->pieceBB[KING]);
-        printBitString(this->coloredBB[player_color]);
+        // printBitString(this->pieceBB[KING]);
+        // printBitString(this->coloredBB[player_color]);
         printf("someting weird. more or less than 1 king... got: %d\n", count);
     }
     int count_attacks;
@@ -799,11 +799,11 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             ml->add(moveStruct(sq, 0, KING, player_color, 0, 0, 0, 1));
         }
 
-        printf("the king on %s can%s castle: %s %s\n", sqToStr[sq], (canCastleShort(sq, player_color) || canCastleLong(sq, player_color)) ? "" : " NOT", (canCastleShort(sq, player_color)) ? "SHORT" : "", (canCastleLong(sq, player_color)) ? "LONG" : "");
+        // printf("the king on %s can%s castle: %s %s\n", sqToStr[sq], (canCastleShort(sq, player_color) || canCastleLong(sq, player_color)) ? "" : " NOT", (canCastleShort(sq, player_color)) ? "SHORT" : "", (canCastleLong(sq, player_color)) ? "LONG" : "");
 
         // how to find castling options?
         u64 attacks = this->kingPosAttacks[sq];
-        printBitString(attacks, sq);
+        // printBitString(attacks, sq);
         count_attacks = countBits(attacks);
 
         for (j = 0; j < count_attacks; j++)
@@ -840,18 +840,21 @@ bool CBoard::canCastleShort(int sq, int color)
     // u64 rooks = (this->pieceBB[ROOK] & this->coloredBB[color]);
     int rookSq = (color) ? a1 : a8;
     bool everyoneAtHome = (((1ULL << rookSq) & this->pieceHomes) >= 1) && (((1ULL << sq) & this->pieceHomes) >= 1);
-
+    bool pathIsClear;
     // also need to make sure we're not in check currently
     bool pathIsSafe;
+
     if (color)
     {
+        pathIsClear = isEmptySquare(this, f1) && isEmptySquare(this, g1);
         pathIsSafe = !squareIsAttacked(this, f1, color) && !squareIsAttacked(this, g1, color);
     }
     else
     {
+        pathIsClear = isEmptySquare(this, f8) && isEmptySquare(this, g8);
         pathIsSafe = !squareIsAttacked(this, f8, color) && !squareIsAttacked(this, g8, color);
     }
-    return everyoneAtHome && pathIsSafe;
+    return everyoneAtHome && pathIsSafe && pathIsClear;
 }
 
 bool CBoard::canCastleLong(int sq, int color)
@@ -859,12 +862,16 @@ bool CBoard::canCastleLong(int sq, int color)
     int rookSq = (color) ? h1 : h8;
     bool everyoneAtHome = (((1ULL << rookSq) & this->pieceHomes) >= 1) && (((1ULL << sq) & this->pieceHomes) >= 1);
     bool pathIsSafe;
+    bool pathIsClear;
     if (color)
     {
+        pathIsClear = isEmptySquare(this, b1) && isEmptySquare(this, c1) && isEmptySquare(this, d1);
         pathIsSafe = !squareIsAttacked(this, b1, color) && !squareIsAttacked(this, c1, color) && !squareIsAttacked(this, d1, color);
     }
     else
     {
+        pathIsClear = isEmptySquare(this, b8) && isEmptySquare(this, c8) && isEmptySquare(this, d8);
         pathIsSafe = !squareIsAttacked(this, b8, color) && !squareIsAttacked(this, c8, color) && !squareIsAttacked(this, d8, color);
     }
-    return everyoneAtHome && pathIsSafe;
+    return everyoneAtHome && pathIsSafe && pathIsClear;
+}
