@@ -137,20 +137,24 @@ void CBoard::initTestBoard()
     this->white_pawn_home = 0xFFUL << 8;
     this->black_pawn_home = 0xFFUL << 48;
 
-    // //black pawns
-    // this->pieceBB[PAWN].getBB() = 0xFFUL << a7;
-    // this->coloredBB[BLACK].getBB() = 0xFFUL << a7;
+    // en passant setup -- must make move (d7/f7 to d5/f5) first.
+    this->pieceBB[PAWN].getBB()|= 0xFFUL << a7;
+    this->coloredBB[BLACK].getBB() |= 0xFFUL << a7;
+
+    this->pieceBB[PAWN].getBB() |= 1ULL << e5;
+    this->coloredBB[WHITE].getBB() |= 1ULL << e5;
+    
 
     // castling setup WHITE
-    this->pieceBB[ROOK].getBB() |= (1ULL << 0) | (1ULL << 7);
-    this->coloredBB[WHITE].getBB() |= (1ULL << 0) | (1ULL << 7);
-    this->pieceBB[KING].getBB() |= (1ULL << 4);
-    this->coloredBB[WHITE].getBB() |= (1ULL << 4);
-    // BLACK
-    this->pieceBB[ROOK].getBB() |= (1ULL << a8) | (1ULL << h8);
-    this->coloredBB[BLACK].getBB() |= (1ULL << a8) | (1ULL << h8);
-    this->pieceBB[KING].getBB() |= (1ULL << e8);
-    this->coloredBB[BLACK].getBB() |= (1ULL << e8);
+    // this->pieceBB[ROOK].getBB() |= (1ULL << 0) | (1ULL << 7);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << 0) | (1ULL << 7);
+    // this->pieceBB[KING].getBB() |= (1ULL << 4);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << 4);
+    // // BLACK
+    // this->pieceBB[ROOK].getBB() |= (1ULL << a8) | (1ULL << h8);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << a8) | (1ULL << h8);
+    // this->pieceBB[KING].getBB() |= (1ULL << e8);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << e8);
 
     this->pieceBB[empty].getBB() = UINT64_MAX ^ this->fullBoard();
     this->pieceHomes = this->fullBoard();
