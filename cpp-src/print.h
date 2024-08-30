@@ -3,10 +3,12 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include "CBoard.h"
 
 extern char const *sqToStr[64];
 
 extern char const *pieceToStr[7];
+extern char const *smallPStr[2][7];
 
 extern char const *colorToStr[2];
 
@@ -16,6 +18,7 @@ void printSquare();
 
 void printBitString(uint64_t piece_type);
 void printBitString(uint64_t piece_type, int square);
+void printBoard(CBoard *b, uint64_t bb);
 
 // Function to print a scalar array
 void printScalarArray(const char* name, int* scalarArray);

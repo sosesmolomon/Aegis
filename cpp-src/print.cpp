@@ -1,4 +1,5 @@
 #include "print.h"
+#include "utils.h"
 
 int rows[] = {8, 7, 6, 5, 4, 3, 2, 1};
 char files[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
@@ -15,6 +16,9 @@ char const *sqToStr[64] = {
 
 char const *pieceToStr[7] = {
     "PAWN", "BISHOP", "KNIGHT", "ROOK", "QUEEN", "KING", "empty"};
+
+char const *smallPStr[2][7] = {
+    {"\u265F", "\u265D", "\u265E", "\u265C", "\u265B", "\u265A", "."}, {"\u2659", "\u2657", "\u2658", "\u2656", "\u2655", "\u2654", "."}};
 
 char const *colorToStr[2] = {
     "BLACK", "WHITE"};
@@ -70,11 +74,10 @@ void printBitString(uint64_t bitboard)
     return;
 }
 
-
 void printBitString(uint64_t bitboard, int square)
 {
     printf("\n");
-    int start;
+    int start, pT, pC;
     int counter = 0;
     //
     for (int i = 8; i > 0; i--)
@@ -95,6 +98,36 @@ void printBitString(uint64_t bitboard, int square)
         }
         printf("\n");
     }
+    printf("\n    ");
+    for (int i = 0; i < 8; i++)
+    {
+        printf("%c ", files[i]);
+    }
+    printf("\n\n");
+    return;
+}
+
+void printBoard(CBoard *b, uint64_t bb)
+{
+    printf("\n");
+    int start, pT, pC;
+    int counter = 0;
+    for (int i = 8; i > 0; i--)
+    {
+        printf("%d   ", rows[counter++]);
+
+        start = (i * 8) - 8; // 56
+
+        for (int pos = start; pos < start + 8; pos++)
+        {
+            pT = identifyPieceType(b, pos);
+            
+            pC = (pT == empty) ? 0 : identifyPieceColor(b, pos);
+            printf("%s ", smallPStr[pC][pT]);
+        }
+        printf("\n");
+    }
+
     printf("\n    ");
     for (int i = 0; i < 8; i++)
     {
