@@ -13,32 +13,76 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
     assert((b->pieceBB[m.pT] & (1ULL << m.from)) >= 1 && "Piece mismatch");
     assert((b->coloredBB[m.pC] & (1ULL << m.from)) >= 1 && "Color mismatch");
 
-    if (!m.isCastlingLong && !m.isCastlingLong)
-        assert((b->coloredBB[m.pC] & 1ULL << m.to) == 0 && "Capture same color");
-    else
-        printf("castling!!!!");
-        // need logic here
-
-    // is capture?
-    if (m.isCapture)
+    if (m.isCastlingLong || m.isCastlingLong)
     {
-        int opp_piece_sq = m.to;
-        if (m.isEnPassant)
+        if (m.isCastlingShort)
         {
-            opp_piece_sq = game->at(game->size() - 1).to;
+            // white
+            if (m.pC)
+            {
+                b->setSq(empty, WHITE, e1);
+                b->setSq(empty, WHITE, h1);
+
+                b->setSq(KING, WHITE, g1);
+                b->setSq(ROOK, WHITE, f1);
+            }
+            // black
+            else
+            {
+                b->setSq(empty, WHITE, e8);
+                b->setSq(empty, WHITE, h8);
+
+                b->setSq(KING, WHITE, g8);
+                b->setSq(ROOK, WHITE, f8);
+            }
         }
-        // turn off the opposing player's piece
-        b->setSq(empty, oppColor(m.pC), opp_piece_sq);
+        else
+        {
+            // white
+            if (m.pC)
+            {
+                b->setSq(empty, WHITE, e1);
+                b->setSq(empty, WHITE, a1);
+
+                b->setSq(KING, WHITE, c1);
+                b->setSq(ROOK, WHITE, d1);
+            }
+            // black
+            else
+            {
+                b->setSq(empty, WHITE, e8);
+                b->setSq(empty, WHITE, a8);
+
+                b->setSq(KING, WHITE, c8);
+                b->setSq(ROOK, WHITE, d8);
+            }
+        }
     }
+    else
+    {
+        assert((b->coloredBB[m.pC] & 1ULL << m.to) == 0 && "Capture same color");
 
-    // move the current player's piece
-    b->setSq(empty, m.pC, m.from);
-    b->setSq(m.pT, m.pC, m.to);
+        // is capture?
+        if (m.isCapture)
+        {
+            int opp_piece_sq = m.to;
+            if (m.isEnPassant)
+            {
+                opp_piece_sq = game->at(game->size() - 1).to;
+            }
+            // turn off the opposing player's piece
+            b->setSq(empty, oppColor(m.pC), opp_piece_sq);
+        }
 
-    // turn off home square for the piece moved. 
-    b->pieceHomes ^= (1ULL << m.from);
+        // move the current player's piece
+        b->setSq(empty, m.pC, m.from);
+        b->setSq(m.pT, m.pC, m.to);
 
-    game->add(m);
+        // turn off home square for the piece moved.
+        b->pieceHomes ^= (1ULL << m.from);
+
+    }
+        game->add(m);
 }
 
 // quiet move, no capture...
