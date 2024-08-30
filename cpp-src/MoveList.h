@@ -18,11 +18,11 @@ typedef struct moveStruct
 
     // maybe store some special identifier for en passant...
     // if MoveList.at(index-1).isEnPassant == 1
-        // then pawn captures diagonally is legal.
-    
+    // then pawn captures diagonally is legal.
+
     // Constructors
     moveStruct();
-    moveStruct(int from, int to, int pT, int pC, int isCapture=0, int isEnPassant=0, int isCastlingShort=0, int isCastlingLong=0);
+    moveStruct(int from, int to, int pT, int pC, int isCapture = 0, int isEnPassant = 0, int isCastlingShort = 0, int isCastlingLong = 0);
 
 } moveStruct;
 
@@ -38,7 +38,7 @@ public:
     void sort();
     void remove(size_t index);
     void add(const moveStruct &move);
-    void print();
+    void print(int index = -1);
     size_t size();
 };
 
