@@ -134,7 +134,7 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
     }
     else
     {
-        assert((b->coloredBB[m.pC] & 1ULL << m.to) == 0 && "Capture same color");
+        // assert((b->coloredBB[m.pC] & 1ULL << m.to) == 0 && "Capture same color");
 
         // is capture?
         if (m.isCapture)
@@ -142,10 +142,12 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
             int opp_piece_sq = m.to;
             if (m.isEnPassant)
             {
-                opp_piece_sq = game->at(game->size() - 1).to;
+                // a little scary to be backwards indexing by 2 here... however, the move must exist if en passant is a legal move
+                opp_piece_sq = game->at(game->size() - 2).to;
             }
             // turn the pawn back on before en passant capture
             b->setSq(PAWN, oppColor(m.pC), opp_piece_sq);
+            printf("opp_piece_sq = %s", sqToStr[opp_piece_sq]);
 
         }
 
