@@ -9,6 +9,7 @@
 #include "bitboard.h"
 #include "MoveList.h"
 #include "utils.h"
+#include "evaluate.h"
 // a1 - a8, b1, h1 - h8
 //  0 - 7,  8,  56 - 63
 
@@ -64,5 +65,8 @@ int main()
     undoMove(b, possible_moves.at(1), &game_ml);
     printBoard(b, b->fullBoard());
 
+    printf("Current board eval = %f\n", evaluatePosition(b));
+    printBoard(b, b->white_pawn_home);
+    printBoard(b, -b->white_pawn_home);
     return 0;
 }
