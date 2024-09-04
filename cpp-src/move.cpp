@@ -6,6 +6,30 @@
 #include "MoveList.h"
 #include <cassert>
 
+bool movesAreEqual(moveStruct m1, moveStruct m2)
+{
+    return (m1.from == m2.from) && (m1.to == m2.to) && (m1.pT == m2.pT) && (m1.pC == m2.pC) && (m1.isCapture == m2.isCapture) && (m1.isEnPassant == m2.isEnPassant) && (m1.isCastlingShort == m2.isCastlingShort) && (m1.isCastlingLong == m2.isCastlingLong);
+}
+
+void makeDefinedMove(CBoard *b, moveStruct m, MoveList *possible_moves, MoveList *game)
+{
+    if (possible_moves->size() <= 0)
+    {
+        return;
+    }
+
+    for (int i = 0; i < possible_moves->size() - 1; i++)
+    {
+        if (movesAreEqual(m, possible_moves->at(i)))
+        {
+            // printf("move %s %s to %s at index = %d\n", pieceToStr[m.pT], sqToStr[m.from], sqToStr[m.to], i);
+            makeMove(b, m, game);
+            return;
+        }
+    }
+    printf("MOVE DIDN'T EXIST for %s to %s\n", pieceToStr[m.pT], sqToStr[m.to]);
+}
+
 // based on a move_list of legal moves
 void makeMove(CBoard *b, moveStruct m, MoveList *game)
 {
@@ -148,12 +172,11 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
             // turn the pawn back on before en passant capture
             b->setSq(PAWN, oppColor(m.pC), opp_piece_sq);
             printf("opp_piece_sq = %s", sqToStr[opp_piece_sq]);
-
         }
 
         b->setSq(m.pT, m.pC, m.from);
         b->setSq(empty, m.pC, m.to);
     }
     // find identify the right move to unmove?
-    game->remove(game->size()-1); // remove just the end of the list?
+    game->remove(game->size() - 1); // remove just the end of the list?
 }
