@@ -21,6 +21,7 @@ int lastOne(u64 b);
 bool canEnPassant(MoveList *game, int sq, int target, int player_color);
 
 
+// move to CBoard?
 bool squareIsAttacked(CBoard *b, int sq, int color);
 bool pawnOnHome(CBoard *b, int sq, int color);
 bool isEmptySquare(CBoard* b, int square);
