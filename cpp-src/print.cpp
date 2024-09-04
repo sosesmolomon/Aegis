@@ -18,7 +18,7 @@ char const *pieceToStr[7] = {
     "PAWN", "BISHOP", "KNIGHT", "ROOK", "QUEEN", "KING", "empty"};
 
 char const *smallPStr[2][7] = {
-    {"\u265F", "\u265D", "\u265E", "\u265C", "\u265B", "\u265A", "."}, {"\u2659", "\u2657", "\u2658", "\u2656", "\u2655", "\u2654", "."}};
+    {"\u2659", "\u2657", "\u2658", "\u2656", "\u2655", "\u2654", "."}, {"\u265F", "\u265D", "\u265E", "\u265C", "\u265B", "\u265A", "."}};
 
 char const *colorToStr[2] = {
     "BLACK", "WHITE"};
@@ -121,7 +121,7 @@ void printBoard(CBoard *b, uint64_t bb)
         for (int pos = start; pos < start + 8; pos++)
         {
             pT = identifyPieceType(b, pos, bb);
-            
+
             pC = (pT == empty) ? 0 : identifyPieceColor(b, pos);
             printf("%s ", smallPStr[pC][pT]);
         }
