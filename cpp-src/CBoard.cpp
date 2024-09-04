@@ -110,8 +110,8 @@ void CBoard::initCBoard()
     this->pieceBB[QUEEN].getBB() = (1ULL << d1) | (1ULL << d8);
     this->pieceBB[KING].getBB() = (1ULL << e1) | (1ULL << e8);
 
-    this->coloredBB[WHITE].getBB() = 0xFFFFUL;
     this->coloredBB[BLACK].getBB() = 0xFFFFUL << a7;
+    this->coloredBB[WHITE].getBB() = 0xFFFFUL;
 
     this->pieceBB[empty].getBB() = UINT64_MAX ^ this->fullBoard();
     this->pieceHomes = this->fullBoard();
@@ -554,7 +554,7 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             }
             else
             {
-                printf("Pawn move, not bishop or rook legal move... \n");
+                // printf("Pawn move, not bishop or rook legal move... \n");
             }
             attacks ^= (1ULL << target);
         }
@@ -652,8 +652,10 @@ void CBoard::genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             }
             else
             {
+                // printf("%s knight attack %s to %s? \n", colorToStr[player_color], sqToStr[sq], sqToStr[target]);
                 if (noFriendlyFire(this, sq, target, player_color))
                 {
+                    // printf("legal attack on %s\n", sqToStr[target]);
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
                     ml->add(moveStruct(sq, target, KNIGHT, player_color, true));
                 }
