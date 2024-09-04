@@ -2,6 +2,8 @@
 #include "utils.h"
 #include "print.h"
 
+// new eval
+// put them on squares with more options
 int scalars[6][64] = {
     {0, 0, 0, 0, 0, 0, 0, 0,
      1, 1, 1, 1, 1, 1, 1, 1,
@@ -52,35 +54,73 @@ int scalars[6][64] = {
      0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0}};
 
-float evaluatePosition(CBoard *b)
+int multiplier[] = {1, 1, 1, 1, 1, 1, 1};
+
+float evalWhite(CBoard *b)
 {
-    float eval = 0;
-    float white_eval, black_eval;
-    int* scalar;
+    int eval = 0;
+    int *scalar;
     int count;
     int sq, i;
     u64 pieceBB;
 
-    for (int color = BLACK; color <= WHITE; color++)
+    for (int pT = PAWN; pT < empty; pT++)
     {
-        for (int pT = PAWN; pT < empty; pT++)
+        scalar = scalars[pT];
+        pieceBB = b->pieceBB[pT] & b->coloredBB[WHITE];
+        count = countBits(pieceBB);
+
+        for (i = 0; i < count; i++)
         {
-            scalar = (color == WHITE) ? scalars[pT] : scalars[pT]; // do I need to flip the board for white/black?
-            pieceBB = b->pieceBB[pT] & b->coloredBB[color];
-            count = countBits(pieceBB);
-            for (i = 0; i < count; i++) {
-                sq = firstOne(pieceBB);
-                eval += scalar[sq];
-                printf("increasing eval by %d for piece %s at square %s\n\n", scalar[sq], pieceToStr[pT], sqToStr[sq]);
-                pieceBB ^= (1ULL << sq);
-            }
+            sq = firstOne(pieceBB);
+            eval += (scalar[sq] * multiplier[pT]);
+            // printf("WHITE eval +%d for piece %s at %s\n", scalar[sq] * multiplier[pT], pieceToStr[pT], sqToStr[sq]);
         }
-        if (color == WHITE)
-            white_eval = eval;
-        else 
-            black_eval = -(eval);
     }
-    printf("\nwhite eval= %f\nblack_eval = %f\nn", white_eval, black_eval);
+
+    printf("\n");
+    return eval;
+}
+float evalBlack(CBoard *b)
+{
+    int eval = 0;
+    int *scalar;
+    int count;
+    int sq, i;
+    u64 pieceBB;
+
+    for (int pT = PAWN; pT < empty; pT++)
+    {
+        scalar = scalars[pT];
+        pieceBB = b->pieceBB[pT] & b->coloredBB[BLACK];
+        count = countBits(pieceBB);
+
+        for (i = 0; i < count; i++)
+        {
+            sq = firstOne(pieceBB);
+            eval += (scalar[63 - sq] * multiplier[pT]);
+            // printf("BLACK eval +%d for piece %s at %s, index = %d\n", scalar[63 - sq] * multiplier[pT], pieceToStr[pT], sqToStr[sq], 63-sq);
+            pieceBB ^= (1ULL << sq);
+        }
+    }
+    printf("\n");
+    return -eval;
+}
+
+float evaluatePosition(CBoard *b)
+{
+    float eval = 0;
+    float white_eval, black_eval;
+    int *scalar;
+    int count;
+    int sq, i;
+    u64 pieceBB;
+    int start, end;
+
+    white_eval = evalWhite(b);
+    black_eval = evalBlack(b);
+
+    printf("\nwhite eval= %f\nblack_eval = %f\n", white_eval, black_eval);
 
     return white_eval + black_eval;
 }
