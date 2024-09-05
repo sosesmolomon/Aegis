@@ -18,7 +18,7 @@ void makeDefinedMove(CBoard *b, moveStruct m, MoveList *possible_moves, MoveList
         return;
     }
 
-    for (int i = 0; i < possible_moves->size() - 1; i++)
+    for (int i = 0; i < possible_moves->size(); i++)
     {
         if (movesAreEqual(m, possible_moves->at(i)))
         {
@@ -27,7 +27,7 @@ void makeDefinedMove(CBoard *b, moveStruct m, MoveList *possible_moves, MoveList
             return;
         }
     }
-    printf("MOVE DIDN'T EXIST for %s to %s\n", pieceToStr[m.pT], sqToStr[m.to]);
+    printf("MOVE DIDN'T EXIST for %s from %s to %s\n", pieceToStr[m.pT], sqToStr[m.from], sqToStr[m.to]);
 }
 
 // based on a move_list of legal moves
