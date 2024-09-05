@@ -138,12 +138,11 @@ void CBoard::initTestBoard()
     this->black_pawn_home = 0xFFUL << 48;
 
     // en passant setup -- must make move (d7/f7 to d5/f5) first.
-    this->pieceBB[PAWN].getBB()|= 0xFFUL << a7;
+    this->pieceBB[PAWN].getBB() |= 0xFFUL << a7;
     this->coloredBB[BLACK].getBB() |= 0xFFUL << a7;
 
     this->pieceBB[PAWN].getBB() |= 1ULL << e5;
     this->coloredBB[WHITE].getBB() |= 1ULL << e5;
-    
 
     // castling setup WHITE
     // this->pieceBB[ROOK].getBB() |= (1ULL << 0) | (1ULL << 7);
@@ -504,6 +503,7 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
     int i, j;
     int count = countBits(pawns);
     int count_attacks;
+    int jump;
 
     for (i = 0; i < count; i++)
     {
@@ -545,16 +545,19 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
                 }
             }
 
-            // pawn pushes can't be captures
-            else if (isLegalRookMove(sq, target) && isEmptySquare(this, target))
+           // SINGLE pawn push
+            else if ((abs(target-sq)!=16) && isLegalRookMove(sq, target) && isEmptySquare(this, target))
             {
-                // printf("checking push at %s\n", sqToStr[target]);
-                // this->legalAttackedSquares[player_color].getBB() |= (1ULL << target); pushes are never attack
-                ml->add(moveStruct(sq, target, PAWN, player_color));
+                    ml->add(moveStruct(sq, target, PAWN, player_color));
             }
+            // DOUBLE pawn push
             else
             {
-                // printf("Pawn move, not bishop or rook legal move... \n");
+                jump = (player_color==WHITE) ? target-8 : target+8;
+                // printf("while looking at PAWN double push to %s, must check %s to be empty\n", sqToStr[target], sqToStr[jump]);
+                if (isLegalRookMove(sq, target) && isEmptySquare(this, target) && isEmptySquare(this, jump)) {
+                    ml->add(moveStruct(sq, target, PAWN, player_color));
+                }
             }
             attacks ^= (1ULL << target);
         }

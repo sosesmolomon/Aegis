@@ -84,7 +84,10 @@ enum enumSquare
 
 class CBoard
 {
-public:                            // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
+public:
+    bool inCheck[2];
+    bool player;
+                                // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
     Bitboard pieceBB[nPieceT + 1]; // empty board
     Bitboard coloredBB[2];
 
