@@ -60,7 +60,7 @@ void MoveList::print(int index)
         i = index; // for printing
         end = index + 1;
     }
-    printf("iterating from %d to %d --- index = %d, size = %d\n", i, end, index, moves.size());
+    printf("iterating from %d to %d\n", index, end);
 
     moveStruct curr;
     for (i = index; i < end; i++)

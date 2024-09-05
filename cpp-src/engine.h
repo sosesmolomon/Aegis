@@ -5,6 +5,6 @@
 #include "MoveList.h"
 
 
-float* evaluateMoveList(CBoard *b, MoveList *possible_moves, MoveList *game);
+std::vector<float> *evaluateMoveList(CBoard *b, MoveList *possible_moves, MoveList *game, std::vector<float> *evals);
 
 #endif

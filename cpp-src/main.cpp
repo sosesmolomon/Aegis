@@ -137,17 +137,22 @@ int main()
     evaluatePosition(b);
 
     game.print();
+    printf("here1\n");
 
     updateMoveListsW(b, &possible_moves, &game);
-    float* evals = evaluateMoveList(b, &possible_moves, &game);
+    std::vector<float> evals;
+
+    printf("here\n");
+    evals = *evaluateMoveList(b, &possible_moves, &game, &evals);
+    printf("here2\n");
     printf("\n[");
-    for (int i =0; i < possible_moves.size(); i++) {
-        printf("%f, ", evals[i]);
+    for (int i =0; i < evals.size(); i++) {
+        printf("%f, ", evals.at(i));
     }
     printf("]\n\n");
-    printf("%f, %d\n", std::max_element(*evals, *evals + possible_moves.size()), 5);
+    
 
-    return 0;
+    return 0; 
 }
 
 /*

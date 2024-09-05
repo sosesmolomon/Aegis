@@ -23,6 +23,7 @@ typedef struct moveStruct
     // Constructors
     moveStruct();
     moveStruct(int from, int to, int pT, int pC, int isCapture = 0, int isEnPassant = 0, int isCastlingShort = 0, int isCastlingLong = 0);
+    
 
 } moveStruct;
 
