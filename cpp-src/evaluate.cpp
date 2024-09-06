@@ -54,7 +54,7 @@ int scalars[6][64] = {
      0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0}};
 
-int multiplier[] = {1, 1, 1, 1, 1, 1, 1};
+int multiplier[] = {1, 3, 3, 5, 9, 1, 1};
 
 float evalWhite(CBoard *b)
 {
@@ -73,12 +73,10 @@ float evalWhite(CBoard *b)
         for (i = 0; i < count; i++)
         {
             sq = firstOne(pieceBB);
-            eval += (scalar[sq] * multiplier[pT]);
+            eval += (/*scalar[sq] * */multiplier[pT]);
             // printf("WHITE eval +%d for piece %s at %s\n", scalar[sq] * multiplier[pT], pieceToStr[pT], sqToStr[sq]);
         }
     }
-
-    printf("\n");
     return eval;
 }
 float evalBlack(CBoard *b)
@@ -98,12 +96,11 @@ float evalBlack(CBoard *b)
         for (i = 0; i < count; i++)
         {
             sq = firstOne(pieceBB);
-            eval += (scalar[63 - sq] * multiplier[pT]);
+            eval += (/*scalar[63 - sq] * */multiplier[pT]);
             // printf("BLACK eval +%d for piece %s at %s, index = %d\n", scalar[63 - sq] * multiplier[pT], pieceToStr[pT], sqToStr[sq], 63-sq);
             pieceBB ^= (1ULL << sq);
         }
     }
-    printf("\n");
     return -eval;
 }
 
@@ -120,7 +117,7 @@ float evaluatePosition(CBoard *b)
     white_eval = evalWhite(b);
     black_eval = evalBlack(b);
 
-    printf("\nwhite eval= %f\nblack_eval = %f\n", white_eval, black_eval);
+    // printf("\nwhite eval= %f\nblack_eval = %f\n", white_eval, black_eval);
 
     return white_eval + black_eval;
 }
