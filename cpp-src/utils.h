@@ -25,7 +25,7 @@ bool canEnPassant(MoveList *game, int sq, int target, int player_color);
 bool squareIsAttacked(CBoard *b, int sq, int color);
 bool pawnOnHome(CBoard *b, int sq, int color);
 bool isEmptySquare(CBoard* b, int square);
-int identifyPieceType(CBoard *b, int sq, u64 bitboard);
+int identifyPieceType(CBoard *b, int sq);
 int identifyPieceColor(CBoard *b, int sq);
 bool isOpposingPiece(CBoard *b, int start, int target, int opp_color);
 bool noFriendlyFire(CBoard *b, int start, int target, int player_color);

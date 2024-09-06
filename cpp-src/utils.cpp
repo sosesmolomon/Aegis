@@ -4,13 +4,13 @@
 
 #include "CBoard.h"
 
-int identifyPieceType(CBoard *b, int sq, u64 bitboard)
+int identifyPieceType(CBoard *b, int sq)
 {
     u64 mask;
     for (int i = 0; i < nPieceT + 1; i++)
     {
-        mask = b->pieceBB[i] & bitboard;
-        if ((mask & (1ULL << sq)) >= 1)
+        mask = (b->pieceBB[i] & (1ULL << sq));
+        if (mask >= 1)
         {
             return i;
         }
