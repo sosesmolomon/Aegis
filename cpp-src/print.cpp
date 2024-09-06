@@ -120,8 +120,8 @@ void printBoard(CBoard *b, uint64_t bb)
 
         for (int pos = start; pos < start + 8; pos++)
         {
-            pT = identifyPieceType(b, pos, bb);
 
+            pT = identifyPieceType(b, pos);
             pC = (pT == empty) ? 0 : identifyPieceColor(b, pos);
             printf("%s ", smallPStr[pC][pT]);
         }
