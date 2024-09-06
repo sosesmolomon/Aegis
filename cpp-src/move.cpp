@@ -170,12 +170,22 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
                 opp_piece_sq = game->at(game->size() - 2).to;
             }
             // turn the pawn back on before en passant capture
-            b->setSq(PAWN, oppColor(m.pC), opp_piece_sq);
-            printf("opp_piece_sq = %s", sqToStr[opp_piece_sq]);
+            b->setSq(m.capturedP, oppColor(m.pC), opp_piece_sq);
+            printf("opp_piece_sq = %s, opp_piece = %s\n", sqToStr[opp_piece_sq], pieceToStr[m.capturedP]);
+            printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+            printBoard(b, b->fullBoard());
+            printBitString(b->pieceBB[QUEEN]);
+            printBitString(b->coloredBB[BLACK]);
         }
 
         b->setSq(m.pT, m.pC, m.from);
         b->setSq(empty, m.pC, m.to);
+        if (m.capturedP != empty)
+        {
+            printBitString(b->pieceBB[QUEEN]);
+            printBitString(b->coloredBB[BLACK]);
+            printBoard(b, b->fullBoard());
+        }
     }
     // find identify the right move to unmove?
     game->remove(game->size() - 1); // remove just the end of the list?
