@@ -536,12 +536,13 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
                 // printf("checking captures at %s\n", sqToStr[target]);
                 if (isEmptySquare(this, target) && canEnPassant(game_ml, sq, target, player_color))
                 {
-                    ml->add(moveStruct(sq, target, PAWN, player_color, true, true));
+                    ml->add(moveStruct(sq, target, PAWN, player_color, true, true, false, false, PAWN));
                 }
 
                 if (isOpposingPiece(this, sq, target, opp_color))
                 {
-                    ml->add(moveStruct(sq, target, PAWN, player_color, true));
+
+                    ml->add(moveStruct(sq, target, PAWN, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
 
@@ -608,7 +609,7 @@ void CBoard::genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color)
                 if (noFriendlyFire(this, sq, target, player_color))
                 {
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                    ml->add(moveStruct(sq, target, BISHOP, player_color, true));
+                    ml->add(moveStruct(sq, target, BISHOP, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
             attacks ^= (1ULL << target);
@@ -660,7 +661,7 @@ void CBoard::genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color)
                 {
                     // printf("legal attack on %s\n", sqToStr[target]);
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                    ml->add(moveStruct(sq, target, KNIGHT, player_color, true));
+                    ml->add(moveStruct(sq, target, KNIGHT, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
             attacks ^= (1ULL << target);
@@ -711,7 +712,7 @@ void CBoard::genLegalRookMoves(MoveList *ml, MoveList *game_ml, int opp_color)
                 if (noFriendlyFire(this, sq, target, player_color))
                 {
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                    ml->add(moveStruct(sq, target, ROOK, player_color, true));
+                    ml->add(moveStruct(sq, target, ROOK, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
             attacks ^= (1ULL << target);
@@ -762,7 +763,7 @@ void CBoard::genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color)
                 if (noFriendlyFire(this, sq, target, player_color))
                 {
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                    ml->add(moveStruct(sq, target, QUEEN, player_color, true));
+                    ml->add(moveStruct(sq, target, QUEEN, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
             attacks ^= (1ULL << target);
@@ -834,7 +835,7 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color)
                 if (noFriendlyFire(this, sq, target, player_color))
                 {
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                    ml->add(moveStruct(sq, target, KING, player_color, true));
+                    ml->add(moveStruct(sq, target, KING, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
             attacks ^= (1ULL << target);
