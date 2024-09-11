@@ -123,7 +123,12 @@ void printBoard(CBoard *b, uint64_t bb)
 
             pT = identifyPieceType(b, pos);
             pC = (pT == empty) ? 0 : identifyPieceColor(b, pos);
+            if (pC != -1) {
             printf("%s ", smallPStr[pC][pT]);
+            } else {
+                printf("not a color");
+                printf(". ");
+            }
         }
         printf("\n");
     }
