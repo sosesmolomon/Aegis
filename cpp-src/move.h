@@ -12,6 +12,8 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game);
 
 void undoMove(CBoard *b, moveStruct m, MoveList *game);
 
+void undoLastMove(CBoard *b, MoveList *game);
+
 
 
 
