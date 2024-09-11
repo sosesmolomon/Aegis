@@ -7,6 +7,7 @@
 int identifyPieceType(CBoard *b, int sq)
 {
     u64 mask;
+
     for (int i = 0; i < nPieceT + 1; i++)
     {
         mask = (b->pieceBB[i] & (1ULL << sq));

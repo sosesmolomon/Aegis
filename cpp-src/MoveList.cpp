@@ -50,7 +50,7 @@ void MoveList::print(int index)
     }
     // if index = -1, print the whole thing
     int i, end;
-    if (index == -1 || index >= moves.size() - 1)
+    if (index == -1 || index >= moves.size())
     {
         index = 0; // for the for loop
         end = moves.size();
