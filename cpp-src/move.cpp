@@ -37,8 +37,9 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
     assert((b->pieceBB[m.pT] & (1ULL << m.from)) >= 1 && "Piece mismatch");
     assert((b->coloredBB[m.pC] & (1ULL << m.from)) >= 1 && "Color mismatch");
 
-    if (m.isCastlingLong || m.isCastlingLong)
+    if (m.isCastlingShort || m.isCastlingLong)
     {
+        printf("castling.....\n");
         if (m.isCastlingShort)
         {
             // white
@@ -111,7 +112,7 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
 // quiet move, no capture...
 void undoMove(CBoard *b, moveStruct m, MoveList *game)
 {
-    if (m.isCastlingLong || m.isCastlingLong)
+    if (m.isCastlingShort || m.isCastlingLong)
     {
         if (m.isCastlingShort)
         {
@@ -127,11 +128,11 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
             // black
             else
             {
-                b->setSq(KING, WHITE, e8);
-                b->setSq(ROOK, WHITE, h8);
+                b->setSq(KING, BLACK, e8);
+                b->setSq(ROOK, BLACK, h8);
 
-                b->setSq(empty, WHITE, g8);
-                b->setSq(empty, WHITE, f8);
+                b->setSq(empty, BLACK, g8);
+                b->setSq(empty, BLACK, f8);
             }
         }
         else
@@ -148,16 +149,19 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
             // black
             else
             {
-                b->setSq(KING, WHITE, e8);
-                b->setSq(ROOK, WHITE, a8);
+                b->setSq(KING, BLACK, e8);
+                b->setSq(ROOK, BLACK, a8);
 
-                b->setSq(empty, WHITE, c8);
-                b->setSq(empty, WHITE, d8);
+                b->setSq(empty, BLACK, c8);
+                b->setSq(empty, BLACK, d8);
             }
         }
     }
     else
     {
+        b->setSq(empty, m.pC, m.to);
+
+
         // assert((b->coloredBB[m.pC] & 1ULL << m.to) == 0 && "Capture same color");
 
         // is capture?
@@ -170,23 +174,32 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
                 opp_piece_sq = game->at(game->size() - 2).to;
             }
             // turn the pawn back on before en passant capture
-            b->setSq(m.capturedP, oppColor(m.pC), opp_piece_sq);
-            printf("opp_piece_sq = %s, opp_piece = %s\n", sqToStr[opp_piece_sq], pieceToStr[m.capturedP]);
-            printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-            printBoard(b, b->fullBoard());
-            printBitString(b->pieceBB[QUEEN]);
-            printBitString(b->coloredBB[BLACK]);
+            b->setSq(m.capturedP, (m.pC ^ WHITE), opp_piece_sq);
+
+
+            // printf("opp_piece_sq = %s, opp_piece = %s %s\n", sqToStr[opp_piece_sq], colorToStr[(m.pC ^ WHITE)], pieceToStr[m.capturedP]);
+            // printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+            // printBoard(b, b->fullBoard());
+            // printBitString(b->pieceBB[m.capturedP]);
+            // printBitString(b->coloredBB[m.pC^WHITE]);
         }
 
         b->setSq(m.pT, m.pC, m.from);
-        b->setSq(empty, m.pC, m.to);
         if (m.capturedP != empty)
         {
-            printBitString(b->pieceBB[QUEEN]);
-            printBitString(b->coloredBB[BLACK]);
-            printBoard(b, b->fullBoard());
+            // printBitString(b->pieceBB[m.capturedP]);
+            // printBitString(b->coloredBB[m.pC^WHITE]);
+            // printBoard(b, b->fullBoard());
         }
     }
     // find identify the right move to unmove?
     game->remove(game->size() - 1); // remove just the end of the list?
+}
+
+void undoLastMove(CBoard *b, MoveList *game) {
+    if (game->size() == 0) {
+        printf("no more moves to undo\n");
+        return;
+    }
+    undoMove(b, game->at(game->size()-1), game);
 }
