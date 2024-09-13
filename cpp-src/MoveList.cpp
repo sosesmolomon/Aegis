@@ -39,6 +39,7 @@ void MoveList::remove(size_t index)
     {
         moves.erase(moves.begin() + index);
     }
+
 }
 
 void MoveList::print(int index)
