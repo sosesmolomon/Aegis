@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "print.h"
 #include <math.h>
+#include <cassert>
 
 #include "CBoard.h"
 
@@ -45,11 +46,11 @@ int getFile(int sq)
 
 bool squareIsAttacked(CBoard *b, int sq, int color)
 {
-    int opp_color = oppColor(color);
     // need more here.
     // this is for checks.
-    return ((1ULL << sq) & b->legalAttackedSquares[opp_color]) >= 1;
+    return ((1ULL << sq) & b->legalAttackedSquares[(color^WHITE)]) >= 1;
 }
+bool pieceIsDefended(CBoard *b, int sq, int color){}
 
 bool pawnOnHome(CBoard *b, int sq, int color)
 {
@@ -177,4 +178,13 @@ bool canEnPassant(MoveList *game, int sq, int target, int player_color)
         }
     }
     return false;
+}
+
+
+void updateMoveLists(CBoard *b, MoveList *possible_moves, MoveList *game, int color, MoveList* legal_moves)
+{
+    possible_moves->clear();
+    legal_moves->clear();
+    b->genAllLegalMoves(possible_moves, game, color, false);
+    b->verifyLegalMoves(possible_moves, game, color, legal_moves);
 }
