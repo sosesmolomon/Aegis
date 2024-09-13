@@ -4,6 +4,7 @@
 #include "bitboard.h"
 #include "utils.h"
 #include "magic.h"
+#include "move.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -137,25 +138,31 @@ void CBoard::initTestBoard()
     this->white_pawn_home = 0xFFUL << 8;
     this->black_pawn_home = 0xFFUL << 48;
 
-    // capture and undo setup
-    this->pieceBB[KNIGHT].getBB() |= (1ULL << a1);
-    this->coloredBB[WHITE].getBB() |= (1ULL << a1);
+    // // capture and undo setup
+    // this->pieceBB[KNIGHT].getBB() |= (1ULL << a1);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << a1);
 
-    this->pieceBB[BISHOP].getBB() |= (1ULL << c2) | (1ULL << b3);
-    this->coloredBB[BLACK].getBB() |= (1ULL << c2) | (1ULL << b3);
+    // this->pieceBB[BISHOP].getBB() |= (1ULL << c2) | (1ULL << b3);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << c2) | (1ULL << b3);
 
-    // this->pieceBB[KING].getBB() |= (1ULL << h8) | (1ULL << h1);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << h1);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << h8);
+    // this->pieceBB[KING].getBB() |= (1ULL << b1) | (1ULL << f1);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << b1);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << f1);
 
-    // --------------------------------------------------------------------------------
+    // // --------------------------------------------------------------------------------
 
-    // en passant setup -- must make move (d7/f7 to d5/f5) first.
+    // // en passant setup -- must make move (d7/f7 to d5/f5) first.
     // this->pieceBB[PAWN].getBB() |= 0xFFUL << a7;
     // this->coloredBB[BLACK].getBB() |= 0xFFUL << a7;
 
     // this->pieceBB[PAWN].getBB() |= 1ULL << e5;
     // this->coloredBB[WHITE].getBB() |= 1ULL << e5;
+
+    this->atHomeCastleShort[WHITE] = false;
+    this->atHomeCastleShort[BLACK] = false;
+
+    this->atHomeCastleLong[WHITE] = false;
+    this->atHomeCastleLong[BLACK] = false;
 
     // --------------------------------------------------------------------------------
 
@@ -169,6 +176,66 @@ void CBoard::initTestBoard()
     // this->coloredBB[BLACK].getBB() |= (1ULL << a8) | (1ULL << h8);
     // this->pieceBB[KING].getBB() |= (1ULL << e8);
     // this->coloredBB[BLACK].getBB() |= (1ULL << e8);
+
+    // // possible moves to exit check
+    // this->pieceBB[KING].getBB() |= (1ULL << g3);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << g3);
+
+    // this->pieceBB[BISHOP].getBB() |= (1ULL << f1);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << f1);
+
+    // this->pieceBB[PAWN].getBB() |= (1ULL << f4);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << f4);
+
+    // this->pieceBB[KING].getBB() |= (1ULL << a8);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << a8);
+
+    // this->pieceBB[QUEEN].getBB() |= (1ULL << h3);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << h3);
+
+    // this->pieceBB[KNIGHT].getBB() |= (1ULL << g4);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << g4);
+
+    // this->pieceBB[ROOK].getBB() |= (1ULL << h8);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << h8);
+
+    // this->pieceBB[QUEEN].getBB() |= (1ULL << a1);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << a1);
+
+    // this->pieceBB[QUEEN].getBB() |= (1ULL << a7);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << a7);
+
+    // this->pieceBB[QUEEN].getBB() |= (1ULL << h7);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << h7);
+
+    // this->pieceBB[QUEEN].getBB() |= (1ULL << h6);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << h6);
+
+    // this->atHomeCastleShort[WHITE] = false;
+    // this->atHomeCastleShort[BLACK] = false;
+
+    // this->atHomeCastleLong[WHITE] = false;
+    // this->atHomeCastleLong[BLACK] = false;
+
+    // this->inCheck[WHITE] = true;
+
+    this->pieceBB[KING].getBB() |= (1ULL << e4);
+    this->coloredBB[WHITE].getBB() |= (1ULL << e4);
+
+    this->pieceBB[ROOK].getBB() |= (1ULL << a1) | (1ULL << h8);
+    this->coloredBB[WHITE].getBB() |= (1ULL << a1) | (1ULL << h8);
+
+    this->pieceBB[PAWN].getBB() |= (1ULL << c5);
+    this->coloredBB[WHITE].getBB() |= (1ULL << c5);
+
+    this->pieceBB[ROOK].getBB() |= (1ULL << d8) | (1ULL << d1) | (1ULL << f8) | (1ULL << h5) | (1ULL << a3);
+    this->coloredBB[BLACK].getBB() |= (1ULL << d8) | (1ULL << d1) | (1ULL << f8) | (1ULL << h5) | (1ULL << a3);
+
+    this->pieceBB[PAWN].getBB() |= (1ULL << d7);
+    this->coloredBB[BLACK].getBB() |= (1ULL << d7);
+
+    this->pieceBB[KING].getBB() |= (1ULL << h1);
+    this->coloredBB[BLACK].getBB() |= (1ULL << h1);
 
     this->pieceBB[empty].getBB() = UINT64_MAX ^ this->fullBoard();
     this->pieceHomes = this->fullBoard();
@@ -488,6 +555,7 @@ void CBoard::generateKingPossibleMoves()
     }
 }
 
+// generates a bitboard of moves for each piece type on every square of the board
 void CBoard::generatePiecePossibleMoves()
 {
     this->generatePawnPossibleMoves();
@@ -498,19 +566,22 @@ void CBoard::generatePiecePossibleMoves()
     this->generateKingPossibleMoves();
 }
 
-// is this also a MoveList?
-void CBoard::genAllLegalMoves(MoveList *ml, MoveList *game_ml, int color)
+void CBoard::genAllLegalMoves(MoveList *ml, MoveList *game_ml, int color, bool onlyAttacks)
 {
+
+    this->legalAttackedSquares[color].getBB() = 0ULL;
     int opp_color = oppColor(color);
-    genLegalPawnMoves(ml, game_ml, opp_color);
-    genLegalBishopMoves(ml, game_ml, opp_color);
-    genLegalKnightMoves(ml, game_ml, opp_color);
-    genLegalRookMoves(ml, game_ml, opp_color);
-    genLegalQueenMoves(ml, game_ml, opp_color);
-    genLegalKingMoves(ml, game_ml, opp_color);
+
+    // do these need the game? -- only PAWN -- for enPassantCheck
+    genLegalPawnMoves(ml, game_ml, opp_color, onlyAttacks);
+    genLegalBishopMoves(ml, game_ml, opp_color, onlyAttacks);
+    genLegalKnightMoves(ml, game_ml, opp_color, onlyAttacks);
+    genLegalRookMoves(ml, game_ml, opp_color, onlyAttacks);
+    genLegalQueenMoves(ml, game_ml, opp_color, onlyAttacks);
+    genLegalKingMoves(ml, game_ml, opp_color, onlyAttacks);
 }
 
-void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
+void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks)
 {
     int player_color = oppColor(opp_color);
     u64 pawns = (this->pieceBB[PAWN] & this->coloredBB[player_color]);
@@ -527,9 +598,6 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             printf("breaking... no pawns?\n");
             break;
         }
-
-        // implement can't double jump over a piece
-        // implement
 
         sq = firstOne(pawns);
         u64 attacks = this->pawnPosAttacks[player_color][sq];
@@ -551,20 +619,22 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
                 // printf("checking captures at %s\n", sqToStr[target]);
                 if (isEmptySquare(this, target) && canEnPassant(game_ml, sq, target, player_color))
                 {
-                    ml->add(moveStruct(sq, target, PAWN, player_color, true, true, false, false, PAWN));
+                    if (!onlyAttacks)
+                        ml->add(moveStruct(sq, target, PAWN, player_color, true, true, false, false, PAWN));
                 }
 
                 if (isOpposingPiece(this, sq, target, opp_color))
                 {
-
-                    ml->add(moveStruct(sq, target, PAWN, player_color, true, false, false, false, identifyPieceType(this, target)));
+                    if (!onlyAttacks)
+                        ml->add(moveStruct(sq, target, PAWN, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
 
             // SINGLE pawn push
             else if ((abs(target - sq) != 16) && isLegalRookMove(sq, target) && isEmptySquare(this, target))
             {
-                ml->add(moveStruct(sq, target, PAWN, player_color));
+                if (!onlyAttacks)
+                    ml->add(moveStruct(sq, target, PAWN, player_color));
             }
             // DOUBLE pawn push
             else
@@ -573,7 +643,8 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
                 // printf("while looking at PAWN double push to %s, must check %s to be empty\n", sqToStr[target], sqToStr[jump]);
                 if (isLegalRookMove(sq, target) && isEmptySquare(this, target) && isEmptySquare(this, jump))
                 {
-                    ml->add(moveStruct(sq, target, PAWN, player_color));
+                    if (!onlyAttacks)
+                        ml->add(moveStruct(sq, target, PAWN, player_color));
                 }
             }
             attacks ^= (1ULL << target);
@@ -583,7 +654,16 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color)
     }
 }
 
-void CBoard::genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color)
+/**
+ * 1. iterates through the bishops on the board for 1 color
+ * 2. gets the attacks from magic bb
+ * 3. walks through each of these attacked squares: populates a moveStruct (from, to, pT, pC, isCapture, etc.)
+ * 4. adds the moveStruct to a MoveList
+ *
+ * ALSO
+ * populates legalAttackedSquares at the same time.
+ */
+void CBoard::genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks)
 {
     int player_color = oppColor(opp_color);
     u64 bishops = (this->pieceBB[BISHOP] & this->coloredBB[player_color]);
@@ -601,6 +681,8 @@ void CBoard::genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color)
         }
 
         sq = firstOne(bishops);
+
+        // magic bb to get bishop attacks
         u64 attacks = getBishopAttacks(sq, this->fullBoard());
         count_attacks = countBits(attacks);
 
@@ -618,14 +700,16 @@ void CBoard::genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             if (isEmptySquare(this, target))
             {
                 this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                ml->add(moveStruct(sq, target, BISHOP, player_color));
+                if (!onlyAttacks)
+                    ml->add(moveStruct(sq, target, BISHOP, player_color));
             }
             else
             {
                 if (noFriendlyFire(this, sq, target, player_color))
                 {
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                    ml->add(moveStruct(sq, target, BISHOP, player_color, true, false, false, false, identifyPieceType(this, target)));
+                    if (!onlyAttacks)
+                        ml->add(moveStruct(sq, target, BISHOP, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
             attacks ^= (1ULL << target);
@@ -635,7 +719,7 @@ void CBoard::genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color)
     }
 }
 
-void CBoard::genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color)
+void CBoard::genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks)
 {
     int player_color = oppColor(opp_color);
     u64 knights = (this->pieceBB[KNIGHT] & this->coloredBB[player_color]);
@@ -668,7 +752,8 @@ void CBoard::genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             if (isEmptySquare(this, target))
             {
                 this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                ml->add(moveStruct(sq, target, KNIGHT, player_color));
+                if (!onlyAttacks)
+                    ml->add(moveStruct(sq, target, KNIGHT, player_color));
             }
             else
             {
@@ -677,7 +762,8 @@ void CBoard::genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color)
                 {
                     // printf("legal attack on %s\n", sqToStr[target]);
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                    ml->add(moveStruct(sq, target, KNIGHT, player_color, true, false, false, false, identifyPieceType(this, target)));
+                    if (!onlyAttacks)
+                        ml->add(moveStruct(sq, target, KNIGHT, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
             attacks ^= (1ULL << target);
@@ -687,7 +773,7 @@ void CBoard::genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color)
     }
 }
 
-void CBoard::genLegalRookMoves(MoveList *ml, MoveList *game_ml, int opp_color)
+void CBoard::genLegalRookMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks)
 {
     int player_color = oppColor(opp_color);
     u64 rooks = (this->pieceBB[ROOK] & this->coloredBB[player_color]);
@@ -721,14 +807,16 @@ void CBoard::genLegalRookMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             if (isEmptySquare(this, target))
             {
                 this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                ml->add(moveStruct(sq, target, ROOK, player_color));
+                if (!onlyAttacks)
+                    ml->add(moveStruct(sq, target, ROOK, player_color));
             }
             else
             {
                 if (noFriendlyFire(this, sq, target, player_color))
                 {
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                    ml->add(moveStruct(sq, target, ROOK, player_color, true, false, false, false, identifyPieceType(this, target)));
+                    if (!onlyAttacks)
+                        ml->add(moveStruct(sq, target, ROOK, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
             attacks ^= (1ULL << target);
@@ -739,7 +827,7 @@ void CBoard::genLegalRookMoves(MoveList *ml, MoveList *game_ml, int opp_color)
     }
 }
 
-void CBoard::genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color)
+void CBoard::genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks)
 {
     int player_color = oppColor(opp_color);
     u64 queens = (this->pieceBB[QUEEN] & this->coloredBB[player_color]);
@@ -772,14 +860,16 @@ void CBoard::genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             if (isEmptySquare(this, target))
             {
                 this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                ml->add(moveStruct(sq, target, QUEEN, player_color));
+                if (!onlyAttacks)
+                    ml->add(moveStruct(sq, target, QUEEN, player_color));
             }
             else
             {
                 if (noFriendlyFire(this, sq, target, player_color))
                 {
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                    ml->add(moveStruct(sq, target, QUEEN, player_color, true, false, false, false, identifyPieceType(this, target)));
+                    if (!onlyAttacks)
+                        ml->add(moveStruct(sq, target, QUEEN, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
             attacks ^= (1ULL << target);
@@ -789,7 +879,7 @@ void CBoard::genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color)
     }
 }
 
-void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color)
+void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks)
 {
     int player_color = oppColor(opp_color);
     u64 king = (this->pieceBB[KING] & this->coloredBB[player_color]);
@@ -815,14 +905,17 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color)
 
         sq = firstOne(king);
 
-        if (canCastleShort(sq, player_color))
+        if (!onlyAttacks)
         {
-            ml->add(moveStruct(sq, 0, KING, player_color, 0, 0, 1, 0));
-        }
+            if (canCastleShort(sq, player_color))
+            {
+                ml->add(moveStruct(sq, 0, KING, player_color, 0, 0, 1, 0));
+            }
 
-        if (canCastleLong(sq, player_color))
-        {
-            ml->add(moveStruct(sq, 0, KING, player_color, 0, 0, 0, 1));
+            if (canCastleLong(sq, player_color))
+            {
+                ml->add(moveStruct(sq, 0, KING, player_color, 0, 0, 0, 1));
+            }
         }
 
         // printf("the king on %s can%s castle: %s %s\n", sqToStr[sq], (canCastleShort(sq, player_color) || canCastleLong(sq, player_color)) ? "" : " NOT", (canCastleShort(sq, player_color)) ? "SHORT" : "", (canCastleLong(sq, player_color)) ? "LONG" : "");
@@ -844,14 +937,16 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color)
             if (isEmptySquare(this, target))
             {
                 this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                ml->add(moveStruct(sq, target, KING, player_color));
+                if (!onlyAttacks)
+                    ml->add(moveStruct(sq, target, KING, player_color));
             }
             else
             {
                 if (noFriendlyFire(this, sq, target, player_color))
                 {
                     this->legalAttackedSquares[player_color].getBB() |= (1ULL << target);
-                    ml->add(moveStruct(sq, target, KING, player_color, true, false, false, false, identifyPieceType(this, target)));
+                    if (!onlyAttacks)
+                        ml->add(moveStruct(sq, target, KING, player_color, true, false, false, false, identifyPieceType(this, target)));
                 }
             }
             attacks ^= (1ULL << target);
@@ -863,9 +958,8 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color)
 
 bool CBoard::canCastleShort(int sq, int color)
 {
-    // u64 rooks = (this->pieceBB[ROOK] & this->coloredBB[color]);
-    int rookSq = (color) ? a1 : a8;
-    bool everyoneAtHome = (((1ULL << rookSq) & this->pieceHomes) >= 1) && (((1ULL << sq) & this->pieceHomes) >= 1);
+    bool everyoneAtHome = this->atHomeCastleShort[color];
+
     bool pathIsClear;
     // also need to make sure we're not in check currently
     bool pathIsSafe;
@@ -885,8 +979,8 @@ bool CBoard::canCastleShort(int sq, int color)
 
 bool CBoard::canCastleLong(int sq, int color)
 {
-    int rookSq = (color) ? h1 : h8;
-    bool everyoneAtHome = (((1ULL << rookSq) & this->pieceHomes) >= 1) && (((1ULL << sq) & this->pieceHomes) >= 1);
+    int rookSq = (color) ? a1 : a8;
+    bool everyoneAtHome = this->atHomeCastleLong[color];
     bool pathIsSafe;
     bool pathIsClear;
     if (color)
@@ -900,4 +994,36 @@ bool CBoard::canCastleLong(int sq, int color)
         pathIsSafe = !squareIsAttacked(this, b8, color) && !squareIsAttacked(this, c8, color) && !squareIsAttacked(this, d8, color);
     }
     return everyoneAtHome && pathIsSafe && pathIsClear;
+}
+
+bool CBoard::isInCheck(int color)
+{
+    // what squares is the opponent looking at?
+    // this->legalAttackedSquares[(color^WHITE)];
+
+    u64 kBB = (color == WHITE) ? this->wK() : this->bK();
+
+    return (this->legalAttackedSquares[(color ^ WHITE)] & kBB) >= 1;
+}
+
+void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList *verified)
+{
+    bool isLegal;
+    moveStruct m;
+
+    // black attacks before the move
+    for (int i = 0; i < ml->size(); i++)
+    {
+        m = ml->at(i);
+
+        makeMove(this, m, game);
+
+        this->genAllLegalMoves(ml, game, color ^ WHITE, true);
+        if (!isInCheck(color))
+        {
+            verified->add(m);
+        }
+
+        undoMove(this, m, game);
+    }
 }
