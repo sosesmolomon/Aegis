@@ -30,40 +30,87 @@ int randomN(int n)
     return randomNumber;
 }
 
+void makeDefinedMoves(CBoard *b, MoveList *possible_moves, MoveList *game)
+{
+}
+
 void makeRandomMoves(CBoard *b, MoveList *possible_moves, MoveList *game, int n)
 {
     int r;
     int counter = 0;
     printf("----------------------------------------------------\n");
 
-    int color = WHITE;
+    b->player = BLACK;
     moveStruct m;
+
+    MoveList legal_moves_W = MoveList();
+    MoveList legal_moves_B = MoveList();
 
     // printBitString(b->knightPosAttacks[g8], g8);
     // possible_moves->print();
 
+    MoveList *legals;
+
+    std::vector<float> evals;
+
     while (counter < n)
     {
-        updateMoveLists(b, possible_moves, game, color);
-        r = randomN(possible_moves->size() - 1);
-        m = possible_moves->at(r);
-        makeDefinedMove(b, m, possible_moves, game);
+        legals = (b->player == WHITE) ? &legal_moves_W : &legal_moves_B;
+        b->genAllLegalMoves(NULL, game, b->player ^ WHITE, true);
+        updateMoveLists(b, possible_moves, game, b->player, legals);
+
+        if (legals->size() == 0 && b->isInCheck(b->player))
+        {
+            printf("************************checkmate?*********************\n");
+            printBoard(b, b->fullBoard());
+            exit(1);
+        }
+        else if (legals->size() == 0)
+        {
+            printf("************************stalemate?*********************\n");
+            printBoard(b, b->fullBoard());
+            u64 tmp = b->legalAttackedSquares[b->player ^ WHITE];
+            printBitString(tmp);
+            printf("----------------------------------\n");
+            updateMoveLists(b, possible_moves, game, b->player ^ WHITE, legals);
+            printBitString(b->legalAttackedSquares[b->player ^ WHITE]);
+            printf("----------------------------------\n");
+            printBitString(b->legalAttackedSquares[b->player ^ WHITE] ^ tmp);
+            exit(1);
+        }
+
+        
+        // r = randomN(legals->size() - 1);
+        // m = legals->at(r);
+
+        printf("size of legals = %lu\n", legals->size());
+        printf("evaluating for %s\n", colorToStr[b->player]);
+        r = bestMoveIndex(b, legals, game, b->player);
+        printf("best move at %d\n", r);
+        printf("size of legals = %lu\n", legals->size());
+        m = legals->at(r);
+        
+        makeDefinedMove(b, m, legals, game);
 
         printf("\n  %s %s | %s to %s", colorToStr[m.pC], pieceToStr[m.pT], sqToStr[m.from], sqToStr[m.to]);
         if (m.isCapture)
             printf(" **CAPTURE**");
-        
+
         if (m.isCastlingLong || m.isCastlingShort)
             printf(" **CASTLING**");
 
         if (m.isEnPassant)
             printf(" **EN PASSANT**");
-        
+
+        b->genAllLegalMoves(NULL, game, b->player, true);
+        if (b->isInCheck(b->player ^ WHITE))
+            printf(" **CHECK**");
+
         printf("\n");
-            
+
         printBoard(b, b->fullBoard());
 
-        color ^= WHITE;
+        b->player ^= WHITE;
         counter++;
     }
 }
@@ -77,111 +124,66 @@ int main()
     b->inCheck[WHITE] = false;
     b->inCheck[BLACK] = false;
 
-    b->initCBoard();
-    // b->initTestBoard();
+    b->atHomeCastleShort[WHITE] = true;
+    b->atHomeCastleShort[BLACK] = true;
+
+    b->atHomeCastleLong[WHITE] = true;
+    b->atHomeCastleLong[BLACK] = true;
+
+    // b->initCBoard();
+    b->initTestBoard();
     initMagic(b);
+
+    printBoard(b, b->fullBoard());
 
     MoveList game = MoveList();
     MoveList possible_moves = MoveList();
+    MoveList legal_moves_W = MoveList();
+    MoveList legal_moves_B = MoveList();
 
-    // gen moves --> populates legalAttacks --> informs squareIsAttacked() --> know castling options
-    b->genAllLegalMoves(&possible_moves, &game, WHITE);
-    b->genAllLegalMoves(&possible_moves, &game, BLACK);
-    possible_moves.clear();
+    MoveList *legal_moves;
+    // important setup -- both colors know the other color's attacks
+    b->genAllLegalMoves(NULL, &game, b->player, true);
+    b->genAllLegalMoves(NULL, &game, b->player ^ WHITE, true);
 
-    // reset white's attacked squares by regenerating moves
-    updateMoveLists(b, &possible_moves, &game, BLACK);
-    updateMoveLists(b, &possible_moves, &game, WHITE);
+    printBitString(b->legalAttackedSquares[b->player]);
+    printBitString(b->legalAttackedSquares[b->player ^ WHITE]);
 
-    makeRandomMoves(b, &possible_moves, &game, 60);
-
-    for(int i =0; i < 60; i++) {
-        undoLastMove(b, &game);
-    }
-
-    printBoard(b, b->fullBoard());
+    makeRandomMoves(b, &possible_moves, &game, 10);
 
     return 0;
 
-    possible_moves.print();
-    updateMoveLists(b, &possible_moves, &game, WHITE);
-    makeDefinedMove(b, moveStruct(e2, e4, PAWN, WHITE), &possible_moves, &game);
+    printf("updating moves for %s\n", colorToStr[b->player]); // WHITE
 
-    updateMoveLists(b, &possible_moves, &game, BLACK);
-    makeDefinedMove(b, moveStruct(e7, e5, PAWN, BLACK), &possible_moves, &game);
+    // updateMoveLists(b, &possible_moves, &game, b->player, (b->player == WHITE) ? &legal_moves_W : &legal_moves_B); // FOR BLACK
+    b->genAllLegalMoves(NULL, &game, b->player ^ WHITE, true); // upate for BLACK
+    printBitString(b->legalAttackedSquares[BLACK]);
 
-    updateMoveLists(b, &possible_moves, &game, WHITE);
-    makeDefinedMove(b, moveStruct(g1, f3, KNIGHT, WHITE), &possible_moves, &game);
-
-    updateMoveLists(b, &possible_moves, &game, BLACK);
-    makeDefinedMove(b, moveStruct(b8, c6, KNIGHT, BLACK), &possible_moves, &game);
-
-    updateMoveLists(b, &possible_moves, &game, WHITE);
-    makeDefinedMove(b, moveStruct(f3, e5, KNIGHT, WHITE, true, 0, 0, 0, PAWN), &possible_moves, &game);
-
-    updateMoveLists(b, &possible_moves, &game, BLACK);
-    makeDefinedMove(b, moveStruct(c6, e5, KNIGHT, BLACK, true, 0, 0, 0, KNIGHT), &possible_moves, &game);
-
-    updateMoveLists(b, &possible_moves, &game, WHITE);
-    makeDefinedMove(b, moveStruct(b2, b3, PAWN, WHITE), &possible_moves, &game);
-
-    updateMoveLists(b, &possible_moves, &game, BLACK);
-    makeDefinedMove(b, moveStruct(g7, g6, PAWN, BLACK), &possible_moves, &game);
-
-    updateMoveLists(b, &possible_moves, &game, WHITE);
-    makeDefinedMove(b, moveStruct(c1, b2, BISHOP, WHITE), &possible_moves, &game);
-
-    updateMoveLists(b, &possible_moves, &game, BLACK);
-    makeDefinedMove(b, moveStruct(f8, g7, BISHOP, BLACK), &possible_moves, &game);
-
-    // capture and undo
-    updateMoveLists(b, &possible_moves, &game, WHITE);
-    makeDefinedMove(b, moveStruct(b2, e5, BISHOP, WHITE, true, 0, 0, 0, KNIGHT), &possible_moves, &game);
-    printBoard(b, b->fullBoard());
-
-    updateMoveLists(b, &possible_moves, &game, BLACK);
-    makeDefinedMove(b, moveStruct(g7, e5, BISHOP, BLACK, true, 0, 0, 0, BISHOP), &possible_moves, &game);
+    legal_moves = (b->player == WHITE) ? &legal_moves_W : &legal_moves_B;
+    updateMoveLists(b, &possible_moves, &game, b->player, legal_moves); // FOR WHITE
+    makeDefinedMove(b, legal_moves->at(0), legal_moves, &game);         // BLACK
+    b->player ^= WHITE;                                                 // BLACK
 
     printBoard(b, b->fullBoard());
 
-    undoMove(b, game.at(game.size() - 1), &game);
-    printBoard(b, b->fullBoard());
-    undoMove(b, game.at(game.size() - 1), &game);
-    printBoard(b, b->fullBoard());
-    printf("---------------------------------------------------------------\n");
+    legal_moves_B.print(0);
+    printf("---------------------------------\n");
+    legal_moves_W.print();
+    printf("--------------------------------- %s\n", colorToStr[b->player]);
 
-    // setup castling
-    updateMoveLists(b, &possible_moves, &game, WHITE);
-    makeDefinedMove(b, moveStruct(f1, a6, BISHOP, WHITE), &possible_moves, &game);
+    return 0;
 
-    updateMoveLists(b, &possible_moves, &game, BLACK);
-    makeDefinedMove(b, moveStruct(g8, e7, KNIGHT, BLACK), &possible_moves, &game);
+    updateMoveLists(b, &possible_moves, &game, b->player, (b->player == WHITE) ? &legal_moves_W : &legal_moves_B); // BLACK
+    b->player ^= WHITE;
 
-    printBoard(b, b->fullBoard());
+    legal_moves = (b->player == WHITE) ? &legal_moves_W : &legal_moves_B;
+    legal_moves->print(0);
+    return 0;
 
-    updateMoveLists(b, &possible_moves, &game, WHITE);
-    possible_moves.print(33);
-    makeDefinedMove(b, possible_moves.at(33), &possible_moves, &game);
+    updateMoveLists(b, &possible_moves, &game, b->player ^ WHITE, (b->player == WHITE) ? &legal_moves_W : &legal_moves_B);
+    b->player ^= WHITE;
 
-    updateMoveLists(b, &possible_moves, &game, BLACK);
-    makeDefinedMove(b, moveStruct(e8, a1, KING, BLACK, 0, 0, 1), &possible_moves, &game);
-
-    printf("---------------------------------------------------------------\n");
-    printBoard(b, b->fullBoard());
-    printf("\n\nundo move:\n");
-    game.print(game.size() - 1);
-    undoLastMove(b, &game);
-    printBoard(b, b->fullBoard());
-
-    printf("\n\nundo move:\n");
-    game.print(game.size() - 1);
-    undoLastMove(b, &game);
-    printBoard(b, b->fullBoard());
-
-    game.print();
-
-    // evaluatePosition(b);
-    // printf("Best index for %s = %d\n", colorToStr[WHITE], bestMoveIndex(b, &possible_moves, &game, WHITE));
+    makeRandomMoves(b, &possible_moves, &game, 60);
 
     return 0;
 }

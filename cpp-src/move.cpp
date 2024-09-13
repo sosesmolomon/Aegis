@@ -192,8 +192,21 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
             // printBoard(b, b->fullBoard());
         }
     }
-    // find identify the right move to unmove?
-    game->remove(game->size() - 1); // remove just the end of the list?
+
+    /*
+    if (m.pT == KING) {
+        b->atHomeCastleShort[m.pC] = false;
+        b->atHomeCastleLong[m.pC] = false;
+    }
+    if (m.pT == ROOK && (m.from == a1 || m.from == a8)) {
+        b->atHomeCastleLong[m.pC] = false;
+    }
+    if (m.pT == ROOK && (m.from == h1 || m.from == h8)) {
+        b->atHomeCastleLong[m.pC] = false;
+    }
+    */
+
+    game->remove(game->size()-1); // remove just the end of the list?
 }
 
 void undoLastMove(CBoard *b, MoveList *game) {
