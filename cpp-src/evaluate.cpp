@@ -73,7 +73,7 @@ float evalWhite(CBoard *b)
         for (i = 0; i < count; i++)
         {
             sq = firstOne(pieceBB);
-            eval += (/*scalar[sq] * */multiplier[pT]);
+            eval += (scalar[sq] * multiplier[pT]);
             // printf("WHITE eval +%d for piece %s at %s\n", scalar[sq] * multiplier[pT], pieceToStr[pT], sqToStr[sq]);
         }
     }
@@ -96,7 +96,7 @@ float evalBlack(CBoard *b)
         for (i = 0; i < count; i++)
         {
             sq = firstOne(pieceBB);
-            eval += (/*scalar[63 - sq] * */multiplier[pT]);
+            eval += (scalar[63 - sq] * multiplier[pT]);
             // printf("BLACK eval +%d for piece %s at %s, index = %d\n", scalar[63 - sq] * multiplier[pT], pieceToStr[pT], sqToStr[sq], 63-sq);
             pieceBB ^= (1ULL << sq);
         }
