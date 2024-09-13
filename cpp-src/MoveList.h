@@ -31,7 +31,6 @@ typedef struct moveStruct
 class MoveList
 {
     std::vector<moveStruct> moves;
-
 public:
     int curr_idx;
     moveStruct at(int index);
