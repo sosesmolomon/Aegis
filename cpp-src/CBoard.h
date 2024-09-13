@@ -86,6 +86,9 @@ class CBoard
 {
 public:
     bool inCheck[2];
+    bool atHomeCastleShort[2];
+    bool atHomeCastleLong[2];
+
     bool player;
                                 // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
     Bitboard pieceBB[nPieceT + 1]; // empty board
@@ -146,19 +149,23 @@ public:
     void generatePiecePossibleMoves();
     // void removeAttackEdges();
 
-    void genAllLegalMoves(MoveList *ml, MoveList *game_ml, int color);
+    void genAllLegalMoves(MoveList *ml, MoveList *game_ml, int color, bool onlyAttacks);
 
-    void genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color);
-    void genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color);
-    void genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color);
-    void genLegalRookMoves(MoveList *ml, MoveList *game_ml, int opp_color);
-    void genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color);
-    void genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color);
+    void genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    void genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    void genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    void genLegalRookMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    void genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    void genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
 
     bool canCastleShort(int sq, int color);
     bool canCastleLong(int sq, int color);
 
     void setSq(int pT, int pC, int sq);
+
+    void verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList *legal_moves);
+
+    bool isInCheck(int color);
 };
 
 enum pieceT
