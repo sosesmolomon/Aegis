@@ -89,8 +89,10 @@ public:
     bool atHomeCastleShort[2];
     bool atHomeCastleLong[2];
 
+    bool inCheckmate[2];
+
     bool player;
-                                // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
+    // problem with this is I need to call each of these individually. It would be better if I could call BB[WHITE + KNIGHT] -- BB [1+3]
     Bitboard pieceBB[nPieceT + 1]; // empty board
     Bitboard coloredBB[2];
 
@@ -110,21 +112,9 @@ public:
     u64 queenPosAttacks[64];
     u64 kingPosAttacks[64];
 
+    u64 pieceAttacks[2][nPieceT];
+
     u64 fullBoard();
-
-    u64 wP();
-    u64 wB();
-    u64 wKn();
-    u64 wR();
-    u64 wQ();
-    u64 wK();
-
-    u64 bP();
-    u64 bB();
-    u64 bKn();
-    u64 bR();
-    u64 bQ();
-    u64 bK();
 
     void initCBoard();
     void initTestBoard();
@@ -151,6 +141,8 @@ public:
 
     void genAllLegalMoves(MoveList *ml, MoveList *game_ml, int color, bool onlyAttacks);
 
+    // TODO
+        // separate attack square generation and moveList generation
     void genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
     void genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
     void genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
@@ -166,6 +158,34 @@ public:
     void verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList *legal_moves);
 
     bool isInCheck(int color);
+    bool isInCheckmate(MoveList *legals, int color);
+
+
+    // gen all moves? or attacks? well. attacks are if targetBB == opp_color
+
+    void genAllMoves(MoveList *ml);
+    void fillAttackBBs(u64 targetBB);
+
+    void genPawnMoves(MoveList *ml, u64 targetBB);
+    void genPawnAttacks(u64 targetBB);
+
+    void genBishopMoves(MoveList *ml, u64 targetBB);
+    void genBishopAttacks(u64 targetBB);
+
+    void genKnightMoves(MoveList *ml, u64 targetBB);
+    void genKnightAttacks(u64 targetBB);
+
+    void genRookMoves(MoveList *ml, u64 targetBB);
+    void genRookAttacks(u64 targetBB);
+
+    void genQueenMoves(MoveList *ml, u64 targetBB);
+    void genQueenAttacks(u64 targetBB);
+    
+    void genKingMoves(MoveList *ml, u64 targetBB);
+    void genKingAttacks(u64 targetBB);
+
+    bool isAttacked(int to, int color);
+    
 };
 
 enum pieceT
