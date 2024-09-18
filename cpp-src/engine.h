@@ -7,7 +7,7 @@
 
 void evaluateMoveList(CBoard *b, MoveList *possible_moves, MoveList *game, std::vector<float> *evals);
 
-int minimax(CBoard *b, MoveList *possible_moves, MoveList *game, std::vector<float> evals, int depth, int max_depth, int turn);
+int minimax(CBoard *b, MoveList *game, int depth, int max_depth, int turn);
 
 int bestMoveIndex(CBoard *b, MoveList *possible_moves, MoveList *game, int color);
 

@@ -15,30 +15,47 @@ void evaluateMoveList(CBoard *b, MoveList *legals, MoveList *game, std::vector<f
     moveStruct m;
     float eval;
 
+    MoveList new_poss = MoveList();
+    MoveList new_legals = MoveList();
 
     for (int i = 0; i < legals->size(); i++)
     {
         m = legals->at(i);
 
-        // printf("board BEFORE move -- eval = %f\n", evaluatePosition(b));
-        // printBoard(b, b->fullBoard());
-        // printf("---------------------------------------------\n");
-
         makeMove(b, m, game);
 
-        // printf("board AFTER move -- eval = %f\n", evaluatePosition(b));
-        // printBoard(b, b->fullBoard());
-        // printf("---------------------------------------------\n");
-        // printf("eval for %s %s at %s capturing %s at %s is %f\n", colorToStr[m.pC], pieceToStr[m.pT], sqToStr[m.from], pieceToStr[identifyPieceType(b, m.to, (1ULL << m.to))], sqToStr[m.to], evaluatePosition(b));
-        eval = evaluatePosition(b);
-        b->genAllLegalMoves(NULL, game, m.pC, true);
-        if (b->isInCheck(m.pC^WHITE)) {
-            eval *= 3; // multiplying by an odd number will keep negatives as negatives
+        b->genAllLegalMoves(NULL, game, m.pC, true); // clears and resets blacks attacked squares
+        
+        if (m.pT == QUEEN && m.to == f5) {
+            printf("here\n");
+            printBitString(b->legalAttackedSquares[BLACK], m.to);
+        };
+
+        printf("========================================================\n");
+        updateMoveLists(b, &new_poss, game, (m.pC ^ WHITE), &new_legals);
+
+        printf("========================================================\n");
+        
+
+        
+        eval = evaluatePosition(b, &new_legals);
+
+
+        if (m.pT == QUEEN && m.to == f5) {
+            printf("value = %f, is in check = %d\n", eval, int(b->isInCheck(WHITE)));
+            printBoard(b, b->fullBoard());
+
+
+
+            printBitString(b->legalAttackedSquares[BLACK], m.to);
+            b->genAllLegalMoves(NULL, game, m.pC, true);
+            printBitString(b->legalAttackedSquares[BLACK], m.to);
+            new_legals.print();
+
+            exit(1);
         }
 
         evals->push_back(eval);
-
-
 
         undoMove(b, m, game); // I'm not sure I want to undo here...
                               // how can I go deeper?
@@ -50,30 +67,11 @@ void evaluateMoveList(CBoard *b, MoveList *legals, MoveList *game, std::vector<f
     }
 }
 
-int minimax(CBoard *b, MoveList *possible_moves, MoveList *game, std::vector<float> evals, int depth, int max_depth, int turn)
+int minimax(CBoard *b, MoveList *game, int depth, int max_depth, int turn)
 {
-    if (depth > max_depth)
+    if (depth >= max_depth)
     {
-        return bestMoveIndex(b, possible_moves, game, turn);
-    }
-
-    MoveList curr_possible_moves = MoveList();
-
-    // must do this step to fill the attacked squares
-    b->genAllLegalMoves(&curr_possible_moves, game, WHITE, true);
-    b->genAllLegalMoves(&curr_possible_moves, game, BLACK, true);
-
-    // get the possible moves for curr player's turn
-    updateMoveLists(b, &curr_possible_moves, game, turn, possible_moves); // BAD
-
-    // iterate through the possible_moves... how does this work when possible moves will change sizes?
-    // call minimax on each move
-    // return either max() or min() of evals
-
-    for (int i = 0; i < curr_possible_moves.size(); i++)
-    {
-        // pass in curr_possible as possible_moves... the child call will create a new curr_possible_moves
-        minimax(b, &curr_possible_moves, game, evals, depth++, max_depth, (turn ^ WHITE));
+        return 0;
     }
     return 0;
 }
@@ -101,12 +99,19 @@ int bestMoveIndex(CBoard *b, MoveList *possible_moves, MoveList *game, int color
     }
     printf("]\n\n");
 
-
+    printf("checkmate moves:\n");
+    for (int i = 0; i < evals.size(); i++)
+    {
+        moveStruct m = possible_moves->at(i);
+        if (evals.at(i) == -100000 || evals.at(i) == 100000)
+        {
+            printf("%s %s from %s to %s\n", colorToStr[m.pC], pieceToStr[m.pT], sqToStr[m.from], sqToStr[m.to]);
+        }
+    }
 
     if (color == WHITE)
     {
-        minimax = -100000;
-        printf("here\n");
+        minimax = -10000000;
 
         for (int i = 0; i < evals.size(); i++)
         {
@@ -118,11 +123,11 @@ int bestMoveIndex(CBoard *b, MoveList *possible_moves, MoveList *game, int color
             }
         }
 
-        printf("%f\n", minimax);
+        printf("best = %f\n", minimax);
     }
     else
     {
-        minimax = 100000;
+        minimax = 10000000;
         for (int i = 0; i < evals.size(); i++)
         {
             curr = evals.at(i);
@@ -132,6 +137,7 @@ int bestMoveIndex(CBoard *b, MoveList *possible_moves, MoveList *game, int color
                 bestI = i;
             }
         }
+        printf("best = %f\n", minimax);
     }
     return bestI;
 }
