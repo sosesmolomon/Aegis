@@ -79,15 +79,11 @@ void makeRandomMoves(CBoard *b, MoveList *possible_moves, MoveList *game, int n)
             exit(1);
         }
 
-        
-        // r = randomN(legals->size() - 1);
-        // m = legals->at(r);
-
+    
         printf("size of legals = %lu\n", legals->size());
         printf("evaluating for %s\n", colorToStr[b->player]);
         r = bestMoveIndex(b, legals, game, b->player);
         printf("best move at %d\n", r);
-        printf("size of legals = %lu\n", legals->size());
         m = legals->at(r);
         
         makeDefinedMove(b, m, legals, game);
@@ -120,7 +116,7 @@ int main()
     CBoard board = CBoard();
     CBoard *b = &board;
 
-    b->player = WHITE;
+    b->player = BLACK;
     b->inCheck[WHITE] = false;
     b->inCheck[BLACK] = false;
 
@@ -130,8 +126,8 @@ int main()
     b->atHomeCastleLong[WHITE] = true;
     b->atHomeCastleLong[BLACK] = true;
 
-    // b->initCBoard();
-    b->initTestBoard();
+    b->initCBoard();
+    // b->initTestBoard();
     initMagic(b);
 
     printBoard(b, b->fullBoard());
@@ -141,10 +137,20 @@ int main()
     MoveList legal_moves_W = MoveList();
     MoveList legal_moves_B = MoveList();
 
-    MoveList *legal_moves;
     // important setup -- both colors know the other color's attacks
-    b->genAllLegalMoves(NULL, &game, b->player, true);
-    b->genAllLegalMoves(NULL, &game, b->player ^ WHITE, true);
+    // b->genAllLegalMoves(NULL, &game, b->player, true);
+    // b->genAllLegalMoves(NULL, &game, b->player ^ WHITE, true);
+
+    b->fillAttackBBs(UINT64_MAX);
+    for (int i = 0; i < 6; i++) {
+        printf("%s:\n", pieceToStr[i]);
+        printBitString(b->pieceAttacks[b->player][i]);
+    }
+    return 0;
+
+
+    MoveList *legal_moves;
+
 
     printBitString(b->legalAttackedSquares[b->player]);
     printBitString(b->legalAttackedSquares[b->player ^ WHITE]);
