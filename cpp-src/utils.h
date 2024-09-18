@@ -15,7 +15,7 @@ bool isInBounds(int square);
 bool singleBit(u64 b, int sq);
 int countBits(u64 b);
 
-int firstOne(u64 b);
+int firstOne(u64 &b);
 int lastOne(u64 b);
 
 bool canEnPassant(MoveList *game, int sq, int target, int player_color);
