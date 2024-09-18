@@ -48,9 +48,9 @@ bool squareIsAttacked(CBoard *b, int sq, int color)
 {
     // need more here.
     // this is for checks.
-    return ((1ULL << sq) & b->legalAttackedSquares[(color^WHITE)]) >= 1;
+    return ((1ULL << sq) & b->legalAttackedSquares[(color ^ WHITE)]) >= 1;
 }
-bool pieceIsDefended(CBoard *b, int sq, int color){}
+bool pieceIsDefended(CBoard *b, int sq, int color) {}
 
 bool pawnOnHome(CBoard *b, int sq, int color)
 {
@@ -100,24 +100,20 @@ int oppColor(int color)
     return color ^= WHITE;
 }
 
-int firstOne(u64 b)
+int firstOne(u64 &b)
 {
-    // shift n times until there is a 1
-    int n = 0;
-
-    if (b)
+    if (b == 0)
     {
-        while ((b & 1) == 0)
-        {
-            n++;
-            b >>= 1;
-        }
+        return 64; // No bits are set
     }
 
-    // clears the bottom bits somehow?
-    // b = (b >> u64(n+1)) << u64(n+1);
+    // Find the position of the least significant 1-bit
+    int bit = __builtin_ctzll(b); // Use GCC/Clang built-in function for counting trailing zeros
 
-    return n;
+    // Clear the least significant 1-bit
+    b &= (b - 1);
+
+    return bit;
 }
 
 int lastOne(u64 b)
@@ -180,11 +176,20 @@ bool canEnPassant(MoveList *game, int sq, int target, int player_color)
     return false;
 }
 
-
-void updateMoveLists(CBoard *b, MoveList *possible_moves, MoveList *game, int color, MoveList* legal_moves)
+void updateMoveLists(CBoard *b, MoveList *possible_moves, MoveList *game, int color, MoveList *legal_moves)
 {
     possible_moves->clear();
     legal_moves->clear();
     b->genAllLegalMoves(possible_moves, game, color, false);
+    printf("----------------^gen legals^----------------\n");
     b->verifyLegalMoves(possible_moves, game, color, legal_moves);
+    printf("----------------^verify legals^----------------\n");
 }
+
+// 	for fr := frBB.firstOne();
+// fr != 64;
+// fr = frBB.firstOne()
+// {
+//     atkBB |= atksKnights[fr]
+// }
+// }
