@@ -2,9 +2,9 @@
 #define EVALUATE_H
 
 #include "CBoard.h"
+#include "MoveList.h"
 
 
-
-float evaluatePosition(CBoard *b);
+float evaluatePosition(CBoard *b, MoveList *legals);
 
 #endif

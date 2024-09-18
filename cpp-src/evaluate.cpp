@@ -104,7 +104,7 @@ float evalBlack(CBoard *b)
     return -eval;
 }
 
-float evaluatePosition(CBoard *b)
+float evaluatePosition(CBoard *b, MoveList *legals)
 {
     float eval = 0;
     float white_eval, black_eval;
@@ -116,6 +116,37 @@ float evaluatePosition(CBoard *b)
 
     white_eval = evalWhite(b);
     black_eval = evalBlack(b);
+    
+    eval = white_eval + black_eval;
+
+
+    if (b->isInCheck(WHITE))
+    {
+
+        if (b->isInCheckmate(legals, WHITE))
+        {
+            b->inCheckmate[WHITE] = true;
+            return -100000;
+        }
+        else
+        {
+            eval *= 3;
+        } // multiplying by an odd number will keep negatives as negatives
+    }
+
+    if (b->isInCheck(BLACK))
+    {
+        if (b->isInCheckmate(legals, BLACK))
+        {
+            b->inCheckmate[BLACK] = true;
+            return 100000;
+        }
+        else
+        {
+            eval *= 3;
+        }
+    }
+
 
     // printf("\nwhite eval= %f\nblack_eval = %f\n", white_eval, black_eval);
 
