@@ -40,60 +40,6 @@ void CBoard::setSq(int pT, int pC, int sq)
     }
 }
 
-u64 CBoard::wP()
-{
-    return this->pieceBB[PAWN].b & this->coloredBB[WHITE].b;
-}
-
-u64 CBoard::wB()
-{
-    return this->pieceBB[BISHOP].b & this->coloredBB[WHITE].b;
-}
-
-u64 CBoard::wKn()
-{
-    return this->pieceBB[KNIGHT].b & this->coloredBB[WHITE].b;
-}
-u64 CBoard::wR()
-{
-    return this->pieceBB[ROOK].b & this->coloredBB[WHITE].b;
-}
-u64 CBoard::wQ()
-{
-    return this->pieceBB[QUEEN].b & this->coloredBB[WHITE].b;
-}
-u64 CBoard::wK()
-{
-    return this->pieceBB[KING].b & this->coloredBB[WHITE].b;
-}
-
-u64 CBoard::bP()
-{
-    return this->pieceBB[PAWN].b & this->coloredBB[BLACK].b;
-}
-
-u64 CBoard::bB()
-{
-    return this->pieceBB[BISHOP].b & this->coloredBB[BLACK].b;
-}
-
-u64 CBoard::bKn()
-{
-    return this->pieceBB[KNIGHT].b & this->coloredBB[BLACK].b;
-}
-u64 CBoard::bR()
-{
-    return this->pieceBB[ROOK].b & this->coloredBB[BLACK].b;
-}
-u64 CBoard::bQ()
-{
-    return this->pieceBB[QUEEN].b & this->coloredBB[BLACK].b;
-}
-u64 CBoard::bK()
-{
-    return this->pieceBB[KING].b & this->coloredBB[BLACK].b;
-}
-
 u64 emptyEdges = 0b1111111110000001100000011000000110000001100000011000000111111111;
 
 void CBoard::initCBoard()
@@ -138,16 +84,28 @@ void CBoard::initTestBoard()
     this->white_pawn_home = 0xFFUL << 8;
     this->black_pawn_home = 0xFFUL << 48;
 
+
+
+
     // // capture and undo setup
-    // this->pieceBB[KNIGHT].getBB() |= (1ULL << a1);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << a1);
+    // this->pieceBB[KNIGHT].getBB() |= (1ULL << d4);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << d4);
 
-    // this->pieceBB[BISHOP].getBB() |= (1ULL << c2) | (1ULL << b3);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << c2) | (1ULL << b3);
+    this->pieceBB[BISHOP].getBB() |= (1ULL << h5);
+    this->coloredBB[WHITE].getBB() |= (1ULL << h5);
 
-    // this->pieceBB[KING].getBB() |= (1ULL << b1) | (1ULL << f1);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << b1);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << f1);
+    this->pieceBB[KNIGHT].getBB() |= (1ULL << g4);
+    this->coloredBB[WHITE].getBB() |= (1ULL << g4);
+
+    this->pieceBB[QUEEN].getBB() |= (1ULL << e8);
+    this->coloredBB[WHITE].getBB() |= (1ULL << e8);
+
+    this->pieceBB[BISHOP].getBB() |= (1ULL << c2) | (1ULL << b3);
+    this->coloredBB[BLACK].getBB() |= (1ULL << c2) | (1ULL << b3);
+
+    this->pieceBB[KING].getBB() |= (1ULL << b1) | (1ULL << e2);
+    this->coloredBB[WHITE].getBB() |= (1ULL << b1);
+    this->coloredBB[BLACK].getBB() |= (1ULL << e2);
 
     // // --------------------------------------------------------------------------------
 
@@ -219,26 +177,30 @@ void CBoard::initTestBoard()
 
     // this->inCheck[WHITE] = true;
 
-    this->pieceBB[KING].getBB() |= (1ULL << e4);
-    this->coloredBB[WHITE].getBB() |= (1ULL << e4);
+    // this->pieceBB[KING].getBB() |= (1ULL << e4);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << e4);
 
-    this->pieceBB[ROOK].getBB() |= (1ULL << a1) | (1ULL << h8);
-    this->coloredBB[WHITE].getBB() |= (1ULL << a1) | (1ULL << h8);
+    // this->pieceBB[ROOK].getBB() |= (1ULL << a1) | (1ULL << h8) | (1ULL << a2);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << a1) | (1ULL << h8) | (1ULL << a2);
 
-    this->pieceBB[PAWN].getBB() |= (1ULL << c5);
-    this->coloredBB[WHITE].getBB() |= (1ULL << c5);
+    // // this->pieceBB[PAWN].getBB() |= (1ULL << c5);
+    // // this->coloredBB[WHITE].getBB() |= (1ULL << c5);
 
-    this->pieceBB[ROOK].getBB() |= (1ULL << d8) | (1ULL << d1) | (1ULL << f8) | (1ULL << h5) | (1ULL << a3);
-    this->coloredBB[BLACK].getBB() |= (1ULL << d8) | (1ULL << d1) | (1ULL << f8) | (1ULL << h5) | (1ULL << a3);
+    
+    // this->pieceBB[QUEEN].getBB() |= (1ULL << a5);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << a5);
 
-    this->pieceBB[PAWN].getBB() |= (1ULL << d7);
-    this->coloredBB[BLACK].getBB() |= (1ULL << d7);
+    // this->pieceBB[ROOK].getBB() |= (1ULL << d8) | (1ULL << d1) | (1ULL << f8) | (1ULL << h5) | (1ULL << c3);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << d8) | (1ULL << d1) | (1ULL << f8) | (1ULL << h5) | (1ULL << c3);
 
-    this->pieceBB[KING].getBB() |= (1ULL << h1);
-    this->coloredBB[BLACK].getBB() |= (1ULL << h1);
+    // this->pieceBB[PAWN].getBB() |= (1ULL << d7);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << d7);
 
-    this->pieceBB[empty].getBB() = UINT64_MAX ^ this->fullBoard();
-    this->pieceHomes = this->fullBoard();
+    // this->pieceBB[KING].getBB() |= (1ULL << h1);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << h1);
+
+    // this->pieceBB[empty].getBB() = UINT64_MAX ^ this->fullBoard();
+    // this->pieceHomes = this->fullBoard();
 
     // printBitString(this->fullBoard());
     // printBitString(this->coloredBB[BLACK]);
@@ -856,6 +818,11 @@ void CBoard::genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color, 
                 break;
             }
             target = firstOne(attacks);
+
+            if (sq == f5 && (target == e4 || target == f4 || target == g4)) {
+                printf("okay... what is going on? anything at %s: %d\n", sqToStr[target], int( isEmptySquare(this, target) ) );
+            }
+
             // printf("%s on %s to %s is%slegal\n", pieceToStr[QUEEN], sqToStr[sq], sqToStr[target], (canCapture(this, sq, target, QUEEN, BLACK)) ? " " : " NOT ");
             if (isEmptySquare(this, target))
             {
@@ -890,7 +857,7 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color, b
     {
         // printBitString(this->pieceBB[KING]);
         // printBitString(this->coloredBB[player_color]);
-        printf("someting weird. more or less than 1 king... got: %d\n", count);
+        printf("someting weird. more or less than 1 %s king... got: %d\n", colorToStr[player_color], count);
     }
     int count_attacks;
 
@@ -1001,9 +968,16 @@ bool CBoard::isInCheck(int color)
     // what squares is the opponent looking at?
     // this->legalAttackedSquares[(color^WHITE)];
 
-    u64 kBB = (color == WHITE) ? this->wK() : this->bK();
+    u64 kBB = this->pieceBB[KING] & this->coloredBB[color];
 
     return (this->legalAttackedSquares[(color ^ WHITE)] & kBB) >= 1;
+}
+
+bool CBoard::isInCheckmate(MoveList *legals, int color) {
+    if (legals->size() == 0 && this->isInCheck(color)) {
+        return true;
+    }
+    return false;
 }
 
 void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList *verified)
