@@ -13,6 +13,10 @@ u64 CBoard::fullBoard()
     return this->coloredBB[BLACK].b | this->coloredBB[WHITE].b;
 }
 
+u64 CBoard::emptyBoard(){
+    return (this->fullBoard() ^ UINT64_MAX);
+}
+
 void CBoard::setSq(int pT, int pC, int sq)
 {
     // printf("pT = %s, pC = %s\n", pieceToStr[pT], colorToStr[pC]);
@@ -91,30 +95,33 @@ void CBoard::initTestBoard()
     // this->pieceBB[KNIGHT].getBB() |= (1ULL << d4);
     // this->coloredBB[WHITE].getBB() |= (1ULL << d4);
 
-    this->pieceBB[BISHOP].getBB() |= (1ULL << h5);
-    this->coloredBB[WHITE].getBB() |= (1ULL << h5);
+    // this->pieceBB[BISHOP].getBB() |= (1ULL << h5);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << h5);
 
-    this->pieceBB[KNIGHT].getBB() |= (1ULL << g4);
-    this->coloredBB[WHITE].getBB() |= (1ULL << g4);
+    // this->pieceBB[KNIGHT].getBB() |= (1ULL << g4);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << g4);
 
-    this->pieceBB[QUEEN].getBB() |= (1ULL << e8);
-    this->coloredBB[WHITE].getBB() |= (1ULL << e8);
+    // this->pieceBB[QUEEN].getBB() |= (1ULL << e8);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << e8);
 
-    this->pieceBB[BISHOP].getBB() |= (1ULL << c2) | (1ULL << b3);
-    this->coloredBB[BLACK].getBB() |= (1ULL << c2) | (1ULL << b3);
+    // this->pieceBB[BISHOP].getBB() |= (1ULL << c2) | (1ULL << b3);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << c2) | (1ULL << b3);
 
-    this->pieceBB[KING].getBB() |= (1ULL << b1) | (1ULL << e2);
-    this->coloredBB[WHITE].getBB() |= (1ULL << b1);
-    this->coloredBB[BLACK].getBB() |= (1ULL << e2);
+    // this->pieceBB[KING].getBB() |= (1ULL << b1) | (1ULL << e2);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << b1);
+    // this->coloredBB[BLACK].getBB() |= (1ULL << e2);
 
     // // --------------------------------------------------------------------------------
 
-    // // en passant setup -- must make move (d7/f7 to d5/f5) first.
-    // this->pieceBB[PAWN].getBB() |= 0xFFUL << a7;
-    // this->coloredBB[BLACK].getBB() |= 0xFFUL << a7;
 
-    // this->pieceBB[PAWN].getBB() |= 1ULL << e5;
-    // this->coloredBB[WHITE].getBB() |= 1ULL << e5;
+    // en passant setup -- must make move (d7/f7 to d5/f5) first.
+    this->pieceBB[PAWN].getBB() |= 0xFFUL << a7;
+    this->coloredBB[BLACK].getBB() |= 0xFFUL << a7;
+
+    this->pieceBB[PAWN].getBB() |= 1ULL << e5;
+    this->coloredBB[WHITE].getBB() |= 1ULL << e5;
+
+
 
     this->atHomeCastleShort[WHITE] = false;
     this->atHomeCastleShort[BLACK] = false;
@@ -215,7 +222,8 @@ int pawnMovesB[] = {-7, -8, -9, -16};
 
 void CBoard::generatePawnPossibleMoves()
 {
-    u64 mask = 0ULL;
+    u64 a_mask = 0ULL;
+    u64 p_mask = 0ULL;
     u64 move;
 
     int shift, target;
@@ -225,7 +233,8 @@ void CBoard::generatePawnPossibleMoves()
 
         for (int sq = a1; sq <= h8; sq++)
         {
-            mask = 0ULL;
+            a_mask = 0ULL;
+            p_mask = 0ULL;
 
             for (int i = 0; i < 4; i++)
             {
@@ -238,14 +247,14 @@ void CBoard::generatePawnPossibleMoves()
                 {
                     if (isLegalBishopMove(sq, target) && isInBounds(target))
                     {
-                        mask |= move;
+                        a_mask |= move;
                     }
                 }
                 else if (shift == 8 || shift == -8)
                 {
                     if (isLegalRookMove(sq, target) && isInBounds(target))
                     {
-                        mask |= move;
+                        p_mask |= move;
                     }
                 }
                 else
@@ -257,12 +266,13 @@ void CBoard::generatePawnPossibleMoves()
                     }
                     if (isLegalRookMove(sq, target) && isInBounds(target))
                     {
-                        mask |= move;
+                        p_mask |= move;
                     }
                 }
             }
-            this->posAttackBBs[PAWN][sq] = mask;
-            this->pawnPosAttacks[color][sq] = mask;
+            // this->posAttackBBs[PAWN][sq] = mask;
+            this->pawnPosPushes[color][sq] = p_mask;
+            this->pawnPosAttacks[color][sq] = a_mask;
         }
     }
 }
