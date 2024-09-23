@@ -13,7 +13,8 @@ typedef struct moveStruct
     bool isEnPassant;
     bool isCastlingShort;
     bool isCastlingLong;
-    int capturedP;
+    int capturedP; // get rid of this
+    // float eval
 
     // isCapture?
 
