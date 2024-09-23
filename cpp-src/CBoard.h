@@ -106,6 +106,7 @@ public:
 
     u64 posAttackBBs[nPieceT][64];
     u64 pawnPosAttacks[2][64];
+    u64 pawnPosPushes[2][64];
     u64 bishopPosAttacks[64];
     u64 knightPosAttacks[64];
     u64 rookPosAttacks[64];
@@ -115,6 +116,7 @@ public:
     u64 pieceAttacks[2][nPieceT];
 
     u64 fullBoard();
+    u64 emptyBoard();
 
     void initCBoard();
     void initTestBoard();
@@ -163,26 +165,33 @@ public:
 
     // gen all moves? or attacks? well. attacks are if targetBB == opp_color
 
-    void genAllMoves(MoveList *ml);
-    void fillAttackBBs(u64 targetBB);
+    void genAllMoves(MoveList *ml, int color);
+    void genQuietMoves(MoveList *ml, int color);
+    void genCaptureMoves(MoveList *ml, int color);
+    void genPromotions(MoveList *ml, int color);
 
-    void genPawnMoves(MoveList *ml, u64 targetBB);
-    void genPawnAttacks(u64 targetBB);
+    void fillAttackBBs(MoveList *game, u64 targetBB, int color);
 
-    void genBishopMoves(MoveList *ml, u64 targetBB);
-    void genBishopAttacks(u64 targetBB);
+    void genPawnMoves(MoveList *ml, MoveList *game, u64 targetBB, int color);
+    void genPawnPushes(MoveList *ml, int color, int from);
+    void genPawnDiags(MoveList *ml, MoveList *game, int color, int from);
+    void genPawnPromotions(MoveList *ml, int color, int from);
+    void genPawnAttacks(MoveList *game, u64 targetBB, int color);
 
-    void genKnightMoves(MoveList *ml, u64 targetBB);
-    void genKnightAttacks(u64 targetBB);
+    void genBishopMoves(MoveList *ml, u64 targetBB, int color);
+    void genBishopAttacks(u64 targetBB, int color);
 
-    void genRookMoves(MoveList *ml, u64 targetBB);
-    void genRookAttacks(u64 targetBB);
+    void genKnightMoves(MoveList *ml, u64 targetBB, int color);
+    void genKnightAttacks(u64 targetBB, int color);
 
-    void genQueenMoves(MoveList *ml, u64 targetBB);
-    void genQueenAttacks(u64 targetBB);
+    void genRookMoves(MoveList *ml, u64 targetBB, int color);
+    void genRookAttacks(u64 targetBB, int color);
+
+    void genQueenMoves(MoveList *ml, u64 targetBB, int color);
+    void genQueenAttacks(u64 targetBB, int color);
     
-    void genKingMoves(MoveList *ml, u64 targetBB);
-    void genKingAttacks(u64 targetBB);
+    void genKingMoves(MoveList *ml, u64 targetBB, int color);
+    void genKingAttacks(u64 targetBB, int color);
 
     bool isAttacked(int to, int color);
     
