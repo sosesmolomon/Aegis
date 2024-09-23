@@ -116,7 +116,7 @@ int main()
     CBoard board = CBoard();
     CBoard *b = &board;
 
-    b->player = BLACK;
+    b->player = WHITE;
     b->inCheck[WHITE] = false;
     b->inCheck[BLACK] = false;
 
@@ -126,79 +126,46 @@ int main()
     b->atHomeCastleLong[WHITE] = true;
     b->atHomeCastleLong[BLACK] = true;
 
-    b->initCBoard();
-    // b->initTestBoard();
+    // b->initCBoard();
+    b->initTestBoard();
     initMagic(b);
 
     printBoard(b, b->fullBoard());
 
-    MoveList game = MoveList();
-    MoveList possible_moves = MoveList();
-    MoveList legal_moves_W = MoveList();
-    MoveList legal_moves_B = MoveList();
+    MoveList *game = new MoveList();
+    MoveList *possible_moves = new MoveList();
+    MoveList *legal_moves_W = new MoveList();
+    MoveList *legal_moves_B = new MoveList();
 
     // important setup -- both colors know the other color's attacks
     // b->genAllLegalMoves(NULL, &game, b->player, true);
     // b->genAllLegalMoves(NULL, &game, b->player ^ WHITE, true);
 
-    b->fillAttackBBs(UINT64_MAX);
+    b->fillAttackBBs(game, UINT64_MAX, WHITE);
     for (int i = 0; i < 6; i++) {
         printf("%s:\n", pieceToStr[i]);
         printBitString(b->pieceAttacks[b->player][i]);
     }
-    return 0;
+
+    b->genPawnMoves(possible_moves, game, UINT64_MAX, BLACK);
+    makeMove(b, moveStruct(f7, f6, PAWN, BLACK), game);
+    makeMove(b, moveStruct(d7, d5, PAWN, BLACK), game);
+
+    makeMove(b, moveStruct(e5, d6, PAWN, WHITE, 1, 1), game);
+    makeMove(b, moveStruct(d6, d7, PAWN, WHITE), game);
+
+    possible_moves->clear();
+    b->genPawnMoves(possible_moves, game, UINT64_MAX, WHITE);
+    possible_moves->print();
 
 
-    MoveList *legal_moves;
 
+    // printBoard(b, b->fullBoard());
 
-    printBitString(b->legalAttackedSquares[b->player]);
-    printBitString(b->legalAttackedSquares[b->player ^ WHITE]);
+    // possible_moves->clear();
+    // b->genPawnMoves(possible_moves, game, UINT64_MAX, WHITE);
+    // possible_moves->print();
 
-    makeRandomMoves(b, &possible_moves, &game, 10);
-
-    return 0;
-
-    printf("updating moves for %s\n", colorToStr[b->player]); // WHITE
-
-    // updateMoveLists(b, &possible_moves, &game, b->player, (b->player == WHITE) ? &legal_moves_W : &legal_moves_B); // FOR BLACK
-    b->genAllLegalMoves(NULL, &game, b->player ^ WHITE, true); // upate for BLACK
-    printBitString(b->legalAttackedSquares[BLACK]);
-
-    legal_moves = (b->player == WHITE) ? &legal_moves_W : &legal_moves_B;
-    updateMoveLists(b, &possible_moves, &game, b->player, legal_moves); // FOR WHITE
-    makeDefinedMove(b, legal_moves->at(0), legal_moves, &game);         // BLACK
-    b->player ^= WHITE;                                                 // BLACK
-
-    printBoard(b, b->fullBoard());
-
-    legal_moves_B.print(0);
-    printf("---------------------------------\n");
-    legal_moves_W.print();
-    printf("--------------------------------- %s\n", colorToStr[b->player]);
-
-    return 0;
-
-    updateMoveLists(b, &possible_moves, &game, b->player, (b->player == WHITE) ? &legal_moves_W : &legal_moves_B); // BLACK
-    b->player ^= WHITE;
-
-    legal_moves = (b->player == WHITE) ? &legal_moves_W : &legal_moves_B;
-    legal_moves->print(0);
-    return 0;
-
-    updateMoveLists(b, &possible_moves, &game, b->player ^ WHITE, (b->player == WHITE) ? &legal_moves_W : &legal_moves_B);
-    b->player ^= WHITE;
-
-    makeRandomMoves(b, &possible_moves, &game, 60);
-
+    // printBitString(0xFFUL << a8);
     return 0;
 }
-
-/*
-TODO:
-- theres a couple bugs happening:
-- printBoard() shows a pawn when its clearly a queen -- this must be because of identifyPieceType
-- setSq in undoMove is clearing the color and the piece at the end of the method... this clears the replaced queen
-    - this is why the queen never comes back for the evaluation
-
-*/
