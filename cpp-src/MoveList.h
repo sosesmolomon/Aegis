@@ -13,8 +13,9 @@ typedef struct moveStruct
     bool isEnPassant;
     bool isCastlingShort;
     bool isCastlingLong;
-    int capturedP; // get rid of this
-    // float eval
+    int capturedP; // get rid of this, maybe need identifyCapturedPiece() for undoMove()
+    bool isPromotion;
+    float eval;
 
     // isCapture?
 
@@ -24,7 +25,7 @@ typedef struct moveStruct
 
     // Constructors
     moveStruct();
-    moveStruct(int from, int to, int pT, int pC, int isCapture = 0, int isEnPassant = 0, int isCastlingShort = 0, int isCastlingLong = 0, int capturedP = 6 /* int for empty*/);
+    moveStruct(int from, int to, int pT, int pC, int isCapture = 0, int isEnPassant = 0, int isCastlingShort = 0, int isCastlingLong = 0, int capturedP = 6, bool isPromotion = 0, float eval = 0.0 /* int for empty*/);
 
 
 } moveStruct;
@@ -37,7 +38,7 @@ public:
     moveStruct at(int index);
     void init();
     void clear();
-    void sort();
+    void sort(); // need this! sort based on eval? yes.
     void remove(size_t index);
     void add(const moveStruct &move);
     void print(int index = -1);

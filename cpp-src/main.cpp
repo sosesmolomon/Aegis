@@ -116,18 +116,8 @@ int main()
     CBoard board = CBoard();
     CBoard *b = &board;
 
-    b->player = WHITE;
-    b->inCheck[WHITE] = false;
-    b->inCheck[BLACK] = false;
 
-    b->atHomeCastleShort[WHITE] = true;
-    b->atHomeCastleShort[BLACK] = true;
-
-    b->atHomeCastleLong[WHITE] = true;
-    b->atHomeCastleLong[BLACK] = true;
-
-    // b->initCBoard();
-    b->initTestBoard();
+    b->initCBoard();
     initMagic(b);
 
     printBoard(b, b->fullBoard());
@@ -137,35 +127,18 @@ int main()
     MoveList *legal_moves_W = new MoveList();
     MoveList *legal_moves_B = new MoveList();
 
-    // important setup -- both colors know the other color's attacks
-    // b->genAllLegalMoves(NULL, &game, b->player, true);
-    // b->genAllLegalMoves(NULL, &game, b->player ^ WHITE, true);
+    // b->fillAttackBBs(game, UINT64_MAX ^ b->coloredBB[BLACK], BLACK);
+    // for (int i = 0; i < 6; i++) {
+    //     printf("%s:\n", pieceToStr[i]);
+    //     printBitString(b->pieceAttacks[BLACK][i]);
+    // }
 
-    b->fillAttackBBs(game, UINT64_MAX, WHITE);
-    for (int i = 0; i < 6; i++) {
-        printf("%s:\n", pieceToStr[i]);
-        printBitString(b->pieceAttacks[b->player][i]);
-    }
+    b->genAllMoves(possible_moves, game, b->player);
+    b->verifyLegalMoves(possible_moves, game, b->player, legal_moves_W);
+    legal_moves_W->print();
+    legal_moves_W->sort();
 
-    b->genPawnMoves(possible_moves, game, UINT64_MAX, BLACK);
-    makeMove(b, moveStruct(f7, f6, PAWN, BLACK), game);
-    makeMove(b, moveStruct(d7, d5, PAWN, BLACK), game);
+    b->player^=WHITE;
 
-    makeMove(b, moveStruct(e5, d6, PAWN, WHITE, 1, 1), game);
-    makeMove(b, moveStruct(d6, d7, PAWN, WHITE), game);
-
-    possible_moves->clear();
-    b->genPawnMoves(possible_moves, game, UINT64_MAX, WHITE);
-    possible_moves->print();
-
-
-
-    // printBoard(b, b->fullBoard());
-
-    // possible_moves->clear();
-    // b->genPawnMoves(possible_moves, game, UINT64_MAX, WHITE);
-    // possible_moves->print();
-
-    // printBitString(0xFFUL << a8);
     return 0;
 }
