@@ -165,10 +165,9 @@ public:
 
     // gen all moves? or attacks? well. attacks are if targetBB == opp_color
 
-    void genAllMoves(MoveList *ml, int color);
-    void genQuietMoves(MoveList *ml, int color);
-    void genCaptureMoves(MoveList *ml, int color);
-    void genPromotions(MoveList *ml, int color);
+    void genAllMoves(MoveList *ml, MoveList *game, int color);
+    void genQuietMoves(MoveList *ml, MoveList *game, int color);
+    void genCaptureMoves(MoveList *ml, MoveList *game, int color);
 
     void fillAttackBBs(MoveList *game, u64 targetBB, int color);
 
@@ -190,7 +189,7 @@ public:
     void genQueenMoves(MoveList *ml, u64 targetBB, int color);
     void genQueenAttacks(u64 targetBB, int color);
     
-    void genKingMoves(MoveList *ml, u64 targetBB, int color);
+    void genKingMoves(MoveList *ml, MoveList *game, u64 targetBB, int color);
     void genKingAttacks(u64 targetBB, int color);
 
     bool isAttacked(int to, int color);
