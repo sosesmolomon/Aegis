@@ -1,10 +1,11 @@
-#include "CBoard.h"
 #include "MoveList.h"
+#include "CBoard.h"
 #include "print.h"
 #include "bitboard.h"
 #include "utils.h"
 #include "magic.h"
 #include "move.h"
+#include "evaluate.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -13,7 +14,8 @@ u64 CBoard::fullBoard()
     return this->coloredBB[BLACK].b | this->coloredBB[WHITE].b;
 }
 
-u64 CBoard::emptyBoard(){
+u64 CBoard::emptyBoard()
+{
     return (this->fullBoard() ^ UINT64_MAX);
 }
 
@@ -48,12 +50,155 @@ u64 emptyEdges = 0b1111111110000001100000011000000110000001100000011000000111111
 
 void CBoard::initCBoard()
 {
-    // this->bishopPosAttacks = new u64[64];
-    // this->rookPosAttacks = new u64[64];
 
     this->white_pawn_home = 0xFFUL << 8;
     this->black_pawn_home = 0xFFUL << 48;
 
+    this->player = WHITE;
+    this->inCheck[WHITE] = false;
+    this->inCheck[BLACK] = false;
+
+    this->atHomeCastleShort[WHITE] = true;
+    this->atHomeCastleShort[BLACK] = true;
+
+    this->atHomeCastleLong[WHITE] = true;
+    this->atHomeCastleLong[BLACK] = true;
+
+#ifdef TEST
+
+    this->pieceBB[BISHOP].getBB() |= 1ULL << c3;
+    this->coloredBB[BLACK].getBB() |= 1ULL << c3;
+
+    this->pieceBB[QUEEN].getBB() |= 1ULL << g7;
+    this->coloredBB[BLACK].getBB() |= 1ULL << g7;
+
+    this->pieceBB[KNIGHT].getBB() |= 1ULL << f5;
+    this->coloredBB[BLACK].getBB() |= 1ULL << f5;
+
+    this->pieceBB[ROOK].getBB() |= 1ULL << a8;
+    this->coloredBB[BLACK].getBB() |= 1ULL << a8;
+
+    this->pieceBB[PAWN].getBB() |= 1ULL << a1;
+    this->coloredBB[BLACK].getBB() |= 1ULL << a1;
+
+    this->pieceBB[PAWN].getBB() |= 1ULL << h2;
+    this->coloredBB[BLACK].getBB() |= 1ULL << h2;
+
+#elif EP
+    // must make move (d7/f7 to d5/f5) first.
+    this->pieceBB[PAWN].getBB() |= 0xFFUL << a7;
+    this->coloredBB[BLACK].getBB() |= 0xFFUL << a7;
+
+    this->pieceBB[PAWN].getBB() |= 1ULL << e5;
+    this->coloredBB[WHITE].getBB() |= 1ULL << e5;
+
+#elif CASTL_W
+    this->player = WHITE;
+    this->pieceBB[ROOK].getBB() |= (1ULL << 0) | (1ULL << 7);
+    this->coloredBB[WHITE].getBB() |= (1ULL << 0) | (1ULL << 7);
+    this->pieceBB[KING].getBB() |= (1ULL << 4);
+    this->coloredBB[WHITE].getBB() |= (1ULL << 4);
+
+#elif CASTL_B
+    this->player = BLACK;
+    this->pieceBB[ROOK].getBB() |= (1ULL << a8) | (1ULL << h8);
+    this->coloredBB[BLACK].getBB() |= (1ULL << a8) | (1ULL << h8);
+    this->pieceBB[KING].getBB() |= (1ULL << e8);
+    this->coloredBB[BLACK].getBB() |= (1ULL << e8);
+
+    // this->pieceBB[ROOK].getBB() |= (1ULL << d1);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << d1);
+    this->pieceBB[ROOK].getBB() |= (1ULL << f1);
+    this->coloredBB[WHITE].getBB() |= (1ULL << f1);
+
+
+#elif UNDO
+    // capture and undo setup
+    this->pieceBB[KNIGHT].getBB() |= (1ULL << d4);
+    this->coloredBB[WHITE].getBB() |= (1ULL << d4);
+
+    this->pieceBB[BISHOP].getBB() |= (1ULL << h5);
+    this->coloredBB[WHITE].getBB() |= (1ULL << h5);
+
+    this->pieceBB[KNIGHT].getBB() |= (1ULL << g4);
+    this->coloredBB[WHITE].getBB() |= (1ULL << g4);
+
+    this->pieceBB[QUEEN].getBB() |= (1ULL << e8);
+    this->coloredBB[WHITE].getBB() |= (1ULL << e8);
+
+    this->pieceBB[BISHOP].getBB() |= (1ULL << c2) | (1ULL << b3);
+    this->coloredBB[BLACK].getBB() |= (1ULL << c2) | (1ULL << b3);
+
+    this->pieceBB[KING].getBB() |= (1ULL << b1) | (1ULL << e2);
+    this->coloredBB[WHITE].getBB() |= (1ULL << b1);
+    this->coloredBB[BLACK].getBB() |= (1ULL << e2);
+
+#elif EXITCHECK
+    // possible moves to exit check
+    this->pieceBB[KING].getBB() |= (1ULL << g3);
+    this->coloredBB[WHITE].getBB() |= (1ULL << g3);
+
+    this->pieceBB[BISHOP].getBB() |= (1ULL << f1);
+    this->coloredBB[WHITE].getBB() |= (1ULL << f1);
+
+    this->pieceBB[PAWN].getBB() |= (1ULL << f4);
+    this->coloredBB[WHITE].getBB() |= (1ULL << f4);
+
+    this->pieceBB[KING].getBB() |= (1ULL << a8);
+    this->coloredBB[BLACK].getBB() |= (1ULL << a8);
+
+    this->pieceBB[QUEEN].getBB() |= (1ULL << h3);
+    this->coloredBB[BLACK].getBB() |= (1ULL << h3);
+
+    this->pieceBB[KNIGHT].getBB() |= (1ULL << g4);
+    this->coloredBB[BLACK].getBB() |= (1ULL << g4);
+
+    this->pieceBB[ROOK].getBB() |= (1ULL << h8);
+    this->coloredBB[BLACK].getBB() |= (1ULL << h8);
+
+    this->pieceBB[QUEEN].getBB() |= (1ULL << a1);
+    this->coloredBB[BLACK].getBB() |= (1ULL << a1);
+
+    this->pieceBB[QUEEN].getBB() |= (1ULL << a7);
+    this->coloredBB[BLACK].getBB() |= (1ULL << a7);
+
+    this->pieceBB[QUEEN].getBB() |= (1ULL << h7);
+    this->coloredBB[BLACK].getBB() |= (1ULL << h7);
+
+    this->pieceBB[QUEEN].getBB() |= (1ULL << h6);
+    this->coloredBB[BLACK].getBB() |= (1ULL << h6);
+
+#elif CHECKMATE
+    this->atHomeCastleShort[WHITE] = false;
+    this->atHomeCastleShort[BLACK] = false;
+
+    this->atHomeCastleLong[WHITE] = false;
+    this->atHomeCastleLong[BLACK] = false;
+
+    this->inCheck[WHITE] = true;
+
+    this->pieceBB[KING].getBB() |= (1ULL << e4);
+    this->coloredBB[WHITE].getBB() |= (1ULL << e4);
+
+    this->pieceBB[ROOK].getBB() |= (1ULL << a1) | (1ULL << h8) | (1ULL << a2);
+    this->coloredBB[WHITE].getBB() |= (1ULL << a1) | (1ULL << h8) | (1ULL << a2);
+
+    // this->pieceBB[PAWN].getBB() |= (1ULL << c5);
+    // this->coloredBB[WHITE].getBB() |= (1ULL << c5);
+
+    this->pieceBB[QUEEN].getBB() |= (1ULL << a5);
+    this->coloredBB[BLACK].getBB() |= (1ULL << a5);
+
+    this->pieceBB[ROOK].getBB() |= (1ULL << d8) | (1ULL << d1) | (1ULL << f8) | (1ULL << h5) | (1ULL << c3);
+    this->coloredBB[BLACK].getBB() |= (1ULL << d8) | (1ULL << d1) | (1ULL << f8) | (1ULL << h5) | (1ULL << c3);
+
+    this->pieceBB[PAWN].getBB() |= (1ULL << d7);
+    this->coloredBB[BLACK].getBB() |= (1ULL << d7);
+
+    this->pieceBB[KING].getBB() |= (1ULL << h1);
+    this->coloredBB[BLACK].getBB() |= (1ULL << h1);
+
+#else
     this->pieceBB[PAWN].getBB() = 0xFFUL << a2 | 0xFFUL << a7;
     this->pieceBB[BISHOP].getBB() = (1ULL << c1) | (1ULL << f1) | (1ULL << c8) | (1ULL << f8);
     this->pieceBB[KNIGHT].getBB() = (1ULL << b1) | (1ULL << g1) | (1ULL << b8) | (1ULL << g8);
@@ -64,154 +209,22 @@ void CBoard::initCBoard()
     this->coloredBB[BLACK].getBB() = 0xFFFFUL << a7;
     this->coloredBB[WHITE].getBB() = 0xFFFFUL;
 
-    this->pieceBB[empty].getBB() = UINT64_MAX ^ this->fullBoard();
-    this->pieceHomes = this->fullBoard();
+#endif
 
     this->generatePiecePossibleMoves();
-
-    // this->bishop_W = (1ULL << 61) | (1ULL << 58);
-    // this->knight_W = (1ULL << 62) | (1ULL << 57);
-    // this->rook_W = (1ULL << 63) | (1ULL << 56);
-    // this->queen_W = 1ULL << 60;
-    // this->king_W = 1ULL << 59;
-
-    // this->pawn_B = 0xFFUL << 8; // takes 0b0000000000000000000000000000000000000000000000000000000011111111 --> 0b0000000000000000000000000000000000000000000000001111111100000000
-    // this->bishop_B = (1ULL << 2) | (1ULL << 5);
-    // this->knight_B = (1ULL << 1) | (1ULL << 6);
-    // this->rook_B = (1ULL << 0) | (1ULL << 7);
-    // this->queen_B = 1ULL << 4;
-    // this->king_B = 1ULL << 3;
 }
 
 void CBoard::initTestBoard()
 {
-    this->white_pawn_home = 0xFFUL << 8;
-    this->black_pawn_home = 0xFFUL << 48;
-
-
-
-
-    // // capture and undo setup
-    // this->pieceBB[KNIGHT].getBB() |= (1ULL << d4);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << d4);
-
-    // this->pieceBB[BISHOP].getBB() |= (1ULL << h5);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << h5);
-
-    // this->pieceBB[KNIGHT].getBB() |= (1ULL << g4);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << g4);
-
-    // this->pieceBB[QUEEN].getBB() |= (1ULL << e8);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << e8);
-
-    // this->pieceBB[BISHOP].getBB() |= (1ULL << c2) | (1ULL << b3);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << c2) | (1ULL << b3);
-
-    // this->pieceBB[KING].getBB() |= (1ULL << b1) | (1ULL << e2);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << b1);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << e2);
-
-    // // --------------------------------------------------------------------------------
-
-
-    // en passant setup -- must make move (d7/f7 to d5/f5) first.
-    this->pieceBB[PAWN].getBB() |= 0xFFUL << a7;
-    this->coloredBB[BLACK].getBB() |= 0xFFUL << a7;
-
-    this->pieceBB[PAWN].getBB() |= 1ULL << e5;
-    this->coloredBB[WHITE].getBB() |= 1ULL << e5;
-
-
-
-    this->atHomeCastleShort[WHITE] = false;
-    this->atHomeCastleShort[BLACK] = false;
-
-    this->atHomeCastleLong[WHITE] = false;
-    this->atHomeCastleLong[BLACK] = false;
 
     // --------------------------------------------------------------------------------
 
-    // castling setup WHITE
-    // this->pieceBB[ROOK].getBB() |= (1ULL << 0) | (1ULL << 7);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << 0) | (1ULL << 7);
-    // this->pieceBB[KING].getBB() |= (1ULL << 4);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << 4);
-    // // BLACK
-    // this->pieceBB[ROOK].getBB() |= (1ULL << a8) | (1ULL << h8);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << a8) | (1ULL << h8);
-    // this->pieceBB[KING].getBB() |= (1ULL << e8);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << e8);
+    this->pieceBB[empty].getBB() = UINT64_MAX ^ this->fullBoard();
+    this->pieceHomes = this->fullBoard();
 
-    // // possible moves to exit check
-    // this->pieceBB[KING].getBB() |= (1ULL << g3);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << g3);
-
-    // this->pieceBB[BISHOP].getBB() |= (1ULL << f1);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << f1);
-
-    // this->pieceBB[PAWN].getBB() |= (1ULL << f4);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << f4);
-
-    // this->pieceBB[KING].getBB() |= (1ULL << a8);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << a8);
-
-    // this->pieceBB[QUEEN].getBB() |= (1ULL << h3);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << h3);
-
-    // this->pieceBB[KNIGHT].getBB() |= (1ULL << g4);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << g4);
-
-    // this->pieceBB[ROOK].getBB() |= (1ULL << h8);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << h8);
-
-    // this->pieceBB[QUEEN].getBB() |= (1ULL << a1);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << a1);
-
-    // this->pieceBB[QUEEN].getBB() |= (1ULL << a7);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << a7);
-
-    // this->pieceBB[QUEEN].getBB() |= (1ULL << h7);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << h7);
-
-    // this->pieceBB[QUEEN].getBB() |= (1ULL << h6);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << h6);
-
-    // this->atHomeCastleShort[WHITE] = false;
-    // this->atHomeCastleShort[BLACK] = false;
-
-    // this->atHomeCastleLong[WHITE] = false;
-    // this->atHomeCastleLong[BLACK] = false;
-
-    // this->inCheck[WHITE] = true;
-
-    // this->pieceBB[KING].getBB() |= (1ULL << e4);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << e4);
-
-    // this->pieceBB[ROOK].getBB() |= (1ULL << a1) | (1ULL << h8) | (1ULL << a2);
-    // this->coloredBB[WHITE].getBB() |= (1ULL << a1) | (1ULL << h8) | (1ULL << a2);
-
-    // // this->pieceBB[PAWN].getBB() |= (1ULL << c5);
-    // // this->coloredBB[WHITE].getBB() |= (1ULL << c5);
-
-    
-    // this->pieceBB[QUEEN].getBB() |= (1ULL << a5);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << a5);
-
-    // this->pieceBB[ROOK].getBB() |= (1ULL << d8) | (1ULL << d1) | (1ULL << f8) | (1ULL << h5) | (1ULL << c3);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << d8) | (1ULL << d1) | (1ULL << f8) | (1ULL << h5) | (1ULL << c3);
-
-    // this->pieceBB[PAWN].getBB() |= (1ULL << d7);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << d7);
-
-    // this->pieceBB[KING].getBB() |= (1ULL << h1);
-    // this->coloredBB[BLACK].getBB() |= (1ULL << h1);
-
-    // this->pieceBB[empty].getBB() = UINT64_MAX ^ this->fullBoard();
-    // this->pieceHomes = this->fullBoard();
-
-    // printBitString(this->fullBoard());
-    // printBitString(this->coloredBB[BLACK]);
-    // printBitString(this->pieceBB[KING]);
+    printBitString(this->fullBoard());
+    printBitString(this->coloredBB[BLACK]);
+    printBitString(this->pieceBB[KING]);
 
     this->generatePiecePossibleMoves();
 }
@@ -829,8 +842,9 @@ void CBoard::genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color, 
             }
             target = firstOne(attacks);
 
-            if (sq == f5 && (target == e4 || target == f4 || target == g4)) {
-                printf("okay... what is going on? anything at %s: %d\n", sqToStr[target], int( isEmptySquare(this, target) ) );
+            if (sq == f5 && (target == e4 || target == f4 || target == g4))
+            {
+                printf("okay... what is going on? anything at %s: %d\n", sqToStr[target], int(isEmptySquare(this, target)));
             }
 
             // printf("%s on %s to %s is%slegal\n", pieceToStr[QUEEN], sqToStr[sq], sqToStr[target], (canCapture(this, sq, target, QUEEN, BLACK)) ? " " : " NOT ");
@@ -944,12 +958,12 @@ bool CBoard::canCastleShort(int sq, int color)
     if (color)
     {
         pathIsClear = isEmptySquare(this, f1) && isEmptySquare(this, g1);
-        pathIsSafe = !squareIsAttacked(this, f1, color) && !squareIsAttacked(this, g1, color);
+        pathIsSafe = !this->isAttacked(f1, color ^ WHITE) && !this->isAttacked(g1, color ^ WHITE);
     }
     else
     {
         pathIsClear = isEmptySquare(this, f8) && isEmptySquare(this, g8);
-        pathIsSafe = !squareIsAttacked(this, f8, color) && !squareIsAttacked(this, g8, color);
+        pathIsSafe = !this->isAttacked(f8, color ^ WHITE) && !this->isAttacked(g8, color ^ WHITE);
     }
     return everyoneAtHome && pathIsSafe && pathIsClear;
 }
@@ -963,12 +977,12 @@ bool CBoard::canCastleLong(int sq, int color)
     if (color)
     {
         pathIsClear = isEmptySquare(this, b1) && isEmptySquare(this, c1) && isEmptySquare(this, d1);
-        pathIsSafe = !squareIsAttacked(this, b1, color) && !squareIsAttacked(this, c1, color) && !squareIsAttacked(this, d1, color);
+        pathIsSafe = !this->isAttacked(b1, color ^ WHITE) && !this->isAttacked(c1, color ^ WHITE) && !this->isAttacked(d1, color ^ WHITE);
     }
     else
     {
         pathIsClear = isEmptySquare(this, b8) && isEmptySquare(this, c8) && isEmptySquare(this, d8);
-        pathIsSafe = !squareIsAttacked(this, b8, color) && !squareIsAttacked(this, c8, color) && !squareIsAttacked(this, d8, color);
+        pathIsSafe = !this->isAttacked(b8, color ^ WHITE) && !this->isAttacked(c8, color^ WHITE) && !this->isAttacked(d8, color ^ WHITE);
     }
     return everyoneAtHome && pathIsSafe && pathIsClear;
 }
@@ -983,8 +997,10 @@ bool CBoard::isInCheck(int color)
     return (this->legalAttackedSquares[(color ^ WHITE)] & kBB) >= 1;
 }
 
-bool CBoard::isInCheckmate(MoveList *legals, int color) {
-    if (legals->size() == 0 && this->isInCheck(color)) {
+bool CBoard::isInCheckmate(MoveList *legals, int color)
+{
+    if (legals->size() == 0 && this->isInCheck(color))
+    {
         return true;
     }
     return false;
@@ -1002,8 +1018,14 @@ void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList 
 
         makeMove(this, m, game);
 
-        this->genAllLegalMoves(ml, game, color ^ WHITE, true);
-        if (!isInCheck(color))
+        // NOT SURE ABOUT THIS::
+
+        this->fillAttackBBs(game, UINT64_MAX ^ this->coloredBB[color^WHITE], color^WHITE);
+
+        u64 king = this->pieceBB[KING] & this->coloredBB[color];
+        int sq = firstOne(king);
+
+        if (!this->isAttacked(sq, color^WHITE)) 
         {
             verified->add(m);
         }
