@@ -4,33 +4,27 @@
 #include "magic.h"
 #include "MoveList.h"
 
-void CBoard::genAllMoves(MoveList *ml, int color)
+void CBoard::genAllMoves(MoveList *ml, MoveList *game, int color)
 {
     u64 attacked = 0ULL;
-    u64 targetBB = this->coloredBB[color] ^ UINT64_MAX; //
+    u64 targetBB = this->coloredBB[color] ^ UINT64_MAX; // removes the need for friendlyFire check
 
-    //     this->genPawnMoves(ml, targetBB, color);
-    //     this->genBishopMoves(ml, targetBB, color);
-    //     this->genKnightMoves(ml, targetBB, color);
-    //     this->genRookMoves(ml, targetBB, color);
-    //     this->genQueenMoves(ml, targetBB, color);
+    this->genPawnMoves(ml, game, targetBB, color);
+    this->genBishopMoves(ml, targetBB, color);
+    this->genKnightMoves(ml, targetBB, color);
+    this->genRookMoves(ml, targetBB, color);
+    this->genQueenMoves(ml, targetBB, color);
+    this->genKingMoves(ml, game, targetBB, color);
 }
 
-void CBoard::genQuietMoves(MoveList *ml, int color)
+void CBoard::genQuietMoves(MoveList *ml, MoveList *game, int color)
 {
-    this->genAllMoves(ml, (this->coloredBB[color] ^ this->fullBoard()));
+    this->genAllMoves(ml, game, (this->coloredBB[color] ^ this->fullBoard()));
 }
-void CBoard::genCaptureMoves(MoveList *ml, int color)
+void CBoard::genCaptureMoves(MoveList *ml, MoveList *game, int color)
 {
-    this->genAllMoves(ml, (this->coloredBB[color] & this->fullBoard()));
+    this->genAllMoves(ml, game, (this->coloredBB[color] & this->fullBoard()));
 }
-// void CBoard::genPromotions(MoveList *ml, int color) {
-//     this->genAllMoves(ml, (
-//         this->coloredBB[color] &
-//         this->pieceBB[PAWN] &
-
-//     ));
-// }
 
 void CBoard::fillAttackBBs(MoveList *game, u64 targetBB, int color)
 {
@@ -98,15 +92,14 @@ void CBoard::genPawnDiags(MoveList *ml, MoveList *game, int color, int fr)
     }
 }
 
-
-void CBoard::genPawnPromotions(MoveList *ml, int color, int fr) {
+void CBoard::genPawnPromotions(MoveList *ml, int color, int fr)
+{
     u64 end_row = (color == WHITE) ? (0xFFULL << a8) : 0xFFULL;
     u64 toBB = this->pawnPosPushes[color][fr] & this->emptyBoard() & end_row;
-    for (int to = firstOne(toBB); to != 64; to = firstOne(toBB)) {
-        ml->add(moveStruct(fr, to, PAWN, color)); // NEED ML FOR PROMOTIONS (default queening)
-
+    for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
+    {
+        ml->add(moveStruct(fr, to, PAWN, color, 0, 0, 0, 0, 0, 1)); // NEED ML FOR PROMOTIONS (default queening)
     }
-    
 }
 
 void CBoard::genPawnAttacks(MoveList *game, u64 targetBB, int color)
@@ -124,8 +117,28 @@ void CBoard::genPawnAttacks(MoveList *game, u64 targetBB, int color)
     this->pieceAttacks[color][PAWN] = toBB;
 }
 
-void CBoard::genBishopMoves(MoveList *ml, u64 targetBB, int color) {}
+void CBoard::genBishopMoves(MoveList *ml, u64 targetBB, int color)
+{
+    u64 allBB = this->pieceBB[BISHOP] & this->coloredBB[color];
+    u64 toBB;
 
+    for (int fr = firstOne(allBB); fr != 64; fr = firstOne(allBB))
+    {
+        toBB = getBishopAttacks(fr, this->fullBoard()) & targetBB;
+        for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
+        {
+
+            if (isEmptySquare(this, to))
+            {
+                ml->add(moveStruct(fr, to, BISHOP, color));
+            }
+            else
+            {
+                ml->add(moveStruct(fr, to, BISHOP, color, 1));
+            }
+        }
+    }
+}
 void CBoard::genBishopAttacks(u64 targetBB, int color)
 {
 
@@ -139,6 +152,7 @@ void CBoard::genBishopAttacks(u64 targetBB, int color)
     }
     this->pieceAttacks[color][BISHOP] = toBB;
 }
+
 // generate quiet moves, captures, all moves, based on targetBB;
 void CBoard::genKnightMoves(MoveList *ml, u64 targetBB, int color)
 {
@@ -148,11 +162,18 @@ void CBoard::genKnightMoves(MoveList *ml, u64 targetBB, int color)
 
     for (int fr = firstOne(allBB); fr != 64; fr = firstOne(allBB))
     {
-        toBB |= this->knightPosAttacks[fr] & targetBB;
+        toBB = this->knightPosAttacks[fr] & targetBB;
         for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
         {
-            // add move
-            // ml->add(moveStruct(fr, to, KNIGHT, color));/
+
+            if (isEmptySquare(this, to))
+            {
+                ml->add(moveStruct(fr, to, KNIGHT, color));
+            }
+            else
+            {
+                ml->add(moveStruct(fr, to, KNIGHT, color, 1));
+            }
         }
     }
 }
@@ -170,6 +191,28 @@ void CBoard::genKnightAttacks(u64 targetBB, int color)
     this->pieceAttacks[color][KNIGHT] = toBB;
 }
 
+void CBoard::genRookMoves(MoveList *ml, u64 targetBB, int color)
+{
+    u64 allBB = this->pieceBB[ROOK] & this->coloredBB[color];
+    u64 toBB;
+
+    for (int fr = firstOne(allBB); fr != 64; fr = firstOne(allBB))
+    {
+        toBB = getRookAttacks(fr, this->fullBoard()) & targetBB;
+        for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
+        {
+            if (isEmptySquare(this, to))
+            {
+                ml->add(moveStruct(fr, to, ROOK, color));
+            }
+            else
+            {
+                ml->add(moveStruct(fr, to, ROOK, color, 1));
+            }
+        }
+    }
+}
+
 void CBoard::genRookAttacks(u64 targetBB, int color)
 {
 
@@ -181,6 +224,29 @@ void CBoard::genRookAttacks(u64 targetBB, int color)
         toBB |= (getRookAttacks(fr, this->fullBoard()) & targetBB);
     }
     this->pieceAttacks[color][ROOK] = toBB;
+}
+
+void CBoard::genQueenMoves(MoveList *ml, u64 targetBB, int color)
+{
+    u64 allBB = this->pieceBB[QUEEN] & this->coloredBB[color];
+    u64 toBB;
+
+    for (int fr = firstOne(allBB); fr != 64; fr = firstOne(allBB))
+    {
+        toBB = (getBishopAttacks(fr, this->fullBoard()) | getRookAttacks(fr, this->fullBoard())) & targetBB;
+        for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
+        {
+
+            if (isEmptySquare(this, to))
+            {
+                ml->add(moveStruct(fr, to, QUEEN, color));
+            }
+            else
+            {
+                ml->add(moveStruct(fr, to, QUEEN, color, 1));
+            }
+        }
+    }
 }
 
 void CBoard::genQueenAttacks(u64 targetBB, int color)
@@ -196,6 +262,44 @@ void CBoard::genQueenAttacks(u64 targetBB, int color)
     this->pieceAttacks[color][QUEEN] = toBB;
 }
 
+void CBoard::genKingMoves(MoveList *ml, MoveList *game, u64 targetBB, int color)
+{
+    u64 allBB = this->pieceBB[KING] & this->coloredBB[color];
+    u64 toBB;
+    int sq;
+
+    for (int fr = firstOne(allBB); fr != 64; fr = firstOne(allBB))
+    {
+        this->fillAttackBBs(game, UINT64_MAX, color ^ WHITE);
+        if (canCastleShort(fr, color))
+        {
+            sq = (color) ? g1 : g8;
+            ml->add(moveStruct(fr, sq, KING, color, 0, 0, 1, 0));
+        }
+
+        if (canCastleLong(fr, color))
+        {
+            sq = (color) ? c1 : c8;
+            ml->add(moveStruct(fr, sq, KING, color, 0, 0, 0, 1));
+        }
+
+        printf("castle checks over\n");
+
+        toBB = this->kingPosAttacks[fr] & targetBB;
+        for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
+        {
+            if (isEmptySquare(this, to))
+            {
+                ml->add(moveStruct(fr, to, KING, color));
+            }
+            else
+            {
+                ml->add(moveStruct(fr, to, KING, color, 1));
+            }
+        }
+    }
+}
+
 void CBoard::genKingAttacks(u64 targetBB, int color)
 {
     u64 allBB = this->pieceBB[KING] & this->coloredBB[color];
@@ -208,8 +312,10 @@ void CBoard::genKingAttacks(u64 targetBB, int color)
     this->pieceAttacks[color][KING] = toBB;
 }
 
+// is (color) attacking square (to)?
 bool CBoard::isAttacked(int to, int color)
 {
+    printf("checking if the square %s is attacked by %s\n", sqToStr[to], colorToStr[color]);
     // pawn attacking square
 
     if ((this->knightPosAttacks[to] & this->pieceBB[KNIGHT] & this->coloredBB[color]) != 0)
@@ -221,7 +327,8 @@ bool CBoard::isAttacked(int to, int color)
         return true;
     }
 
-    if ((getRookAttacks(to, this->fullBoard())) & (this->pieceBB[ROOK] | this->pieceBB[QUEEN]) & this->coloredBB[color] != 0)
+    // printBitString(getRookAttacks(to, this->fullBoard()) & (this->pieceBB[ROOK] | this->pieceBB[QUEEN]) & this->coloredBB[color]);
+    if ((getRookAttacks(to, this->fullBoard()) & (this->pieceBB[ROOK] | this->pieceBB[QUEEN]) & this->coloredBB[color]) != 0)
     {
         return true;
     }
