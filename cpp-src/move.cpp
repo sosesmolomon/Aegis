@@ -37,49 +37,58 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
     assert((b->pieceBB[m.pT] & (1ULL << m.from)) >= 1 && "Piece mismatch");
     assert((b->coloredBB[m.pC] & (1ULL << m.from)) >= 1 && "Color mismatch");
 
-    if (m.isCastlingShort || m.isCastlingLong)
+    if (m.isCastlingShort || m.isCastlingLong || m.isPromotion)
     {
-        printf("castling.....\n");
-        if (m.isCastlingShort)
+        if (m.isPromotion)
         {
-            // white
-            if (m.pC)
-            {
-                b->setSq(empty, WHITE, e1);
-                b->setSq(empty, WHITE, h1);
-
-                b->setSq(KING, WHITE, g1);
-                b->setSq(ROOK, WHITE, f1);
-            }
-            // black
-            else
-            {
-                b->setSq(empty, WHITE, e8);
-                b->setSq(empty, WHITE, h8);
-
-                b->setSq(KING, WHITE, g8);
-                b->setSq(ROOK, WHITE, f8);
-            }
+            printf("queening!");
+            b->setSq(empty, m.pC, m.from);
+            b->setSq(QUEEN, m.pC, m.to);
         }
         else
         {
-            // white
-            if (m.pC)
+            printf("castling.....\n");
+            if (m.isCastlingShort)
             {
-                b->setSq(empty, WHITE, e1);
-                b->setSq(empty, WHITE, a1);
+                // white
+                if (m.pC)
+                {
+                    b->setSq(empty, WHITE, e1);
+                    b->setSq(empty, WHITE, h1);
 
-                b->setSq(KING, WHITE, c1);
-                b->setSq(ROOK, WHITE, d1);
+                    b->setSq(KING, WHITE, g1);
+                    b->setSq(ROOK, WHITE, f1);
+                }
+                // black
+                else
+                {
+                    b->setSq(empty, BLACK, e8);
+                    b->setSq(empty, BLACK, h8);
+
+                    b->setSq(KING, BLACK, g8);
+                    b->setSq(ROOK, BLACK, f8);
+                }
             }
-            // black
             else
             {
-                b->setSq(empty, WHITE, e8);
-                b->setSq(empty, WHITE, a8);
+                // white
+                if (m.pC)
+                {
+                    b->setSq(empty, WHITE, e1);
+                    b->setSq(empty, WHITE, a1);
 
-                b->setSq(KING, WHITE, c8);
-                b->setSq(ROOK, WHITE, d8);
+                    b->setSq(KING, WHITE, c1);
+                    b->setSq(ROOK, WHITE, d1);
+                }
+                // black
+                else
+                {
+                    b->setSq(empty, BLACK, e8);
+                    b->setSq(empty, BLACK, a8);
+
+                    b->setSq(KING, BLACK, c8);
+                    b->setSq(ROOK, BLACK, d8);
+                }
             }
         }
     }
@@ -112,55 +121,62 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
 // quiet move, no capture...
 void undoMove(CBoard *b, moveStruct m, MoveList *game)
 {
-    if (m.isCastlingShort || m.isCastlingLong)
+    if (m.isCastlingShort || m.isCastlingLong || m.isPromotion)
     {
-        if (m.isCastlingShort)
+        if (m.isPromotion)
         {
-            // white
-            if (m.pC)
-            {
-                b->setSq(KING, WHITE, e1);
-                b->setSq(ROOK, WHITE, h1);
-
-                b->setSq(empty, WHITE, g1);
-                b->setSq(empty, WHITE, f1);
-            }
-            // black
-            else
-            {
-                b->setSq(KING, BLACK, e8);
-                b->setSq(ROOK, BLACK, h8);
-
-                b->setSq(empty, BLACK, g8);
-                b->setSq(empty, BLACK, f8);
-            }
+            b->setSq(PAWN, m.pC, m.from);
+            b->setSq(empty, m.pC, m.to);
         }
         else
         {
-            // white
-            if (m.pC)
+            if (m.isCastlingShort)
             {
-                b->setSq(KING, WHITE, e1);
-                b->setSq(ROOK, WHITE, a1);
+                // white
+                if (m.pC)
+                {
+                    b->setSq(KING, WHITE, e1);
+                    b->setSq(ROOK, WHITE, h1);
 
-                b->setSq(empty, WHITE, c1);
-                b->setSq(empty, WHITE, d1);
+                    b->setSq(empty, WHITE, g1);
+                    b->setSq(empty, WHITE, f1);
+                }
+                // black
+                else
+                {
+                    b->setSq(KING, BLACK, e8);
+                    b->setSq(ROOK, BLACK, h8);
+
+                    b->setSq(empty, BLACK, g8);
+                    b->setSq(empty, BLACK, f8);
+                }
             }
-            // black
             else
             {
-                b->setSq(KING, BLACK, e8);
-                b->setSq(ROOK, BLACK, a8);
+                // white
+                if (m.pC)
+                {
+                    b->setSq(KING, WHITE, e1);
+                    b->setSq(ROOK, WHITE, a1);
 
-                b->setSq(empty, BLACK, c8);
-                b->setSq(empty, BLACK, d8);
+                    b->setSq(empty, WHITE, c1);
+                    b->setSq(empty, WHITE, d1);
+                }
+                // black
+                else
+                {
+                    b->setSq(KING, BLACK, e8);
+                    b->setSq(ROOK, BLACK, a8);
+
+                    b->setSq(empty, BLACK, c8);
+                    b->setSq(empty, BLACK, d8);
+                }
             }
         }
     }
     else
     {
         b->setSq(empty, m.pC, m.to);
-
 
         // assert((b->coloredBB[m.pC] & 1ULL << m.to) == 0 && "Capture same color");
 
@@ -175,13 +191,6 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
             }
             // turn the pawn back on before en passant capture
             b->setSq(m.capturedP, (m.pC ^ WHITE), opp_piece_sq);
-
-
-            // printf("opp_piece_sq = %s, opp_piece = %s %s\n", sqToStr[opp_piece_sq], colorToStr[(m.pC ^ WHITE)], pieceToStr[m.capturedP]);
-            // printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-            // printBoard(b, b->fullBoard());
-            // printBitString(b->pieceBB[m.capturedP]);
-            // printBitString(b->coloredBB[m.pC^WHITE]);
         }
 
         b->setSq(m.pT, m.pC, m.from);
@@ -206,13 +215,15 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
     }
     */
 
-    game->remove(game->size()-1); // remove just the end of the list?
+    game->remove(game->size() - 1); // remove just the end of the list?
 }
 
-void undoLastMove(CBoard *b, MoveList *game) {
-    if (game->size() == 0) {
+void undoLastMove(CBoard *b, MoveList *game)
+{
+    if (game->size() == 0)
+    {
         printf("no more moves to undo\n");
         return;
     }
-    undoMove(b, game->at(game->size()-1), game);
+    undoMove(b, game->at(game->size() - 1), game);
 }
