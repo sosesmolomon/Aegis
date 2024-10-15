@@ -121,6 +121,8 @@ public:
     void initCBoard();
     void initTestBoard();
 
+    void loadFEN(const std::string& fen);
+
     void generatePawnPossibleMoves();
 
     bool isLegalBishopMove(int start, int end);
