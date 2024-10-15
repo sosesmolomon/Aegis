@@ -268,9 +268,10 @@ void CBoard::genKingMoves(MoveList *ml, MoveList *game, u64 targetBB, int color)
     u64 toBB;
     int sq;
 
+    // this->fillAttackBBs(game, UINT64_MAX, color ^ WHITE);
+
     for (int fr = firstOne(allBB); fr != 64; fr = firstOne(allBB))
-    {
-        this->fillAttackBBs(game, UINT64_MAX, color ^ WHITE);
+    {   
         if (canCastleShort(fr, color))
         {
             sq = (color) ? g1 : g8;
@@ -317,6 +318,13 @@ bool CBoard::isAttacked(int to, int color)
 {
     printf("checking if the square %s is attacked by %s\n", sqToStr[to], colorToStr[color]);
     // pawn attacking square
+
+
+    // in order to check backwards, you need to flip the color for pawn attacks
+    if ((this->pawnPosAttacks[color^WHITE][to] & this->pieceBB[PAWN] & this->coloredBB[color]) != 0) {
+        return true;
+
+    }
 
     if ((this->knightPosAttacks[to] & this->pieceBB[KNIGHT] & this->coloredBB[color]) != 0)
     {

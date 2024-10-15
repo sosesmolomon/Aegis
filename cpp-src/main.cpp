@@ -116,11 +116,17 @@ int main()
     CBoard board = CBoard();
     CBoard *b = &board;
 
+    b->loadFEN("r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1");
+    printBoard(b, b->fullBoard());
+    exit(1);
 
     b->initCBoard();
     initMagic(b);
 
-    printBoard(b, b->fullBoard());
+
+    printBitString(0b000100000000000000000000000000000000000000000000000000000001000);
+    printBitString(b->pieceBB[QUEEN]);
+    exit(1);
 
     MoveList *game = new MoveList();
     MoveList *possible_moves = new MoveList();
@@ -134,6 +140,7 @@ int main()
     // }
 
     b->genAllMoves(possible_moves, game, b->player);
+    printf("--------------\n");
     b->verifyLegalMoves(possible_moves, game, b->player, legal_moves_W);
     legal_moves_W->print();
     legal_moves_W->sort();
