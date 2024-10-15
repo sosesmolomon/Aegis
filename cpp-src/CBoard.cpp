@@ -8,6 +8,10 @@
 #include "evaluate.h"
 #include <stdio.h>
 #include <math.h>
+#include <string>
+#include <regex>
+#include <ctype.h>
+#include <cassert>
 
 u64 CBoard::fullBoard()
 {
@@ -108,9 +112,8 @@ void CBoard::initCBoard()
 
     // this->pieceBB[ROOK].getBB() |= (1ULL << d1);
     // this->coloredBB[WHITE].getBB() |= (1ULL << d1);
-    this->pieceBB[ROOK].getBB() |= (1ULL << f1);
-    this->coloredBB[WHITE].getBB() |= (1ULL << f1);
-
+    this->pieceBB[KNIGHT].getBB() |= (1ULL << g6);
+    this->coloredBB[WHITE].getBB() |= (1ULL << g6);
 
 #elif UNDO
     // capture and undo setup
@@ -982,7 +985,7 @@ bool CBoard::canCastleLong(int sq, int color)
     else
     {
         pathIsClear = isEmptySquare(this, b8) && isEmptySquare(this, c8) && isEmptySquare(this, d8);
-        pathIsSafe = !this->isAttacked(b8, color ^ WHITE) && !this->isAttacked(c8, color^ WHITE) && !this->isAttacked(d8, color ^ WHITE);
+        pathIsSafe = !this->isAttacked(b8, color ^ WHITE) && !this->isAttacked(c8, color ^ WHITE) && !this->isAttacked(d8, color ^ WHITE);
     }
     return everyoneAtHome && pathIsSafe && pathIsClear;
 }
@@ -1017,19 +1020,154 @@ void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList 
         m = ml->at(i);
 
         makeMove(this, m, game);
-
         // NOT SURE ABOUT THIS::
 
-        this->fillAttackBBs(game, UINT64_MAX ^ this->coloredBB[color^WHITE], color^WHITE);
+        // this->fillAttackBBs(game, UINT64_MAX ^ this->coloredBB[color^WHITE], color^WHITE);
 
         u64 king = this->pieceBB[KING] & this->coloredBB[color];
         int sq = firstOne(king);
 
-        if (!this->isAttacked(sq, color^WHITE)) 
+        if (!this->isAttacked(sq, color ^ WHITE))
         {
             verified->add(m);
         }
 
         undoMove(this, m, game);
+    }
+}
+
+// r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1
+
+// h8 h7 h1 /
+void CBoard::loadFEN(const std::string &fen)
+{
+    int curr;
+    curr = a8;
+
+    char c;
+    int color;
+
+    int rows[8] = {a8, a7, a6, a5, a4, a3, a2, a1};
+    int swap[8] = {a7, a6, a5, a4, a3, a2, a1, 0};
+    int row_counter = 0;
+
+    for (int i = 0; i < fen.length(); i++)
+    {
+        printf("%c\n", fen.at(i));
+
+        c = fen.at(i);
+
+        // should be at h8, g8, f8, e8, etc.    -15 puts you at the start of the next row
+        if (c == '/')
+        {
+            assert(row_counter != 7 && "More than 7 \'s");
+            curr = swap[row_counter];
+            row_counter++;
+        }
+
+        // we have this amount of whitespace...
+        if (c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8')
+        {
+            switch (c)
+            {
+            case '1':
+                curr += 1;
+                break;
+            case '2':
+                curr += 2;
+                break;
+            case '3':
+                curr += 3;
+                break;
+            case '4':
+                curr += 4;
+                break;
+            case '5':
+                curr += 5;
+                break;
+            case '6':
+                curr += 6;
+                break;
+            case '7':
+                curr += 7;
+                break;
+            case '8':
+                curr += 8;
+                break;
+            default:
+                printf("default reached in increment curr\n");
+                break;
+            }
+        }
+        else
+        {
+
+            if (isupper(c))
+            {
+                color = WHITE;
+            }
+            else
+            {
+                color = BLACK;
+            }
+
+            switch (c)
+            {
+            case 'p':
+            case 'P':
+                printf("allocating %s PAWN at %s\n", colorToStr[color], sqToStr[curr]);
+                this->pieceBB[PAWN].getBB() |= 1ULL << curr;
+                this->coloredBB[color].getBB() |= 1ULL << curr;
+                curr += 1;
+                break;
+
+            case 'b':
+            case 'B':
+                printf("allocating %s BISHOP at %s\n", colorToStr[color], sqToStr[curr]);
+                this->pieceBB[BISHOP].getBB() |= 1ULL << curr;
+                this->coloredBB[color].getBB() |= 1ULL << curr;
+                curr += 1;
+                break;
+
+            case 'n':
+            case 'N':
+                printf("allocating %s KNIGHT at %s\n", colorToStr[color], sqToStr[curr]);
+                this->pieceBB[KNIGHT].getBB() |= 1ULL << curr;
+                this->coloredBB[color].getBB() |= 1ULL << curr;
+                curr += 1;
+                break;
+
+            case 'r':
+            case 'R':
+                printf("allocating %s ROOK at %s\n", colorToStr[color], sqToStr[curr]);
+                this->pieceBB[ROOK].getBB() |= 1ULL << curr;
+                this->coloredBB[color].getBB() |= 1ULL << curr;
+                curr += 1;
+                break;
+
+            case 'q':
+            case 'Q':
+                printf("allocating %s QUEEN at %s\n", colorToStr[color], sqToStr[curr]);
+                this->pieceBB[QUEEN].getBB() |= 1ULL << curr;
+                this->coloredBB[color].getBB() |= 1ULL << curr;
+                curr += 1;
+                break;
+
+            case 'k':
+            case 'K':
+                printf("allocating %s KING at %s\n", colorToStr[color], sqToStr[curr]);
+                this->pieceBB[KING].getBB() |= 1ULL << curr;
+                this->coloredBB[color].getBB() |= 1ULL << curr;
+                curr += 1;
+                break;
+
+            default:
+                printf("No piece to allocate\n");
+                break;
+            }
+
+        }
+
+        printf("curr = %s\n", sqToStr[curr]);
     }
 }
