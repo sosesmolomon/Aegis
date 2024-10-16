@@ -12,6 +12,7 @@
 #include <regex>
 #include <ctype.h>
 #include <cassert>
+#include <iostream>
 
 u64 CBoard::fullBoard()
 {
@@ -1036,16 +1037,19 @@ void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList 
     }
 }
 
-// r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1
-
-// h8 h7 h1 /
 void CBoard::loadFEN(const std::string &fen)
 {
+    // clear the board first?
+
+
+    bool loadingBoard = true;
     int curr;
     curr = a8;
 
     char c;
     int color;
+
+    std::string sub;
 
     int rows[8] = {a8, a7, a6, a5, a4, a3, a2, a1};
     int swap[8] = {a7, a6, a5, a4, a3, a2, a1, 0};
@@ -1053,121 +1057,168 @@ void CBoard::loadFEN(const std::string &fen)
 
     for (int i = 0; i < fen.length(); i++)
     {
-        printf("%c\n", fen.at(i));
 
         c = fen.at(i);
 
-        // should be at h8, g8, f8, e8, etc.    -15 puts you at the start of the next row
-        if (c == '/')
+        if (loadingBoard)
         {
-            assert(row_counter != 7 && "More than 7 \'s");
-            curr = swap[row_counter];
-            row_counter++;
-        }
-
-        // we have this amount of whitespace...
-        if (c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8')
-        {
-            switch (c)
+            // should be at h8, g8, f8, e8, etc.    -15 puts you at the start of the next row
+            if (c == '/')
             {
-            case '1':
-                curr += 1;
-                break;
-            case '2':
-                curr += 2;
-                break;
-            case '3':
-                curr += 3;
-                break;
-            case '4':
-                curr += 4;
-                break;
-            case '5':
-                curr += 5;
-                break;
-            case '6':
-                curr += 6;
-                break;
-            case '7':
-                curr += 7;
-                break;
-            case '8':
-                curr += 8;
-                break;
-            default:
-                printf("default reached in increment curr\n");
-                break;
+                assert(row_counter != 7 && "More than 7 \'s");
+                curr = swap[row_counter];
+                row_counter++;
+            }
+
+            // we have this amount of whitespace...
+            if (c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8')
+            {
+                switch (c)
+                {
+                case '1':
+                    curr += 1;
+                    break;
+                case '2':
+                    curr += 2;
+                    break;
+                case '3':
+                    curr += 3;
+                    break;
+                case '4':
+                    curr += 4;
+                    break;
+                case '5':
+                    curr += 5;
+                    break;
+                case '6':
+                    curr += 6;
+                    break;
+                case '7':
+                    curr += 7;
+                    break;
+                case '8':
+                    curr += 8;
+                    break;
+                default:
+                    break;
+                }
+            }
+            else
+            {
+
+                if (isupper(c))
+                {
+                    color = WHITE;
+                }
+                else
+                {
+                    color = BLACK;
+                }
+
+                switch (c)
+                {
+                case 'p':
+                case 'P':
+                    // printf("allocating %s PAWN at %s\n", colorToStr[color], sqToStr[curr]);
+                    this->pieceBB[PAWN].getBB() |= 1ULL << curr;
+                    this->coloredBB[color].getBB() |= 1ULL << curr;
+                    curr += 1;
+                    break;
+
+                case 'b':
+                case 'B':
+                    // printf("allocating %s BISHOP at %s\n", colorToStr[color], sqToStr[curr]);
+                    this->pieceBB[BISHOP].getBB() |= 1ULL << curr;
+                    this->coloredBB[color].getBB() |= 1ULL << curr;
+                    curr += 1;
+                    break;
+
+                case 'n':
+                case 'N':
+                    // printf("allocating %s KNIGHT at %s\n", colorToStr[color], sqToStr[curr]);
+                    this->pieceBB[KNIGHT].getBB() |= 1ULL << curr;
+                    this->coloredBB[color].getBB() |= 1ULL << curr;
+                    curr += 1;
+                    break;
+
+                case 'r':
+                case 'R':
+                    // printf("allocating %s ROOK at %s\n", colorToStr[color], sqToStr[curr]);
+                    this->pieceBB[ROOK].getBB() |= 1ULL << curr;
+                    this->coloredBB[color].getBB() |= 1ULL << curr;
+                    curr += 1;
+                    break;
+
+                case 'q':
+                case 'Q':
+                    // printf("allocating %s QUEEN at %s\n", colorToStr[color], sqToStr[curr]);
+                    this->pieceBB[QUEEN].getBB() |= 1ULL << curr;
+                    this->coloredBB[color].getBB() |= 1ULL << curr;
+                    curr += 1;
+                    break;
+
+                case 'k':
+                case 'K':
+                    // printf("allocating %s KING at %s\n", colorToStr[color], sqToStr[curr]);
+                    this->pieceBB[KING].getBB() |= 1ULL << curr;
+                    this->coloredBB[color].getBB() |= 1ULL << curr;
+                    curr += 1;
+                    break;
+
+                case ' ':
+                    loadingBoard = false;
+                    break;
+
+                default:
+                    break;
+                }
             }
         }
         else
         {
 
-            if (isupper(c))
-            {
-                color = WHITE;
-            }
-            else
-            {
-                color = BLACK;
-            }
+            sub = fen.substr(i);
 
-            switch (c)
-            {
-            case 'p':
-            case 'P':
-                printf("allocating %s PAWN at %s\n", colorToStr[color], sqToStr[curr]);
-                this->pieceBB[PAWN].getBB() |= 1ULL << curr;
-                this->coloredBB[color].getBB() |= 1ULL << curr;
-                curr += 1;
-                break;
+            // Regex to match one or more whitespace characters
+            std::regex ws_re("\\s+"); 
+            std::vector<std::string> words(
+                std::sregex_token_iterator(sub.begin(), sub.end(), ws_re, -1),
+                std::sregex_token_iterator());
 
-            case 'b':
-            case 'B':
-                printf("allocating %s BISHOP at %s\n", colorToStr[color], sqToStr[curr]);
-                this->pieceBB[BISHOP].getBB() |= 1ULL << curr;
-                this->coloredBB[color].getBB() |= 1ULL << curr;
-                curr += 1;
-                break;
+         
+            // ** current player **
+            this->player = (words.at(0) == "w") ? WHITE : BLACK;
 
-            case 'n':
-            case 'N':
-                printf("allocating %s KNIGHT at %s\n", colorToStr[color], sqToStr[curr]);
-                this->pieceBB[KNIGHT].getBB() |= 1ULL << curr;
-                this->coloredBB[color].getBB() |= 1ULL << curr;
-                curr += 1;
-                break;
+            std::string& castling = words.at(1);
 
-            case 'r':
-            case 'R':
-                printf("allocating %s ROOK at %s\n", colorToStr[color], sqToStr[curr]);
-                this->pieceBB[ROOK].getBB() |= 1ULL << curr;
-                this->coloredBB[color].getBB() |= 1ULL << curr;
-                curr += 1;
-                break;
+            this->atHomeCastleShort[WHITE] = (castling.find('K') != std::string::npos) ? true : false;
+            this->atHomeCastleShort[BLACK] = (castling.find('k') != std::string::npos) ? true : false;
+            this->atHomeCastleLong[WHITE] = (castling.find('Q') != std::string::npos) ? true : false;
+            this->atHomeCastleLong[BLACK] = (castling.find('q') != std::string::npos) ? true : false;
+            
 
-            case 'q':
-            case 'Q':
-                printf("allocating %s QUEEN at %s\n", colorToStr[color], sqToStr[curr]);
-                this->pieceBB[QUEEN].getBB() |= 1ULL << curr;
-                this->coloredBB[color].getBB() |= 1ULL << curr;
-                curr += 1;
-                break;
+            // ** en passant **.... maybe we can add game_moves last move as the pawn double push
+            // could also change how I track en passant. whenever you move double, you say OPP_COLOR-can-EP = target_square (where moved)
+            std::string& en_passant = words.at(2);
 
-            case 'k':
-            case 'K':
-                printf("allocating %s KING at %s\n", colorToStr[color], sqToStr[curr]);
-                this->pieceBB[KING].getBB() |= 1ULL << curr;
-                this->coloredBB[color].getBB() |= 1ULL << curr;
-                curr += 1;
-                break;
 
-            default:
-                printf("No piece to allocate\n");
-                break;
-            }
+            //Halfmove clock: The number of halfmoves since the last capture or pawn advance, used for the fifty-move rule.[9]
+            std::string& half_moves = words.at(3);            
+            
+            // Fullmove number: The number of the full moves. It starts at 1 and is incremented after Black's move.
+            std::string& full_moves = words.at(4);
 
+
+            printf("castling info = %s\n", castling.c_str());
+            printf("en passant info = %s\n", en_passant.c_str());
+            printf("half moves info = %s\n", half_moves.c_str());
+            printf("full moves info = %s\n", full_moves.c_str());
+
+
+            printf("\n");
+            printBoard(this, this->fullBoard());
+            printf("\n");
+            return;
         }
-
-        printf("curr = %s\n", sqToStr[curr]);
     }
 }
