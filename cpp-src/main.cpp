@@ -116,8 +116,28 @@ int main()
     CBoard board = CBoard();
     CBoard *b = &board;
 
-    b->loadFEN("r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1");
-    printBoard(b, b->fullBoard());
+    // test
+    // b->loadFEN("4k2r/6r1/8/8/8/8/3R4/R3K3 w Qk - 0 1");
+
+    // Normal board setup
+    // b->loadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+    // En Passant setup
+    // b->loadFEN("8/1p6/8/2P5/8/8/8/8 w - b6 0 1");
+
+    // Legal castling setup
+    // b->loadFEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+
+    // Illegal castling through check setup
+    b->loadFEN("5rk1/8/8/8/8/8/8/4K2R w K - 0 1");
+    exit(1);
+
+    // Stalemate setup
+    b->loadFEN("7k/5Q2/6Q1/8/8/8/8/7K b - - 0 1");
+
+    // Checkmate setup
+    b->loadFEN("7k/5Q2/8/8/8/8/8/7K b - - 0 1");
+    
     exit(1);
 
     b->initCBoard();
