@@ -2,6 +2,9 @@
 #include "print.h"
 #include <math.h>
 #include <cassert>
+#include <iostream>
+#include <string>
+#include <cctype>
 
 #include "CBoard.h"
 
@@ -193,3 +196,33 @@ void updateMoveLists(CBoard *b, MoveList *possible_moves, MoveList *game, int co
 //     atkBB |= atksKnights[fr]
 // }
 // }
+
+
+int squareEnumFromStr(const std::string& sqStr) {
+    if (sqStr.length() != 2) {
+        // Handle invalid input length
+        std::cerr << "Invalid square string length: " << sqStr << std::endl;
+        return -1;
+    }
+    
+    char fileChar = std::tolower(sqStr[0]);
+    char rankChar = sqStr[1];
+    
+    // Convert file ('a'-'h') to index (0-7)
+    if (fileChar < 'a' || fileChar > 'h') {
+        std::cerr << "Invalid file character: " << fileChar << std::endl;
+        return -1;
+    }
+    int fileIndex = fileChar - 'a';
+    
+    // Convert rank ('1'-'8') to index (0-7)
+    if (rankChar < '1' || rankChar > '8') {
+        std::cerr << "Invalid rank character: " << rankChar << std::endl;
+        return -1;
+    }
+    int rankIndex = rankChar - '1';
+    
+    // Calculate square index
+    int square = rankIndex * 8 + fileIndex;
+    return square;
+}
