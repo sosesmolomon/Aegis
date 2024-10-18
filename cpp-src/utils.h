@@ -32,6 +32,7 @@ bool isOpposingPiece(CBoard *b, int start, int target, int opp_color);
 bool noFriendlyFire(CBoard *b, int start, int target, int player_color);
 void updateMoveLists(CBoard *b, MoveList *possible_moves, MoveList *game, int color, MoveList *legal_moves);
 // bool isInCheck(CBoard *b, int color);
+int squareEnumFromStr(const std::string& sqStr);
 
 
 
