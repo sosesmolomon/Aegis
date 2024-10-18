@@ -121,7 +121,7 @@ public:
     void initCBoard();
     void initTestBoard();
 
-    void loadFEN(const std::string& fen);
+    void loadFEN(const std::string& fen, MoveList *game);
 
     void generatePawnPossibleMoves();
 
