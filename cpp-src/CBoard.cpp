@@ -547,6 +547,8 @@ void CBoard::generateKingPossibleMoves()
 // generates a bitboard of moves for each piece type on every square of the board
 void CBoard::generatePiecePossibleMoves()
 {
+    this->white_pawn_home = 0xFFUL << 8;
+    this->black_pawn_home = 0xFFUL << 48;
     this->generatePawnPossibleMoves();
     this->generateBishopPossibleMoves();
     this->generateKnightPossibleMoves();
@@ -953,6 +955,7 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color, b
 
 bool CBoard::canCastleShort(int sq, int color)
 {
+    // atHomeCastleShort[white] == white retains the right to castle kingside
     bool everyoneAtHome = this->atHomeCastleShort[color];
 
     bool pathIsClear;
@@ -1019,11 +1022,18 @@ void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList 
     for (int i = 0; i < ml->size(); i++)
     {
         m = ml->at(i);
+        printf("looking at move = %d\n", i);
+
+        if (i == 4) {
+            printBoard(this, this->fullBoard());
+        }
+
 
         makeMove(this, m, game);
         // NOT SURE ABOUT THIS::
 
         // this->fillAttackBBs(game, UINT64_MAX ^ this->coloredBB[color^WHITE], color^WHITE);
+
 
         u64 king = this->pieceBB[KING] & this->coloredBB[color];
         int sq = firstOne(king);
@@ -1037,10 +1047,9 @@ void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList 
     }
 }
 
-void CBoard::loadFEN(const std::string &fen)
+void CBoard::loadFEN(const std::string &fen, MoveList *game)
 {
     // clear the board first?
-
 
     bool loadingBoard = true;
     int curr;
@@ -1180,44 +1189,54 @@ void CBoard::loadFEN(const std::string &fen)
             sub = fen.substr(i);
 
             // Regex to match one or more whitespace characters
-            std::regex ws_re("\\s+"); 
+            std::regex ws_re("\\s+");
             std::vector<std::string> words(
                 std::sregex_token_iterator(sub.begin(), sub.end(), ws_re, -1),
                 std::sregex_token_iterator());
 
-         
             // ** current player **
             this->player = (words.at(0) == "w") ? WHITE : BLACK;
 
-            std::string& castling = words.at(1);
+            std::string &castling = words.at(1);
 
             this->atHomeCastleShort[WHITE] = (castling.find('K') != std::string::npos) ? true : false;
             this->atHomeCastleShort[BLACK] = (castling.find('k') != std::string::npos) ? true : false;
             this->atHomeCastleLong[WHITE] = (castling.find('Q') != std::string::npos) ? true : false;
             this->atHomeCastleLong[BLACK] = (castling.find('q') != std::string::npos) ? true : false;
-            
 
             // ** en passant **.... maybe we can add game_moves last move as the pawn double push
             // could also change how I track en passant. whenever you move double, you say OPP_COLOR-can-EP = target_square (where moved)
-            std::string& en_passant = words.at(2);
+            std::string &en_passant = words.at(2);
 
+            printf("en passant = %d", en_passant.compare("-"));
 
-            //Halfmove clock: The number of halfmoves since the last capture or pawn advance, used for the fifty-move rule.[9]
-            std::string& half_moves = words.at(3);            
-            
+            if (!(en_passant.compare("-") == 0))
+            {
+
+                int to = (this->player == WHITE) ? squareEnumFromStr(en_passant) - 8 : squareEnumFromStr(en_passant) + 8;
+                int fr = (this->player == WHITE) ? to + 16 : to - 16; // if its WHITE turn, then black moved pawn twice, go up in rows, sq+8
+
+                assert(game->size() == 0 && "move list is not 0");
+                game->add(moveStruct(fr, to, PAWN, this->player ^ WHITE, 0, 1));
+                assert(game->size() == 1 && "move list is not 1 after adding move");
+            }
+
+            // Halfmove clock: The number of halfmoves since the last capture or pawn advance, used for the fifty-move rule.[9]
+            std::string &half_moves = words.at(3);
+
             // Fullmove number: The number of the full moves. It starts at 1 and is incremented after Black's move.
-            std::string& full_moves = words.at(4);
+            std::string &full_moves = words.at(4);
 
-
+            printf("player to move = %s\n", colorToStr[this->player]);
             printf("castling info = %s\n", castling.c_str());
             printf("en passant info = %s\n", en_passant.c_str());
             printf("half moves info = %s\n", half_moves.c_str());
             printf("full moves info = %s\n", full_moves.c_str());
 
+            // Need to verify:
+            // isInCheck[WHITE], isInCheck[BLACK]
+            // is
 
-            printf("\n");
-            printBoard(this, this->fullBoard());
-            printf("\n");
             return;
         }
     }
