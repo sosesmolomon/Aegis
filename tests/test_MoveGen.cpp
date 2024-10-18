@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#nclude <gtest/gtest.h>
 #include "../cpp-src/CBoard.h"
 #include "../cpp-src/MoveList.h"
 #include "../cpp-src/magic.h"
