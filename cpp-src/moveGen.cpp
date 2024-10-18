@@ -78,15 +78,19 @@ void CBoard::genPawnDiags(MoveList *ml, MoveList *game, int color, int fr)
 
     for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
     {
+        // TODO: replace canEnPassant() with a simple check to the CBoard...
         if (isEmptySquare(this, to) && canEnPassant(game, fr, to, color))
         {
-            ml->add(moveStruct(fr, to, PAWN, color, 1, 1));
+            printf("adding move!!!!\n");
+            int pT = identifyPieceType(this, to);
+            ml->add(moveStruct(fr, to, PAWN, color, 1, 1, 0, 0, pT));
         }
         else
         {
             if (((1ULL << to) & this->coloredBB[color ^ WHITE]) != 0)
             {
-                ml->add(moveStruct(fr, to, PAWN, color, 1));
+                int pT = identifyPieceType(this, to);
+                ml->add(moveStruct(fr, to, PAWN, color, 1, 0, 0, 0, pT));
             }
         }
     }
@@ -134,7 +138,8 @@ void CBoard::genBishopMoves(MoveList *ml, u64 targetBB, int color)
             }
             else
             {
-                ml->add(moveStruct(fr, to, BISHOP, color, 1));
+                int pT = identifyPieceType(this, to);
+                ml->add(moveStruct(fr, to, BISHOP, color, 1, 0, 0, 0, pT));
             }
         }
     }
@@ -172,7 +177,8 @@ void CBoard::genKnightMoves(MoveList *ml, u64 targetBB, int color)
             }
             else
             {
-                ml->add(moveStruct(fr, to, KNIGHT, color, 1));
+                int pT = identifyPieceType(this, to);
+                ml->add(moveStruct(fr, to, KNIGHT, color, 1, 0, 0, 0, pT));
             }
         }
     }
@@ -207,7 +213,8 @@ void CBoard::genRookMoves(MoveList *ml, u64 targetBB, int color)
             }
             else
             {
-                ml->add(moveStruct(fr, to, ROOK, color, 1));
+                int pT = identifyPieceType(this, to);
+                ml->add(moveStruct(fr, to, ROOK, color, 1, 0, 0, 0, pT));
             }
         }
     }
@@ -243,7 +250,8 @@ void CBoard::genQueenMoves(MoveList *ml, u64 targetBB, int color)
             }
             else
             {
-                ml->add(moveStruct(fr, to, QUEEN, color, 1));
+                int pT = identifyPieceType(this, to);
+                ml->add(moveStruct(fr, to, QUEEN, color, 1, 0, 0, 0, pT));
             }
         }
     }
@@ -271,7 +279,7 @@ void CBoard::genKingMoves(MoveList *ml, MoveList *game, u64 targetBB, int color)
     // this->fillAttackBBs(game, UINT64_MAX, color ^ WHITE);
 
     for (int fr = firstOne(allBB); fr != 64; fr = firstOne(allBB))
-    {   
+    {
         if (canCastleShort(fr, color))
         {
             sq = (color) ? g1 : g8;
@@ -295,7 +303,8 @@ void CBoard::genKingMoves(MoveList *ml, MoveList *game, u64 targetBB, int color)
             }
             else
             {
-                ml->add(moveStruct(fr, to, KING, color, 1));
+                int pT = identifyPieceType(this, to);
+                ml->add(moveStruct(fr, to, KING, color, 1, 0, 0, 0, pT));
             }
         }
     }
@@ -316,14 +325,13 @@ void CBoard::genKingAttacks(u64 targetBB, int color)
 // is (color) attacking square (to)?
 bool CBoard::isAttacked(int to, int color)
 {
-    printf("checking if the square %s is attacked by %s\n", sqToStr[to], colorToStr[color]);
+    // printf("checking if the square %s is attacked by %s\n", sqToStr[to], colorToStr[color]);
     // pawn attacking square
 
-
     // in order to check backwards, you need to flip the color for pawn attacks
-    if ((this->pawnPosAttacks[color^WHITE][to] & this->pieceBB[PAWN] & this->coloredBB[color]) != 0) {
+    if ((this->pawnPosAttacks[color ^ WHITE][to] & this->pieceBB[PAWN] & this->coloredBB[color]) != 0)
+    {
         return true;
-
     }
 
     if ((this->knightPosAttacks[to] & this->pieceBB[KNIGHT] & this->coloredBB[color]) != 0)
