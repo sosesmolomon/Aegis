@@ -183,9 +183,9 @@ void updateMoveLists(CBoard *b, MoveList *possible_moves, MoveList *game, int co
 {
     possible_moves->clear();
     legal_moves->clear();
-    b->genAllLegalMoves(possible_moves, game, color, false);
+    // b->genAllLegalMoves(possible_moves, game, color, false);
     printf("----------------^gen legals^----------------\n");
-    b->verifyLegalMoves(possible_moves, game, color, legal_moves);
+    b->verifyLegalMoves(possible_moves, game, legal_moves);
     printf("----------------^verify legals^----------------\n");
 }
 
