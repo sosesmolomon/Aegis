@@ -24,7 +24,7 @@ void evaluateMoveList(CBoard *b, MoveList *legals, MoveList *game, std::vector<f
 
         makeMove(b, m, game);
 
-        b->genAllLegalMoves(NULL, game, m.pC, true); // clears and resets blacks attacked squares
+        // b->genAllLegalMoves(NULL, game, m.pC, true); // clears and resets blacks attacked squares
         
         if (m.pT == QUEEN && m.to == f5) {
             printf("here\n");
@@ -32,7 +32,7 @@ void evaluateMoveList(CBoard *b, MoveList *legals, MoveList *game, std::vector<f
         };
 
         printf("========================================================\n");
-        updateMoveLists(b, &new_poss, game, (m.pC ^ WHITE), &new_legals);
+        // updateMoveLists(b, &new_poss, game, (m.pC ^ WHITE), &new_legals);
 
         printf("========================================================\n");
         
@@ -48,7 +48,7 @@ void evaluateMoveList(CBoard *b, MoveList *legals, MoveList *game, std::vector<f
 
 
             printBitString(b->legalAttackedSquares[BLACK], m.to);
-            b->genAllLegalMoves(NULL, game, m.pC, true);
+            b->fillAttackBBs(game, 0ULL, BLACK); // TEMP
             printBitString(b->legalAttackedSquares[BLACK], m.to);
             new_legals.print();
 
