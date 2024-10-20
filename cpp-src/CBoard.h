@@ -143,31 +143,32 @@ public:
     void generatePiecePossibleMoves();
     // void removeAttackEdges();
 
-    void genAllLegalMoves(MoveList *ml, MoveList *game_ml, int color, bool onlyAttacks);
+    // void genAllLegalMoves(MoveList *ml, MoveList *game_ml, int color, bool onlyAttacks);
 
-    // TODO
-        // separate attack square generation and moveList generation
-    void genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
-    void genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
-    void genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
-    void genLegalRookMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
-    void genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
-    void genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    // // TODO
+    //     // separate attack square generation and moveList generation
+    // void genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    // void genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    // void genLegalKnightMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    // void genLegalRookMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    // void genLegalQueenMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
+    // void genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks);
 
     bool canCastleShort(int sq, int color);
     bool canCastleLong(int sq, int color);
 
     void setSq(int pT, int pC, int sq);
 
-    void verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList *legal_moves);
+    void verifyLegalMoves(MoveList *ml, MoveList *game, MoveList *legal_moves);
 
     bool isInCheck(int color);
     bool isInCheckmate(MoveList *legals, int color);
+    bool isInStalemate(MoveList *legals, int color);
 
 
     // gen all moves? or attacks? well. attacks are if targetBB == opp_color
 
-    void genAllMoves(MoveList *ml, MoveList *game, int color);
+    void genAllMoves(MoveList *ml, MoveList *game);
     void genQuietMoves(MoveList *ml, MoveList *game, int color);
     void genCaptureMoves(MoveList *ml, MoveList *game, int color);
 
@@ -195,6 +196,7 @@ public:
     void genKingAttacks(u64 targetBB, int color);
 
     bool isAttacked(int to, int color);
+    bool isDefended(int sq, int color);
     
 };
 
