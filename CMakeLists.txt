@@ -70,6 +70,7 @@ enable_testing()
 set(TEST_FILES
     tests/test_CBoard.cpp
     tests/test_MoveGen.cpp
+    tests/test_Methods.cpp
 )
 
 # Create a test executable for running the tests. $TEST_SOURCES EXCLUDES main.cpp
