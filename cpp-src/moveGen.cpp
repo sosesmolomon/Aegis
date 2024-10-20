@@ -4,8 +4,9 @@
 #include "magic.h"
 #include "MoveList.h"
 
-void CBoard::genAllMoves(MoveList *ml, MoveList *game, int color)
+void CBoard::genAllMoves(MoveList *ml, MoveList *game)
 {
+    int color = this->player;
     u64 attacked = 0ULL;
     u64 targetBB = this->coloredBB[color] ^ UINT64_MAX; // removes the need for friendlyFire check
 
@@ -19,13 +20,14 @@ void CBoard::genAllMoves(MoveList *ml, MoveList *game, int color)
 
 void CBoard::genQuietMoves(MoveList *ml, MoveList *game, int color)
 {
-    this->genAllMoves(ml, game, (this->coloredBB[color] ^ this->fullBoard()));
+    // this->genAllMoves(ml, game, (this->coloredBB[color] ^ this->fullBoard()));
 }
 void CBoard::genCaptureMoves(MoveList *ml, MoveList *game, int color)
 {
-    this->genAllMoves(ml, game, (this->coloredBB[color] & this->fullBoard()));
+    // this->genAllMoves(ml, game, (this->coloredBB[color] & this->fullBoard()));
 }
 
+// fills pieceAttacks[color][piece]
 void CBoard::fillAttackBBs(MoveList *game, u64 targetBB, int color)
 {
     // captures
@@ -81,7 +83,6 @@ void CBoard::genPawnDiags(MoveList *ml, MoveList *game, int color, int fr)
         // TODO: replace canEnPassant() with a simple check to the CBoard...
         if (isEmptySquare(this, to) && canEnPassant(game, fr, to, color))
         {
-            printf("adding move!!!!\n");
             int pT = identifyPieceType(this, to);
             ml->add(moveStruct(fr, to, PAWN, color, 1, 1, 0, 0, pT));
         }
@@ -292,8 +293,6 @@ void CBoard::genKingMoves(MoveList *ml, MoveList *game, u64 targetBB, int color)
             ml->add(moveStruct(fr, sq, KING, color, 0, 0, 0, 1));
         }
 
-        printf("castle checks over\n");
-
         toBB = this->kingPosAttacks[fr] & targetBB;
         for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
         {
@@ -329,7 +328,7 @@ bool CBoard::isAttacked(int to, int color)
     // pawn attacking square
 
     // in order to check backwards, you need to flip the color for pawn attacks
-    if ((this->pawnPosAttacks[color ^ WHITE][to] & this->pieceBB[PAWN] & this->coloredBB[color]) != 0)
+    if ((this->pawnPosAttacks[color^WHITE][to] & this->pieceBB[PAWN] & this->coloredBB[color]) != 0)
     {
         return true;
     }
@@ -354,4 +353,8 @@ bool CBoard::isAttacked(int to, int color)
         return true;
     }
     return false;
+}
+// is (sq) defended by (color)
+bool CBoard::isDefended(int sq, int color) {
+    return this->isAttacked(sq, color);
 }
