@@ -557,6 +557,7 @@ void CBoard::generatePiecePossibleMoves()
     this->generateKingPossibleMoves();
 }
 
+/*
 void CBoard::genAllLegalMoves(MoveList *ml, MoveList *game_ml, int color, bool onlyAttacks)
 {
 
@@ -653,7 +654,7 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color, b
  *
  * ALSO
  * populates legalAttackedSquares at the same time.
- */
+ 
 void CBoard::genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks)
 {
     int player_color = oppColor(opp_color);
@@ -953,6 +954,8 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color, b
     }
 }
 
+*/
+
 bool CBoard::canCastleShort(int sq, int color)
 {
     // atHomeCastleShort[white] == white retains the right to castle kingside
@@ -994,14 +997,16 @@ bool CBoard::canCastleLong(int sq, int color)
     return everyoneAtHome && pathIsSafe && pathIsClear;
 }
 
+// b->legalAttackedSquares[color] is updated by b->
 bool CBoard::isInCheck(int color)
 {
     // what squares is the opponent looking at?
     // this->legalAttackedSquares[(color^WHITE)];
 
     u64 kBB = this->pieceBB[KING] & this->coloredBB[color];
+    int k_sq = firstOne(kBB);
 
-    return (this->legalAttackedSquares[(color ^ WHITE)] & kBB) >= 1;
+    return isAttacked(k_sq, color^WHITE);
 }
 
 bool CBoard::isInCheckmate(MoveList *legals, int color)
@@ -1013,7 +1018,14 @@ bool CBoard::isInCheckmate(MoveList *legals, int color)
     return false;
 }
 
-void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList *verified)
+bool CBoard::isInStalemate(MoveList *legals, int color) {
+    if (legals->size() == 0 && !this->isInCheck(color)) {
+        return true;
+    }
+    return false;
+}
+
+void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, MoveList *verified)
 {
     bool isLegal;
     moveStruct m;
@@ -1022,23 +1034,10 @@ void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, int color, MoveList 
     for (int i = 0; i < ml->size(); i++)
     {
         m = ml->at(i);
-        printf("looking at move = %d\n", i);
-
-        if (i == 4) {
-            printBoard(this, this->fullBoard());
-        }
-
 
         makeMove(this, m, game);
-        // NOT SURE ABOUT THIS::
-
-        // this->fillAttackBBs(game, UINT64_MAX ^ this->coloredBB[color^WHITE], color^WHITE);
-
-
-        u64 king = this->pieceBB[KING] & this->coloredBB[color];
-        int sq = firstOne(king);
-
-        if (!this->isAttacked(sq, color ^ WHITE))
+        
+        if (!this->isInCheck(this->player))
         {
             verified->add(m);
         }
@@ -1208,7 +1207,7 @@ void CBoard::loadFEN(const std::string &fen, MoveList *game)
             // could also change how I track en passant. whenever you move double, you say OPP_COLOR-can-EP = target_square (where moved)
             std::string &en_passant = words.at(2);
 
-            printf("en passant = %d", en_passant.compare("-"));
+            // printf("en passant = %d", en_passant.compare("-"));
 
             if (!(en_passant.compare("-") == 0))
             {
@@ -1227,11 +1226,11 @@ void CBoard::loadFEN(const std::string &fen, MoveList *game)
             // Fullmove number: The number of the full moves. It starts at 1 and is incremented after Black's move.
             std::string &full_moves = words.at(4);
 
-            printf("player to move = %s\n", colorToStr[this->player]);
-            printf("castling info = %s\n", castling.c_str());
-            printf("en passant info = %s\n", en_passant.c_str());
-            printf("half moves info = %s\n", half_moves.c_str());
-            printf("full moves info = %s\n", full_moves.c_str());
+            // printf("player to move = %s\n", colorToStr[this->player]);
+            // printf("castling info = %s\n", castling.c_str());
+            // printf("en passant info = %s\n", en_passant.c_str());
+            // printf("half moves info = %s\n", half_moves.c_str());
+            // printf("full moves info = %s\n", full_moves.c_str());
 
             // Need to verify:
             // isInCheck[WHITE], isInCheck[BLACK]
