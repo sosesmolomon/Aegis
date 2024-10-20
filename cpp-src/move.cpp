@@ -41,13 +41,11 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
     {
         if (m.isPromotion)
         {
-            printf("queening!");
             b->setSq(empty, m.pC, m.from);
             b->setSq(QUEEN, m.pC, m.to);
         }
         else
         {
-            printf("castling.....\n");
             if (m.isCastlingShort)
             {
                 // white
