@@ -654,7 +654,7 @@ void CBoard::genLegalPawnMoves(MoveList *ml, MoveList *game_ml, int opp_color, b
  *
  * ALSO
  * populates legalAttackedSquares at the same time.
- 
+
 void CBoard::genLegalBishopMoves(MoveList *ml, MoveList *game_ml, int opp_color, bool onlyAttacks)
 {
     int player_color = oppColor(opp_color);
@@ -959,6 +959,8 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color, b
 bool CBoard::canCastleShort(int sq, int color)
 {
     // atHomeCastleShort[white] == white retains the right to castle kingside
+
+    // instead of this = search the move list to ensure king and close rook haven't moved.
     bool everyoneAtHome = this->atHomeCastleShort[color];
 
     bool pathIsClear;
@@ -1006,7 +1008,7 @@ bool CBoard::isInCheck(int color)
     u64 kBB = this->pieceBB[KING] & this->coloredBB[color];
     int k_sq = firstOne(kBB);
 
-    return isAttacked(k_sq, color^WHITE);
+    return isAttacked(k_sq, color ^ WHITE);
 }
 
 bool CBoard::isInCheckmate(MoveList *legals, int color)
@@ -1018,8 +1020,10 @@ bool CBoard::isInCheckmate(MoveList *legals, int color)
     return false;
 }
 
-bool CBoard::isInStalemate(MoveList *legals, int color) {
-    if (legals->size() == 0 && !this->isInCheck(color)) {
+bool CBoard::isInStalemate(MoveList *legals, int color)
+{
+    if (legals->size() == 0 && !this->isInCheck(color))
+    {
         return true;
     }
     return false;
@@ -1036,7 +1040,7 @@ void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, MoveList *verified)
         m = ml->at(i);
 
         makeMove(this, m, game);
-        
+
         if (!this->isInCheck(this->player))
         {
             verified->add(m);
@@ -1237,6 +1241,131 @@ void CBoard::loadFEN(const std::string &fen, MoveList *game)
             // is
 
             return;
+        }
+    }
+}
+
+u64 CBoard::perft(int depth, MoveList *game, PerftResults &results)
+{
+    if (depth == 0)
+    {
+        results.nodes += 1;
+        return 1ULL;
+    }
+
+    MoveList all;   // Stack allocation
+    MoveList legal; // Stack allocation
+    this->genAllMoves(&all, game);
+    this->verifyLegalMoves(&all, game, &legal);
+
+    // printf("there are %d moves\n", legal.size());
+
+    int n_moves;
+    int i;
+    u64 nodes = 0;
+
+    for (i = 0; i < legal.size(); i++)
+    {
+        moveStruct move = legal.at(i);
+
+        makeMove(this, move, game);
+
+        this->player ^= WHITE;
+
+
+        // if (move.from == b1 && move.to == a3) {
+        //     printf("LOOK HERE: ");
+        // }
+
+        collectPerftStats(move, results, game);
+
+        nodes += perft(depth - 1, game, results);
+
+    
+        // Output move and nodes
+        this->player ^= WHITE;
+        undoMove(this, move, game);
+    }
+
+    return nodes;
+}
+
+u64 CBoard::perftDivide(int depth, MoveList *game, PerftResults &results)
+{
+    u64 nodes = 0;
+    printBoard(this, this->fullBoard());
+
+    MoveList all;   // Stack allocation
+    MoveList legal; // Stack allocation
+    this->genAllMoves(&all, game);
+    this->verifyLegalMoves(&all, game, &legal);
+
+    printf("moves at depth 1 = %d\n", (int)legal.size());
+
+    for (int i = 0; i < legal.size(); ++i)
+    {
+        moveStruct move = legal.at(i);
+
+        // Make the move
+        makeMove(this, move, game);
+
+        // Switch player
+        this->player ^= WHITE;
+
+
+        // Recurse
+        uint64_t childNodes = this->perft(depth - 1, game, results);
+        nodes += childNodes;
+
+
+        // Output move and nodes
+        move.toString();
+        printf(": %llu\n", childNodes);
+        // std::cout << move.toString() << ": " << childNodes << std::endl;
+
+        // Switch player back
+        this->player ^= WHITE;
+
+        // Undo the move
+        undoMove(this, move, game);
+    }
+    std::cout << "Total nodes at depth " << depth << ": " << nodes << std::endl;
+    return nodes;
+}
+
+void CBoard::collectPerftStats(moveStruct &move, PerftResults &results, MoveList *game)
+{
+    if (move.isCapture)
+    {
+        results.captures += 1;
+
+        if (move.isEnPassant)
+        {
+            results.enPassantCaptures += 1;
+        }
+    }
+
+    if (move.isCastlingShort || move.isCastlingLong)
+    {
+        results.castles += 1;
+    }
+
+    if (move.isPromotion)
+    {
+        results.promotions += 1;
+    }
+
+    MoveList all;
+    MoveList legal;
+    this->genAllMoves(&all, game);
+    this->verifyLegalMoves(&all, game, &legal);
+
+    if (this->isInCheck(this->player))
+    {
+        results.checks += 1;
+        if (this->isInCheckmate(game, this->player))
+        {
+            results.checkmates += 1;
         }
     }
 }
