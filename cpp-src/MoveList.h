@@ -16,6 +16,7 @@ typedef struct moveStruct
     int capturedP; // get rid of this, maybe need identifyCapturedPiece() for undoMove()
     bool isPromotion;
     float eval;
+    void toString();
 
     // isCapture?
 
