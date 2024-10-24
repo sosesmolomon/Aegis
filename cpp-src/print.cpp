@@ -1,8 +1,8 @@
 #include "print.h"
 #include "utils.h"
 
-int rows[] = {8, 7, 6, 5, 4, 3, 2, 1};
-char files[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+int rows[8] = {8, 7, 6, 5, 4, 3, 2, 1};
+char files[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
 
 char const *sqToStr[64] = {
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
