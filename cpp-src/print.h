@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include "CBoard.h"
 
+extern int rows[8];
+extern char files[8];
+
 extern char const *sqToStr[64];
 
 extern char const *pieceToStr[7];

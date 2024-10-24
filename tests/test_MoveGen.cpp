@@ -90,6 +90,7 @@ INSTANTIATE_TEST_SUITE_P(
         MoveGenTestParam{"8/8/8/2PpP3/8/8/8/k6K w - d6 0 1", 7},                             // en_passant either side
         MoveGenTestParam{"4r3/8/8/3pP3/8/r7/4K3/k2r1r2 w - d6 0 1", 1},                      // en_passant ONLY move
         MoveGenTestParam{"k5r1/b7/8/5B2/8/7n/5NPP/5RKN w - - 0 1", 1},                       // reveal check checks. 1 move
-        MoveGenTestParam{"rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3", 0} // 0 moves, white in check mate
+        MoveGenTestParam{"rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3", 0}, // 0 moves, white in check mate
+        MoveGenTestParam{"rnbqkbnr/pppppppp/8/8/8/N7/PPPPPPPP/R1BQKBNR w KQkq - 0 1", 20}    // pawn can't double jump over piece
         // No trailing comma after the last argument
         ));
