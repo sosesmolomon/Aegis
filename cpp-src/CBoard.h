@@ -80,6 +80,19 @@ enum enumSquare
     h8
 };
 
+struct PerftResults {
+    uint64_t nodes = 0;
+    uint64_t captures = 0;
+    uint64_t enPassantCaptures = 0;
+    uint64_t castles = 0;
+    uint64_t promotions = 0;
+    uint64_t checks = 0;
+    uint64_t discoveredChecks = 0;
+    uint64_t doubleChecks = 0;
+    uint64_t checkmates = 0;
+};
+
+
 // u64 *lookup_u64;
 
 class CBoard
@@ -197,6 +210,11 @@ public:
 
     bool isAttacked(int to, int color);
     bool isDefended(int sq, int color);
+    
+
+    u64 perft(int depth, MoveList *game, PerftResults& results);
+    u64 perftDivide(int depth, MoveList *game, PerftResults& results);
+    void collectPerftStats(moveStruct& move, PerftResults& results, MoveList *game);
     
 };
 
