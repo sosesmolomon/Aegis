@@ -10,6 +10,7 @@ void CBoard::genAllMoves(MoveList *ml, MoveList *game)
     u64 attacked = 0ULL;
     u64 targetBB = this->coloredBB[color] ^ UINT64_MAX; // removes the need for friendlyFire check
 
+
     this->genPawnMoves(ml, game, targetBB, color);
     this->genBishopMoves(ml, targetBB, color);
     this->genKnightMoves(ml, targetBB, color);
@@ -69,6 +70,11 @@ void CBoard::genPawnPushes(MoveList *ml, int color, int fr)
 
     for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
     {
+        // double jump remover... probably slow?
+        if (abs(to - fr) == 16 && !isEmptySquare(this, (color == WHITE) ? to-8 : to + 8)) 
+        {
+            continue;
+        }
         ml->add(moveStruct(fr, to, PAWN, color));
     }
 }
