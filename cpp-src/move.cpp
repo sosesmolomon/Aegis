@@ -33,7 +33,6 @@ void makeDefinedMove(CBoard *b, moveStruct m, MoveList *possible_moves, MoveList
 // based on a move_list of legal moves
 void makeMove(CBoard *b, moveStruct m, MoveList *game)
 {
-    // printBitString(b->pieceBB[PAWN] & b->coloredBB[WHITE], a2);
     assert((b->pieceBB[m.pT] & (1ULL << m.from)) >= 1 && "Piece mismatch");
     assert((b->coloredBB[m.pC] & (1ULL << m.from)) >= 1 && "Color mismatch");
 
@@ -92,7 +91,10 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
     }
     else
     {
-        assert((b->coloredBB[m.pC] & 1ULL << m.to) == 0 && "Capture same color");
+        // if ((b->coloredBB[m.pC] & (1ULL << m.to)) == 1) {
+        //     m.toString();
+        // }
+        // assert((b->coloredBB[m.pC] & (1ULL << m.to)) == 1 && "Capture same color");
 
         // is capture?
         if (m.isCapture)
@@ -116,7 +118,7 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
     game->add(m);
 }
 
-// quiet move, no capture...
+//quiet move, no capture...
 void undoMove(CBoard *b, moveStruct m, MoveList *game)
 {
     if (m.isCastlingShort || m.isCastlingLong || m.isPromotion)
