@@ -7,6 +7,26 @@ moveStruct::moveStruct() : from(0), to(0), pT(0), pC(0) {}
 // Parameterized constructor for moveStruct
 moveStruct::moveStruct(int from, int to, int pT, int pC, int isCapture, int isEnPassant, int isCastlingShort, int isCastlingLong, int capturedP, bool isPromotion, float eval) : from(from), to(to), pT(pT), pC(pC), isCapture(isCapture), isEnPassant(isEnPassant), isCastlingShort(isCastlingShort), isCastlingLong(isCastlingLong), capturedP(capturedP), isPromotion(isPromotion), eval(eval) {}
 
+char const pieceLtoStr[2][7] = {
+    {'p', 'b', 'n', 'r','q','k'},
+    {'P', 'B','N','R','Q','K'}
+};
+
+void moveStruct::toString() {
+    // Captures
+    // Bxe5 -- bishop captures on e5
+
+
+    // Disambiguated moves
+    // when two of the same piece can move to the same square, need to identify: Rdf8 (rook on d8 moves to f8)
+
+
+    printf("%c ", pieceLtoStr[this->pC][this->pT]);
+    printf("%c%d%c%d", files[this->from % 8], (int)(floor( (this->from) / 8 ) + 1), files[this->to % 8], (int)(floor( (this->to) / 8 ) + 1));
+
+    // if (this->isCapture)
+}
+
 moveStruct MoveList::at(int index)
 {
     return moves.at(index);
