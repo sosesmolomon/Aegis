@@ -118,25 +118,93 @@ int main()
     b->generatePiecePossibleMoves();
     initMagic(b);
 
-
     MoveList *game = new MoveList();
-    MoveList *possible_moves = new MoveList();
-    MoveList *legal_moves_W = new MoveList();
-    MoveList *legal_moves_B = new MoveList(); 
+    PerftResults results1;
 
-    b->loadFEN("k3r3/1b5q/8/2n2p2/r3K3/8/8/8 w - - 0 1", game);
-    // b->loadFEN("k7/8/8/5p2/4K3/8/8/8 w - - 0 1", game); // just pawn attacking
-    // b->loadFEN("k3r3/8/8/8/4K3/8/8/8 w - - 0 1", game); // just rook attacking
-    // b->loadFEN("k7/8/8/2n5/4K3/8/8/8 w - - 0 1", game); // just knight attacking
-    
-    u64 king = b->pieceBB[KING] & b->coloredBB[WHITE];
-    int king_sq = firstOne( king );
+    // b->loadFEN("r3k2r/p1ppqpb1/bn2pnN1/3P4/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1", game);
+    b->loadFEN("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1", game); // just rook attacking
+    // b->loadFEN("r3k3/p1ppqpb1/bn2pnN1/3P4/1p2P2r/2N2Q1p/PPPBBPPP/R3K2R w KQq - 0 1", game); // just rook attacking
+    printBoard(b, b->fullBoard());
+
+    MoveList *possible_moves = new MoveList();
+    MoveList *legals = new MoveList();
 
     b->genAllMoves(possible_moves, game);
-    printf("------------------ %s MOVES -------------------\n", colorToStr[b->player]);
-    b->verifyLegalMoves(possible_moves, game, legal_moves_W);
-    legal_moves_W->print();
-    legal_moves_W->sort();
+    b->verifyLegalMoves(possible_moves, game, legals);
+
+    makeMove(b, legals->at(39), game);
+    printBoard(b, b->fullBoard());
+    game->print();
+
+    undoLastMove(b, game);
+    printBoard(b, b->fullBoard());
+
+    makeMove(b, moveStruct(h8, h4, ROOK, BLACK), game);
+    printBoard(b, b->fullBoard());
+
+    possible_moves->clear();
+    legals->clear();
+
+    b->genAllMoves(possible_moves, game);
+    b->verifyLegalMoves(possible_moves, game, legals);
+
+    legals->print();
+
+    makeMove(b, legals->at(41), game);
+
+    printBoard(b, b->fullBoard());
+
+    exit(1);
+
+    int depth = 3;
+
+    // makeDefinedMove(b, moveStruct(b1, a3, KNIGHT, WHITE), possible_moves, game);
+    // makeDefinedMove(b, moveStruct(h7, h6, PAWN, BLACK), possible_moves, game);
+    // b->player ^= WHITE;
+
+    printf("fdisljkfas nodes = %llu\n", b->perft(depth, game, results1));
+
+    printf("-----------------------------------------------------------------------\n");
+
+    PerftResults results;
+    b->perftDivide(depth, game, results);
+
+    std::cout << "Perft results at depth " << depth << ":\n";
+    std::cout << "Nodes: " << results.nodes << "\n";
+    std::cout << "Captures: " << results.captures << "\n";
+    std::cout << "En Passant Captures: " << results.enPassantCaptures << "\n";
+    std::cout << "Castles: " << results.castles << "\n";
+    std::cout << "Promotions: " << results.promotions << "\n";
+    std::cout << "Checks: " << results.checks << "\n";
+    std::cout << "Discovered Checks: " << results.discoveredChecks << "\n";
+    std::cout << "Double Checks: " << results.doubleChecks << "\n";
+    std::cout << "Checkmates: " << results.checkmates << "\n";
+
+    // printf("\nPAWNS:\n");
+    // printBitString(b->pieceBB[PAWN]);
+
+    // printf("\nBISHOP:\n");
+    // printBitString(b->pieceBB[BISHOP]);
+
+    // printf("\nKNIGHTS:\n");
+    // printBitString(b->pieceBB[KNIGHT]);
+
+    // printf("\nROOKS:\n");
+    // printBitString(b->pieceBB[ROOK]);
+
+    // printf("\nQUEEN:\n");
+    // printBitString(b->pieceBB[QUEEN]);
+
+    // printf("\nKING:\n");
+    // printBitString(b->pieceBB[KING]);
+
+    printBoard(b, b->fullBoard());
+
+    game->print();
+
+    exit(1);
+
+    legals->print();
 
     // printf("isAttacked() = %d\n", b->isAttacked(king_sq, BLACK));
     // printf("isInCheck() = %d\n", b->isInCheck(WHITE));
