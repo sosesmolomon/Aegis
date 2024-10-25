@@ -36,6 +36,11 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
     assert((b->pieceBB[m.pT] & (1ULL << m.from)) >= 1 && "Piece mismatch");
     assert((b->coloredBB[m.pC] & (1ULL << m.from)) >= 1 && "Color mismatch");
 
+    // Save current castling rights
+    b->castlingRightsStack.push(b->currentCastlingRights);
+    // Update castling rights based on the move
+    b->updateCastlingRights(m);
+
     if (m.isCastlingShort || m.isCastlingLong || m.isPromotion)
     {
         if (m.isPromotion)
@@ -47,7 +52,7 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
         {
             if (m.isCastlingShort)
             {
-                // white
+                // white short
                 if (m.pC)
                 {
                     b->setSq(empty, WHITE, e1);
@@ -56,7 +61,7 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
                     b->setSq(KING, WHITE, g1);
                     b->setSq(ROOK, WHITE, f1);
                 }
-                // black
+                // black short
                 else
                 {
                     b->setSq(empty, BLACK, e8);
@@ -68,7 +73,7 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
             }
             else
             {
-                // white
+                // white long
                 if (m.pC)
                 {
                     b->setSq(empty, WHITE, e1);
@@ -77,7 +82,7 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
                     b->setSq(KING, WHITE, c1);
                     b->setSq(ROOK, WHITE, d1);
                 }
-                // black
+                // black long
                 else
                 {
                     b->setSq(empty, BLACK, e8);
@@ -107,18 +112,15 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
             // turn off the opposing player's piece
             b->setSq(empty, oppColor(m.pC), opp_piece_sq);
         }
-
         // move the current player's piece
         b->setSq(empty, m.pC, m.from);
         b->setSq(m.pT, m.pC, m.to);
-
-        // turn off home square for the piece moved.
-        b->pieceHomes ^= (1ULL << m.from);
     }
     game->add(m);
 }
 
-//quiet move, no capture...
+
+// quiet move, no capture...
 void undoMove(CBoard *b, moveStruct m, MoveList *game)
 {
     if (m.isCastlingShort || m.isCastlingLong || m.isPromotion)
@@ -194,26 +196,14 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
         }
 
         b->setSq(m.pT, m.pC, m.from);
-        if (m.capturedP != empty)
-        {
-            // printBitString(b->pieceBB[m.capturedP]);
-            // printBitString(b->coloredBB[m.pC^WHITE]);
-            // printBoard(b, b->fullBoard());
-        }
     }
 
-    /*
-    if (m.pT == KING) {
-        b->atHomeCastleShort[m.pC] = false;
-        b->atHomeCastleLong[m.pC] = false;
+    if (!b->castlingRightsStack.empty()) {
+        b->currentCastlingRights = b->castlingRightsStack.top();
+        b->castlingRightsStack.pop();
+    } else {
+        printf("stack underflow?\n");
     }
-    if (m.pT == ROOK && (m.from == a1 || m.from == a8)) {
-        b->atHomeCastleLong[m.pC] = false;
-    }
-    if (m.pT == ROOK && (m.from == h1 || m.from == h8)) {
-        b->atHomeCastleLong[m.pC] = false;
-    }
-    */
 
     game->remove(game->size() - 1); // remove just the end of the list?
 }
