@@ -5,7 +5,7 @@
 moveStruct::moveStruct() : from(0), to(0), pT(0), pC(0) {}
 
 // Parameterized constructor for moveStruct
-moveStruct::moveStruct(int from, int to, int pT, int pC, int isCapture, int isEnPassant, int isCastlingShort, int isCastlingLong, int capturedP, bool isPromotion, float eval, bool isFirstPieceMove) : from(from), to(to), pT(pT), pC(pC), isCapture(isCapture), isEnPassant(isEnPassant), isCastlingShort(isCastlingShort), isCastlingLong(isCastlingLong), capturedP(capturedP), isPromotion(isPromotion), eval(eval), isFirstPieceMove(isFirstPieceMove) {}
+moveStruct::moveStruct(int from, int to, int pT, int pC, int isCapture, int isEnPassant, int isCastlingShort, int isCastlingLong, int capturedP, int promotion, float eval, bool isFirstPieceMove) : from(from), to(to), pT(pT), pC(pC), isCapture(isCapture), isEnPassant(isEnPassant), isCastlingShort(isCastlingShort), isCastlingLong(isCastlingLong), capturedP(capturedP), promotion(promotion), eval(eval), isFirstPieceMove(isFirstPieceMove) {}
 
 char const pieceLtoStr[2][7] = {
     {'p', 'b', 'n', 'r','q','k'},
@@ -88,12 +88,12 @@ void MoveList::print(int index)
     {
         curr = moves.at(i);
         printf("{               index = %d\n", i);
-        printf("  from = %s", sqToStr[curr.from]);
-        printf("  to =   %s", sqToStr[curr.to]);
-        printf("  pT =   %s", pieceToStr[curr.pT]);
-        printf("  pC =   %s", colorToStr[curr.pC]);
+        printf("  from = %s\n", sqToStr[curr.from]);
+        printf("  to =   %s\n", sqToStr[curr.to]);
+        printf("  pT =   %s\n", pieceToStr[curr.pT]);
+        printf("  pC =   %s\n", colorToStr[curr.pC]);
         printf("  capturedP = %s", pieceToStr[curr.capturedP]);
-        printf("  isPromotion = %d", curr.isPromotion);
+        printf("  promotion = %s", pieceToStr[curr.promotion]);
         printf("  isCapture = %d", curr.isCapture);
         printf("  isEnPassant = %d\n", curr.isEnPassant);
         printf("  isCastlingShort = %d", curr.isCastlingShort);
