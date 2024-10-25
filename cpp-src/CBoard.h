@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "bitboard.h"
 #include "MoveList.h"
+#include <stack>
 
 typedef uint64_t u64;
 
@@ -80,7 +81,8 @@ enum enumSquare
     h8
 };
 
-struct PerftResults {
+struct PerftResults
+{
     uint64_t nodes = 0;
     uint64_t captures = 0;
     uint64_t enPassantCaptures = 0;
@@ -92,16 +94,25 @@ struct PerftResults {
     uint64_t checkmates = 0;
 };
 
+enum CastlingRights : uint8_t
+{
+    WHITE_SHORT = 1 << 0, // 0001
+    WHITE_LONG = 1 << 1,  // 0010
+    BLACK_SHORT = 1 << 2, // 0100
+    BLACK_LONG = 1 << 3   // 1000
+};
+
 
 // u64 *lookup_u64;
 
 class CBoard
 {
 public:
-    bool inCheck[2];
-    bool atHomeCastleShort[2];
-    bool atHomeCastleLong[2];
+    uint8_t currentCastlingRights = WHITE_SHORT | WHITE_LONG | BLACK_SHORT | BLACK_LONG;
+    std::stack<uint8_t> castlingRightsStack;
+    void updateCastlingRights(const moveStruct &move);
 
+    bool inCheck[2];
     bool inCheckmate[2];
 
     bool player;
@@ -111,7 +122,6 @@ public:
 
     u64 white_pawn_home;
     u64 black_pawn_home;
-    u64 pieceHomes;
 
     Bitboard legalAttackedSquares[2];
 
@@ -134,7 +144,9 @@ public:
     void initCBoard();
     void initTestBoard();
 
-    void loadFEN(const std::string& fen, MoveList *game);
+    void clearBoard();
+
+    void loadFEN(const std::string &fen, MoveList *game);
 
     void generatePawnPossibleMoves();
 
@@ -178,7 +190,6 @@ public:
     bool isInCheckmate(MoveList *legals, int color);
     bool isInStalemate(MoveList *legals, int color);
 
-
     // gen all moves? or attacks? well. attacks are if targetBB == opp_color
 
     void genAllMoves(MoveList *ml, MoveList *game);
@@ -204,18 +215,16 @@ public:
 
     void genQueenMoves(MoveList *ml, u64 targetBB, int color);
     void genQueenAttacks(u64 targetBB, int color);
-    
+
     void genKingMoves(MoveList *ml, MoveList *game, u64 targetBB, int color);
     void genKingAttacks(u64 targetBB, int color);
 
     bool isAttacked(int to, int color);
     bool isDefended(int sq, int color);
-    
 
-    u64 perft(int depth, MoveList *game, PerftResults& results);
-    u64 perftDivide(int depth, MoveList *game, PerftResults& results);
-    void collectPerftStats(moveStruct& move, PerftResults& results, MoveList *game);
-    
+    u64 perft(int depth, MoveList *game, PerftResults &results);
+    u64 perftDivide(int depth, MoveList *game, PerftResults &results);
+    void collectPerftStats(moveStruct &move, PerftResults &results, MoveList *game);
 };
 
 enum pieceT
