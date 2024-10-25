@@ -16,6 +16,7 @@ typedef struct moveStruct
     int capturedP; // get rid of this, maybe need identifyCapturedPiece() for undoMove()
     bool isPromotion;
     float eval;
+    bool isFirstPieceMove;
     void toString();
 
     // isCapture?
@@ -26,7 +27,7 @@ typedef struct moveStruct
 
     // Constructors
     moveStruct();
-    moveStruct(int from, int to, int pT, int pC, int isCapture = 0, int isEnPassant = 0, int isCastlingShort = 0, int isCastlingLong = 0, int capturedP = 6, bool isPromotion = 0, float eval = 0.0 /* int for empty*/);
+    moveStruct(int from, int to, int pT, int pC, int isCapture = 0, int isEnPassant = 0, int isCastlingShort = 0, int isCastlingLong = 0, int capturedP = 6, bool isPromotion = 0, float eval = 0.0, bool isFirstPieceMove = false /* int for empty*/);
 
 
 } moveStruct;
