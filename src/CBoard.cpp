@@ -992,6 +992,10 @@ void CBoard::updateCastlingRights(const moveStruct& m) {
 
 bool CBoard::canCastleShort(int sq, int color)
 {
+
+    if (this->isInCheck(color)) {
+        return false;
+    }
     // castleRightsShort[white] == white retains the right to castle kingside
 
     // instead of this = search the move list to ensure king and close rook haven't moved. 
@@ -1012,11 +1016,22 @@ bool CBoard::canCastleShort(int sq, int color)
         pathIsClear = isEmptySquare(this, f8) && isEmptySquare(this, g8);
         pathIsSafe = !this->isAttacked(f8, color ^ WHITE) && !this->isAttacked(g8, color ^ WHITE);
     }
+
+    // printf("%d, %d, %d\n", hasCastleRights, pathIsSafe, pathIsClear);
+    // printf("%d, %d\n", isEmptySquare(this, f8), isEmptySquare(this, g8));
+    // printf("g8 = %s, %s\n", pieceToStr[identifyPieceType(this, g8)], colorToStr[identifyPieceColor(this, g8)]);
+    // printf("f8 = %s, %s\n", pieceToStr[identifyPieceType(this, f8)], colorToStr[identifyPieceColor(this, f8)]);
+
+    // printBitString(this->coloredBB[BLACK]);
+
     return hasCastleRights && pathIsSafe && pathIsClear;
 }
 
 bool CBoard::canCastleLong(int sq, int color)
 {
+    if (this->isInCheck(color)) {
+        return false;
+    }
     int rookSq = (color) ? a1 : a8;
     bool hasCastleRights = (color == WHITE) ? this->currentCastlingRights & WHITE_LONG : this->currentCastlingRights & BLACK_LONG;
     bool pathIsSafe;
@@ -1074,7 +1089,9 @@ void CBoard::verifyLegalMoves(MoveList *ml, MoveList *game, MoveList *verified)
     {
         m = ml->at(i);
 
+        
         makeMove(this, m, game);
+        
 
         if (!this->isInCheck(this->player))
         {
@@ -1388,7 +1405,7 @@ void CBoard::collectPerftStats(moveStruct &move, PerftResults &results, MoveList
         results.castles += 1;
     }
 
-    if (move.isPromotion)
+    if (move.promotion != empty)
     {
         results.promotions += 1;
     }
