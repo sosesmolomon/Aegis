@@ -33,20 +33,26 @@ void makeDefinedMove(CBoard *b, moveStruct m, MoveList *possible_moves, MoveList
 // based on a move_list of legal moves
 void makeMove(CBoard *b, moveStruct m, MoveList *game)
 {
-    assert((b->pieceBB[m.pT] & (1ULL << m.from)) >= 1 && "Piece mismatch");
     assert((b->coloredBB[m.pC] & (1ULL << m.from)) >= 1 && "Color mismatch");
+    assert((b->pieceBB[m.pT] & (1ULL << m.from)) >= 1 && "Piece mismatch");
 
     // Save current castling rights
     b->castlingRightsStack.push(b->currentCastlingRights);
     // Update castling rights based on the move
     b->updateCastlingRights(m);
 
-    if (m.isCastlingShort || m.isCastlingLong || m.isPromotion)
+    if (m.isCastlingShort || m.isCastlingLong || (m.promotion != empty))
     {
-        if (m.isPromotion)
+        if (m.promotion != empty)
         {
+            if (m.isCapture)
+            {
+                // turn off the opposing player's piece
+                b->setSq(empty, oppColor(m.pC), m.to);
+            }
             b->setSq(empty, m.pC, m.from);
-            b->setSq(QUEEN, m.pC, m.to);
+            b->setSq(m.promotion, m.pC, m.to);
+
         }
         else
         {
@@ -119,16 +125,19 @@ void makeMove(CBoard *b, moveStruct m, MoveList *game)
     game->add(m);
 }
 
-
 // quiet move, no capture...
 void undoMove(CBoard *b, moveStruct m, MoveList *game)
 {
-    if (m.isCastlingShort || m.isCastlingLong || m.isPromotion)
+    if (m.isCastlingShort || m.isCastlingLong || m.promotion != empty)
     {
-        if (m.isPromotion)
+        if (m.promotion != empty)
         {
             b->setSq(PAWN, m.pC, m.from);
             b->setSq(empty, m.pC, m.to);
+            if (m.isCapture) {
+                // turn the pawn back on before en passant capture
+                b->setSq(m.capturedP, (m.pC ^ WHITE), m.to);
+            }
         }
         else
         {
@@ -198,10 +207,13 @@ void undoMove(CBoard *b, moveStruct m, MoveList *game)
         b->setSq(m.pT, m.pC, m.from);
     }
 
-    if (!b->castlingRightsStack.empty()) {
+    if (!b->castlingRightsStack.empty())
+    {
         b->currentCastlingRights = b->castlingRightsStack.top();
         b->castlingRightsStack.pop();
-    } else {
+    }
+    else
+    {
         printf("stack underflow?\n");
     }
 
