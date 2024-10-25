@@ -121,53 +121,32 @@ int main()
     MoveList *game = new MoveList();
     PerftResults results1;
 
-    // b->loadFEN("r3k2r/p1ppqpb1/bn2pnN1/3P4/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1", game);
-    b->loadFEN("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1", game); // just rook attacking
-    // b->loadFEN("r3k3/p1ppqpb1/bn2pnN1/3P4/1p2P2r/2N2Q1p/PPPBBPPP/R3K2R w KQq - 0 1", game); // just rook attacking
+    // std::string fen =  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"; // original
+    // std::string fen =  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/Pp2P3/2N2Q1p/1PPBBPPP/R3K2R b KQkq a3 0 1"; // a2 - a4
+    // std::string fen =  "r3k2r/p1ppqpb1/1n2pnp1/3PN3/Pp2P3/2N2Q1p/1PPBbPPP/R3K2R w KQkq - 0 1"; //a6 - e2
+    std::string fen =  "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1";
+
+    b->loadFEN(fen, game);
+    
     printBoard(b, b->fullBoard());
 
-    MoveList *possible_moves = new MoveList();
-    MoveList *legals = new MoveList();
-
-    b->genAllMoves(possible_moves, game);
-    b->verifyLegalMoves(possible_moves, game, legals);
-
-    makeMove(b, legals->at(39), game);
-    printBoard(b, b->fullBoard());
-    game->print();
-
-    undoLastMove(b, game);
-    printBoard(b, b->fullBoard());
-
-    makeMove(b, moveStruct(h8, h4, ROOK, BLACK), game);
-    printBoard(b, b->fullBoard());
-
-    possible_moves->clear();
-    legals->clear();
-
-    b->genAllMoves(possible_moves, game);
-    b->verifyLegalMoves(possible_moves, game, legals);
-
-    legals->print();
-
-    makeMove(b, legals->at(41), game);
-
-    printBoard(b, b->fullBoard());
-
-    exit(1);
-
-    int depth = 3;
+    int depth = 2;
 
     // makeDefinedMove(b, moveStruct(b1, a3, KNIGHT, WHITE), possible_moves, game);
     // makeDefinedMove(b, moveStruct(h7, h6, PAWN, BLACK), possible_moves, game);
     // b->player ^= WHITE;
-
-    printf("fdisljkfas nodes = %llu\n", b->perft(depth, game, results1));
+    for (int i = 0; i < depth; i++) {
+        printf("nodes = %llu\n", b->perft(i, game, results1));
+    }
+    
 
     printf("-----------------------------------------------------------------------\n");
-
+    b->clearBoard();
+    game->clear();
+    b->loadFEN(fen, game);
+   
     PerftResults results;
-    b->perftDivide(depth, game, results);
+    b->perftDivide(depth-1, game, results);
 
     std::cout << "Perft results at depth " << depth << ":\n";
     std::cout << "Nodes: " << results.nodes << "\n";
@@ -199,12 +178,11 @@ int main()
     // printBitString(b->pieceBB[KING]);
 
     printBoard(b, b->fullBoard());
-
     game->print();
 
     exit(1);
 
-    legals->print();
+
 
     // printf("isAttacked() = %d\n", b->isAttacked(king_sq, BLACK));
     // printf("isInCheck() = %d\n", b->isInCheck(WHITE));
