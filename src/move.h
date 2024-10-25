@@ -4,6 +4,7 @@
 #include "MoveList.h"
 #include "CBoard.h"
 
+bool movesAreEqual(moveStruct m1, moveStruct m2);
 
 void makeDefinedMove(CBoard *b, moveStruct m, MoveList *possible_moves, MoveList *game);
 
