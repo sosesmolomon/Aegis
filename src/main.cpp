@@ -12,103 +12,6 @@
 #include "utils.h"
 #include "evaluate.h"
 #include "engine.h"
-// a1 - a8, b1, h1 - h8
-//  0 - 7,  8,  56 - 63
-
-// int randomN(int n)
-// {
-//     std::random_device rd;
-
-//     // Initialize the Mersenne Twister random number generator
-//     std::mt19937 gen(rd());
-
-//     // Define a distribution to produce integers in the range [0, n]
-//     std::uniform_int_distribution<> dist(0, n);
-
-//     // Generate a random number in the range [0, n]
-//     int randomNumber = dist(gen);
-//     return randomNumber;
-// }
-
-// void makeDefinedMoves(CBoard *b, MoveList *possible_moves, MoveList *game)
-// {
-// }
-
-// void makeRandomMoves(CBoard *b, MoveList *possible_moves, MoveList *game, int n)
-// {
-//     int r;
-//     int counter = 0;
-//     printf("----------------------------------------------------\n");
-
-//     b->player = BLACK;
-//     moveStruct m;
-
-//     MoveList legal_moves_W = MoveList();
-//     MoveList legal_moves_B = MoveList();
-
-//     // printBitString(b->knightPosAttacks[g8], g8);
-//     // possible_moves->print();
-
-//     MoveList *legals;
-
-//     std::vector<float> evals;
-
-//     while (counter < n)
-//     {
-//         legals = (b->player == WHITE) ? &legal_moves_W : &legal_moves_B;
-//         b->genAllLegalMoves(NULL, game, b->player ^ WHITE, true);
-//         updateMoveLists(b, possible_moves, game, b->player, legals);
-
-//         if (legals->size() == 0 && b->isInCheck(b->player))
-//         {
-//             printf("************************checkmate?*********************\n");
-//             printBoard(b, b->fullBoard());
-//             exit(1);
-//         }
-//         else if (legals->size() == 0)
-//         {
-//             printf("************************stalemate?*********************\n");
-//             printBoard(b, b->fullBoard());
-//             u64 tmp = b->legalAttackedSquares[b->player ^ WHITE];
-//             printBitString(tmp);
-//             printf("----------------------------------\n");
-//             updateMoveLists(b, possible_moves, game, b->player ^ WHITE, legals);
-//             printBitString(b->legalAttackedSquares[b->player ^ WHITE]);
-//             printf("----------------------------------\n");
-//             printBitString(b->legalAttackedSquares[b->player ^ WHITE] ^ tmp);
-//             exit(1);
-//         }
-
-//         printf("size of legals = %lu\n", legals->size());
-//         printf("evaluating for %s\n", colorToStr[b->player]);
-//         r = bestMoveIndex(b, legals, game, b->player);
-//         printf("best move at %d\n", r);
-//         m = legals->at(r);
-
-//         makeDefinedMove(b, m, legals, game);
-
-//         printf("\n  %s %s | %s to %s", colorToStr[m.pC], pieceToStr[m.pT], sqToStr[m.from], sqToStr[m.to]);
-//         if (m.isCapture)
-//             printf(" **CAPTURE**");
-
-//         if (m.isCastlingLong || m.isCastlingShort)
-//             printf(" **CASTLING**");
-
-//         if (m.isEnPassant)
-//             printf(" **EN PASSANT**");
-
-//         b->genAllLegalMoves(NULL, game, b->player, true);
-//         if (b->isInCheck(b->player ^ WHITE))
-//             printf(" **CHECK**");
-
-//         printf("\n");
-
-//         printBoard(b, b->fullBoard());
-
-//         b->player ^= WHITE;
-//         counter++;
-//     }
-// }
 
 int main()
 {
@@ -119,45 +22,49 @@ int main()
     initMagic(b);
 
     MoveList *game = new MoveList();
-    PerftResults results1;
+    MoveList all;
+    MoveList legal;
 
-    // std::string fen =  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"; // original
-    // std::string fen =  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/Pp2P3/2N2Q1p/1PPBBPPP/R3K2R b KQkq a3 0 1"; // a2 - a4
+    // std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"; // original
+    // std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/Pp2P3/2N2Q1p/1PPBBPPP/R3K2R b KQkq a3 0 1"; // a2 - a4
     // std::string fen =  "r3k2r/p1ppqpb1/1n2pnp1/3PN3/Pp2P3/2N2Q1p/1PPBbPPP/R3K2R w KQkq - 0 1"; //a6 - e2
-    std::string fen =  "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1";
+    std::string fen =  "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1"; // promotions.
+    int depth = 6;
 
     b->loadFEN(fen, game);
-    
-    printBoard(b, b->fullBoard());
 
-    int depth = 2;
-
-    // makeDefinedMove(b, moveStruct(b1, a3, KNIGHT, WHITE), possible_moves, game);
-    // makeDefinedMove(b, moveStruct(h7, h6, PAWN, BLACK), possible_moves, game);
-    // b->player ^= WHITE;
-    for (int i = 0; i < depth; i++) {
-        printf("nodes = %llu\n", b->perft(i, game, results1));
-    }
-    
-
-    printf("-----------------------------------------------------------------------\n");
-    b->clearBoard();
-    game->clear();
-    b->loadFEN(fen, game);
    
-    PerftResults results;
-    b->perftDivide(depth-1, game, results);
+    // // lets make promotions work
+    /*
 
-    std::cout << "Perft results at depth " << depth << ":\n";
-    std::cout << "Nodes: " << results.nodes << "\n";
-    std::cout << "Captures: " << results.captures << "\n";
-    std::cout << "En Passant Captures: " << results.enPassantCaptures << "\n";
-    std::cout << "Castles: " << results.castles << "\n";
-    std::cout << "Promotions: " << results.promotions << "\n";
-    std::cout << "Checks: " << results.checks << "\n";
-    std::cout << "Discovered Checks: " << results.discoveredChecks << "\n";
-    std::cout << "Double Checks: " << results.doubleChecks << "\n";
-    std::cout << "Checkmates: " << results.checkmates << "\n";
+    b->genAllMoves(&all, game);
+    b->verifyLegalMoves(&all, game, &legal);
+
+    makeDefinedMove(b, moveStruct(a2, a3, PAWN, WHITE), &legal, game);
+    
+    b->player ^= WHITE;
+    legal.clear();
+    all.clear();
+   
+
+    b->genAllMoves(&all, game);
+    b->verifyLegalMoves(&all, game, &legal);
+
+    makeDefinedMove(b, moveStruct(d7, d6, PAWN, BLACK, 0, 0, 0), &legal, game);
+    
+    b->player ^= WHITE;
+    legal.clear();
+    all.clear();
+
+    b->genAllMoves(&all, game);
+    b->verifyLegalMoves(&all, game, &legal);
+
+    makeDefinedMove(b, moveStruct(e2, b5, BISHOP, WHITE), &legal, game);
+    
+    b->player ^= WHITE;
+    legal.clear();
+    all.clear();
+    
 
     // printf("\nPAWNS:\n");
     // printBitString(b->pieceBB[PAWN]);
@@ -177,12 +84,95 @@ int main()
     // printf("\nKING:\n");
     // printBitString(b->pieceBB[KING]);
 
+    // perft()
+    // game->clear();
+    // b->clearBoard();
+
+    */
+
+
+    
+    PerftResults results1;
+
+    printf("perft for %s at board = ", colorToStr[b->player]);
+    printBoard(b, b->fullBoard());
+    for (int i = 0; i < depth; i++)
+    {
+        printf("nodes = %llu\n", b->perft(i, game, results1));
+    }
+
+    // reset for perftDivide()
+    printf("-----------------------------------------------------------------------\n");
+    game->clear();
+
+
+    CBoard board2 = CBoard();
+    CBoard *b2 = &board2;
+    
+
+    b2->generatePiecePossibleMoves();
+    initMagic(b2);
+
+    b2->loadFEN(fen, game);
+    
+    /*
+    b2->genAllMoves(&all, game);
+    b2->verifyLegalMoves(&all, game, &legal);
+
+    makeDefinedMove(b2, moveStruct(a2, a3, PAWN, WHITE), &legal, game);
+
+    b2->player ^= WHITE;
+    legal.clear();
+    all.clear();
+
+
+    b2->genAllMoves(&all, game);
+    b2->verifyLegalMoves(&all, game, &legal);
+
+   
+    makeDefinedMove(b2, moveStruct(d7, d6, PAWN, BLACK, 0, 0, 0), &legal, game);
+    legal.clear();
+    all.clear();
+    b2->player ^= WHITE;
+
+
+    b2->genAllMoves(&all, game);
+    b2->verifyLegalMoves(&all, game, &legal);
+
+    makeDefinedMove(b2, moveStruct(e2, b5, BISHOP, WHITE), &legal, game);
+    
+    b2->player ^= WHITE;
+    legal.clear();
+    all.clear();
+    */
+
+
+    // exit(1);
+
+
+    // perftDivide()
+    printf("perft for %s at board = ", colorToStr[b2->player]);
+    printBoard(b2, b2->fullBoard());
+
+    PerftResults results;
+    b->perftDivide(depth - 1, game, results);
+
+    std::cout << "Perft results at depth " << depth << ":\n";
+    std::cout << "Nodes: " << results.nodes << "\n";
+    std::cout << "Captures: " << results.captures << "\n";
+    std::cout << "En Passant Captures: " << results.enPassantCaptures << "\n";
+    std::cout << "Castles: " << results.castles << "\n";
+    std::cout << "Promotions: " << results.promotions << "\n";
+    std::cout << "Checks: " << results.checks << "\n";
+    std::cout << "Discovered Checks: " << results.discoveredChecks << "\n";
+    std::cout << "Double Checks: " << results.doubleChecks << "\n";
+    std::cout << "Checkmates: " << results.checkmates << "\n";
+
+
     printBoard(b, b->fullBoard());
     game->print();
 
     exit(1);
-
-
 
     // printf("isAttacked() = %d\n", b->isAttacked(king_sq, BLACK));
     // printf("isInCheck() = %d\n", b->isInCheck(WHITE));
