@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "../cpp-src/CBoard.h"
-#include "../cpp-src/MoveList.h"
-#include "../cpp-src/magic.h"
+#include "../src/CBoard.h"
+#include "../src/MoveList.h"
+#include "../src/magic.h"
 
 // Struct to hold test parameters
 struct MoveGenTestParam

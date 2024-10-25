@@ -9,45 +9,45 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 # Add source files and headers for the engine
 
 set (SOURCES
-    cpp-src/main.cpp
-    cpp-src/bitboard.cpp
-    cpp-src/CBoard.cpp
-    cpp-src/engine.cpp
-    cpp-src/evaluate.cpp
-    cpp-src/magic.cpp
-    cpp-src/move.cpp
-    cpp-src/moveGen.cpp
-    cpp-src/MoveList.cpp
-    cpp-src/print.cpp
-    cpp-src/utils.cpp
+    src/main.cpp
+    src/bitboard.cpp
+    src/CBoard.cpp
+    src/engine.cpp
+    src/evaluate.cpp
+    src/magic.cpp
+    src/move.cpp
+    src/moveGen.cpp
+    src/MoveList.cpp
+    src/print.cpp
+    src/utils.cpp
 
 )
 
 set (TEST_SOURCES
-    cpp-src/bitboard.cpp
-    cpp-src/CBoard.cpp
-    cpp-src/engine.cpp
-    cpp-src/evaluate.cpp
-    cpp-src/magic.cpp
-    cpp-src/move.cpp
-    cpp-src/moveGen.cpp
-    cpp-src/MoveList.cpp
-    cpp-src/print.cpp
-    cpp-src/utils.cpp
+    src/bitboard.cpp
+    src/CBoard.cpp
+    src/engine.cpp
+    src/evaluate.cpp
+    src/magic.cpp
+    src/move.cpp
+    src/moveGen.cpp
+    src/MoveList.cpp
+    src/print.cpp
+    src/utils.cpp
 )
 
 
 
 set(Headers
-    cpp-src/bitboard.h
-    cpp-src/CBoard.h
-    cpp-src/engine.h
-    cpp-src/evaluate.h
-    cpp-src/magic.h
-    cpp-src/move.h
-    cpp-src/MoveList.h
-    cpp-src/print.h
-    cpp-src/utils.h
+    src/bitboard.h
+    src/CBoard.h
+    src/engine.h
+    src/evaluate.h
+    src/magic.h
+    src/move.h
+    src/MoveList.h
+    src/print.h
+    src/utils.h
 )
 
 # Add an executable for the chess engine (main program)

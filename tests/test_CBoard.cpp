@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../cpp-src/CBoard.h"
+#include "../src/CBoard.h"
 
 TEST(CBoardTest, InitCBoard)
 {
