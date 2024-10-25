@@ -63,11 +63,11 @@ void CBoard::initCBoard()
     this->inCheck[WHITE] = false;
     this->inCheck[BLACK] = false;
 
-    this->atHomeCastleShort[WHITE] = true;
-    this->atHomeCastleShort[BLACK] = true;
+    // this->castleRightsShort[WHITE] = true;
+    // this->castleRightsShort[BLACK] = true;
 
-    this->atHomeCastleLong[WHITE] = true;
-    this->atHomeCastleLong[BLACK] = true;
+    // this->castleRightsLong[WHITE] = true;
+    // this->castleRightsLong[BLACK] = true;
 
 #ifdef TEST
 
@@ -173,11 +173,11 @@ void CBoard::initCBoard()
     this->coloredBB[BLACK].getBB() |= (1ULL << h6);
 
 #elif CHECKMATE
-    this->atHomeCastleShort[WHITE] = false;
-    this->atHomeCastleShort[BLACK] = false;
+    this->castleRightsShort[WHITE] = false;
+    this->castleRightsShort[BLACK] = false;
 
-    this->atHomeCastleLong[WHITE] = false;
-    this->atHomeCastleLong[BLACK] = false;
+    this->castleRightsLong[WHITE] = false;
+    this->castleRightsLong[BLACK] = false;
 
     this->inCheck[WHITE] = true;
 
@@ -218,13 +218,20 @@ void CBoard::initCBoard()
     this->generatePiecePossibleMoves();
 }
 
+void CBoard::clearBoard() {
+    
+    for (int i = 0; i < 7; i++) {
+        this->pieceBB[i].getBB() = 0ULL;
+    }
+    this->coloredBB[WHITE].getBB() = 0ULL;
+}
+
 void CBoard::initTestBoard()
 {
 
     // --------------------------------------------------------------------------------
 
     this->pieceBB[empty].getBB() = UINT64_MAX ^ this->fullBoard();
-    this->pieceHomes = this->fullBoard();
 
     printBitString(this->fullBoard());
     printBitString(this->coloredBB[BLACK]);
@@ -956,12 +963,40 @@ void CBoard::genLegalKingMoves(MoveList *ml, MoveList *game_ml, int opp_color, b
 
 */
 
+void CBoard::updateCastlingRights(const moveStruct& m) {
+    if (m.pT == KING) {
+        if (m.pC == WHITE) {
+            // say current rights = 1111 &= ~(0001 | 0010) -> ~(0011) --> (1100) 
+            this->currentCastlingRights &= ~(WHITE_SHORT | WHITE_LONG);
+        } else {
+            this->currentCastlingRights &= ~(BLACK_SHORT | BLACK_LONG);
+        }
+    }
+
+    if (m.pT == ROOK || m.capturedP == ROOK) {
+        // if capturing h1, or moving from h1
+        if (m.from == h1 || m.to == h1) {
+            this->currentCastlingRights &= ~(WHITE_SHORT);
+        }
+        if (m.from == a1 || m.to == a1) {
+            this->currentCastlingRights &= ~(WHITE_LONG);
+        }
+        if (m.from == h8 || m.to == h8) {
+            this->currentCastlingRights &= ~(BLACK_SHORT);
+        }
+        if (m.from == a8 || m.to == a8) {
+            this->currentCastlingRights &= ~(BLACK_LONG);
+        }
+    }
+}
+
 bool CBoard::canCastleShort(int sq, int color)
 {
-    // atHomeCastleShort[white] == white retains the right to castle kingside
+    // castleRightsShort[white] == white retains the right to castle kingside
 
-    // instead of this = search the move list to ensure king and close rook haven't moved.
-    bool everyoneAtHome = this->atHomeCastleShort[color];
+    // instead of this = search the move list to ensure king and close rook haven't moved. 
+    // searching the move list would probably be a lot faster if each move was a u64... bc you would just do a mask
+    bool hasCastleRights = (color == WHITE) ? this->currentCastlingRights & WHITE_SHORT : this->currentCastlingRights & BLACK_SHORT;
 
     bool pathIsClear;
     // also need to make sure we're not in check currently
@@ -977,26 +1012,26 @@ bool CBoard::canCastleShort(int sq, int color)
         pathIsClear = isEmptySquare(this, f8) && isEmptySquare(this, g8);
         pathIsSafe = !this->isAttacked(f8, color ^ WHITE) && !this->isAttacked(g8, color ^ WHITE);
     }
-    return everyoneAtHome && pathIsSafe && pathIsClear;
+    return hasCastleRights && pathIsSafe && pathIsClear;
 }
 
 bool CBoard::canCastleLong(int sq, int color)
 {
     int rookSq = (color) ? a1 : a8;
-    bool everyoneAtHome = this->atHomeCastleLong[color];
+    bool hasCastleRights = (color == WHITE) ? this->currentCastlingRights & WHITE_LONG : this->currentCastlingRights & BLACK_LONG;
     bool pathIsSafe;
     bool pathIsClear;
     if (color)
     {
         pathIsClear = isEmptySquare(this, b1) && isEmptySquare(this, c1) && isEmptySquare(this, d1);
-        pathIsSafe = !this->isAttacked(b1, color ^ WHITE) && !this->isAttacked(c1, color ^ WHITE) && !this->isAttacked(d1, color ^ WHITE);
+        pathIsSafe =  !this->isAttacked(c1, color ^ WHITE) && !this->isAttacked(d1, color ^ WHITE);
     }
     else
     {
         pathIsClear = isEmptySquare(this, b8) && isEmptySquare(this, c8) && isEmptySquare(this, d8);
-        pathIsSafe = !this->isAttacked(b8, color ^ WHITE) && !this->isAttacked(c8, color ^ WHITE) && !this->isAttacked(d8, color ^ WHITE);
+        pathIsSafe = !this->isAttacked(c8, color ^ WHITE) && !this->isAttacked(d8, color ^ WHITE);
     }
-    return everyoneAtHome && pathIsSafe && pathIsClear;
+    return hasCastleRights && pathIsSafe && pathIsClear;
 }
 
 // b->legalAttackedSquares[color] is updated by b->
@@ -1202,10 +1237,13 @@ void CBoard::loadFEN(const std::string &fen, MoveList *game)
 
             std::string &castling = words.at(1);
 
-            this->atHomeCastleShort[WHITE] = (castling.find('K') != std::string::npos) ? true : false;
-            this->atHomeCastleShort[BLACK] = (castling.find('k') != std::string::npos) ? true : false;
-            this->atHomeCastleLong[WHITE] = (castling.find('Q') != std::string::npos) ? true : false;
-            this->atHomeCastleLong[BLACK] = (castling.find('q') != std::string::npos) ? true : false;
+            
+            uint8_t white_short = (castling.find('K') != std::string::npos) ? 1 << 0 : 0 << 0;
+            uint8_t white_long = (castling.find('k') != std::string::npos) ? 1 << 1 : 0 << 1;
+            uint8_t black_short = (castling.find('Q') != std::string::npos) ? 1 << 2 : 0 << 2;
+            uint8_t black_long = (castling.find('q') != std::string::npos) ? 1 << 3 : 0 << 2;
+
+            this->currentCastlingRights = white_short | white_long | black_short | black_long;
 
             // ** en passant **.... maybe we can add game_moves last move as the pawn double push
             // could also change how I track en passant. whenever you move double, you say OPP_COLOR-can-EP = target_square (where moved)
@@ -1299,10 +1337,10 @@ u64 CBoard::perftDivide(int depth, MoveList *game, PerftResults &results)
     MoveList legal; // Stack allocation
     this->genAllMoves(&all, game);
     this->verifyLegalMoves(&all, game, &legal);
-
+    
     printf("moves at depth 1 = %d\n", (int)legal.size());
 
-    for (int i = 0; i < legal.size(); ++i)
+    for (int i = 0; i < legal.size(); i++)
     {
         moveStruct move = legal.at(i);
 
