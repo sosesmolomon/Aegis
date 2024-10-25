@@ -3,13 +3,13 @@
 #include "print.h"
 #include "magic.h"
 #include "MoveList.h"
+#include <cassert>
 
 void CBoard::genAllMoves(MoveList *ml, MoveList *game)
 {
     int color = this->player;
     u64 attacked = 0ULL;
     u64 targetBB = this->coloredBB[color] ^ UINT64_MAX; // removes the need for friendlyFire check
-
 
     this->genPawnMoves(ml, game, targetBB, color);
     this->genBishopMoves(ml, targetBB, color);
@@ -71,7 +71,7 @@ void CBoard::genPawnPushes(MoveList *ml, int color, int fr)
     for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
     {
         // double jump remover... probably slow?
-        if (abs(to - fr) == 16 && !isEmptySquare(this, (color == WHITE) ? to-8 : to + 8)) 
+        if (abs(to - fr) == 16 && !isEmptySquare(this, (color == WHITE) ? to - 8 : to + 8))
         {
             continue;
         }
@@ -90,14 +90,29 @@ void CBoard::genPawnDiags(MoveList *ml, MoveList *game, int color, int fr)
         if (isEmptySquare(this, to) && canEnPassant(game, fr, to, color))
         {
             int pT = identifyPieceType(this, to);
-            ml->add(moveStruct(fr, to, PAWN, color, 1, 1, 0, 0, pT));
+            ml->add(moveStruct(fr, to, PAWN, color, 1, 1, 0, 0, PAWN));
         }
         else
         {
             if (((1ULL << to) & this->coloredBB[color ^ WHITE]) != 0)
             {
                 int pT = identifyPieceType(this, to);
-                ml->add(moveStruct(fr, to, PAWN, color, 1, 0, 0, 0, pT));
+
+                u64 end_row = (color == WHITE) ? (0xFFULL << a8) : 0xFFULL;
+
+                // if capture leads to promotion
+                if ((end_row & (1ULL << to)) > 0)
+                {
+                    // add all piece promotions
+                    for (int i = BISHOP; i < KING; i++)
+                    {
+                        ml->add(moveStruct(fr, to, PAWN, color, 1, 0, 0, 0, pT, i));
+                    }
+                }
+                else
+                {
+                    ml->add(moveStruct(fr, to, PAWN, color, 1, 0, 0, 0, pT));
+                }
             }
         }
     }
@@ -107,9 +122,15 @@ void CBoard::genPawnPromotions(MoveList *ml, int color, int fr)
 {
     u64 end_row = (color == WHITE) ? (0xFFULL << a8) : 0xFFULL;
     u64 toBB = this->pawnPosPushes[color][fr] & this->emptyBoard() & end_row;
-    for (int to = firstOne(toBB); to != 64; to = firstOne(toBB))
+
+    if (toBB > 0)
     {
-        ml->add(moveStruct(fr, to, PAWN, color, 0, 0, 0, 0, 0, 1)); // NEED ML FOR PROMOTIONS (default queening)
+        int to = firstOne(toBB);
+        // add all piece promotions
+        for (int i = BISHOP; i < KING; i++)
+        {
+            ml->add(moveStruct(fr, to, PAWN, color, 0, 0, 0, 0, empty, i));
+        }
     }
 }
 
@@ -335,7 +356,7 @@ bool CBoard::isAttacked(int to, int color)
     // pawn attacking square
 
     // in order to check backwards, you need to flip the color for pawn attacks
-    if ((this->pawnPosAttacks[color^WHITE][to] & this->pieceBB[PAWN] & this->coloredBB[color]) != 0)
+    if ((this->pawnPosAttacks[color ^ WHITE][to] & this->pieceBB[PAWN] & this->coloredBB[color]) != 0)
     {
         return true;
     }
@@ -362,6 +383,7 @@ bool CBoard::isAttacked(int to, int color)
     return false;
 }
 // is (sq) defended by (color)
-bool CBoard::isDefended(int sq, int color) {
+bool CBoard::isDefended(int sq, int color)
+{
     return this->isAttacked(sq, color);
 }
