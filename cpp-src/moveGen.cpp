@@ -328,6 +328,7 @@ void CBoard::genKingAttacks(u64 targetBB, int color)
 }
 
 // is (color) attacking square (to)?
+// add castling looking flag
 bool CBoard::isAttacked(int to, int color)
 {
     // printf("checking if the square %s is attacked by %s\n", sqToStr[to], colorToStr[color]);
