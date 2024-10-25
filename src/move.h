@@ -1,39 +1,20 @@
 #ifndef MOVE_H
 #define MOVE_H
-#include "typedefs.h"
-#include "print.h"
-#include "util.h"
-#include "init.h"
-#include "math.h"
 
-bool isEmptySquare(Board *board, int target);
+#include "MoveList.h"
+#include "CBoard.h"
 
-bool pawnOnHomeRow(player_color curr_player, int position);
 
-bool canCapture(Board *board, int target, player_color curr_player);
+void makeDefinedMove(CBoard *b, moveStruct m, MoveList *possible_moves, MoveList *game);
 
-int *findPawnMoves(Board *board, int *possible_moves, player_color curr_player, int position);
+// should from and to be u64 or ints? what is actually changing?
+void makeMove(CBoard *b, moveStruct m, MoveList *game);
 
-int *findBishopMoves(Board *board, int *possible_moves, player_color curr_player, int position);
+void undoMove(CBoard *b, moveStruct m, MoveList *game);
 
-int *findKnightMoves(Board *board, int *possible_moves, player_color curr_player, int position);
+void undoLastMove(CBoard *b, MoveList *game);
 
-int *findRookMoves(Board *board, int *possible_moves, player_color curr_player, int position);
 
-int *findQueenMoves(Board *board, int *possible_moves, player_color curr_player, int position);
 
-int *findKingMoves(Board *board, int *possible_moves, player_color curr_player, int position);
 
-bool isLegalBishopMove(int start, int end);
-
-bool isLegalKnightMove(int start, int end);
-
-bool isLegalRookMove(int start, int end);
-
-bool isLegalMove(Board *board, int target, player_color curr_player);
-
-void makeMove(Board *board, int start, int shift, piece_type piece, player_color curr);
-
-possible_move *getAllMovesFromCurrentBoard(Board *board, player_color curr_player, int **scalarArrays);
-
-#endif
+#endif 

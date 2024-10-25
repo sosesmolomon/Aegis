@@ -1,27 +1,39 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "typedefs.h"
-#include "print.h"
-#include "init.h"
-#include "move.h"
+#include <stdbool.h>
+#include "CBoard.h"
 
-piece_type identifyPieceType(uint64_t square, Board *board, player_color *color);
 
-bool isInCheck(Board *board, player_color curr_player, possible_move *opponent_moves);
+int oppColor(int color);
 
-int evaluateBoard(Board *board, int** scalarArrays);
+int getFile(int sq);
+int getRow(int sq);
 
-int applyScalar(int** scalarArrays, uint64_t piece_bitboard, piece_type type, player_color color);
+bool isInBounds(int square);
 
-int pieceCount(uint64_t board);
+bool singleBit(u64 b, int sq);
+int countBits(u64 b);
 
-void findMoves(Board* board, piece_type curr_piece, player_color curr_player, int position, bool doPrint);
+int firstOne(u64 &b);
+int lastOne(u64 b);
 
-uint64_t fullBitBoard(Board* board);
+bool canEnPassant(MoveList *game, int sq, int target, int player_color);
 
-uint64_t whitePieces(Board *board);
 
-uint64_t blackPieces(Board *board);
+// move to CBoard?
+bool squareIsAttacked(CBoard *b, int sq, int color);
+bool pieceIsDefended(CBoard *b, int sq, int color);
+bool pawnOnHome(CBoard *b, int sq, int color);
+bool isEmptySquare(CBoard* b, int square);
+int identifyPieceType(CBoard *b, int sq);
+int identifyPieceColor(CBoard *b, int sq);
+bool isOpposingPiece(CBoard *b, int start, int target, int opp_color);
+bool noFriendlyFire(CBoard *b, int start, int target, int player_color);
+void updateMoveLists(CBoard *b, MoveList *possible_moves, MoveList *game, int color, MoveList *legal_moves);
+// bool isInCheck(CBoard *b, int color);
+int squareEnumFromStr(const std::string& sqStr);
+
+
 
 #endif
